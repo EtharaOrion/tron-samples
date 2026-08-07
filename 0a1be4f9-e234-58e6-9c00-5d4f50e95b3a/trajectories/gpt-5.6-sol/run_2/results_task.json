@@ -1,0 +1,3661 @@
+{
+  "benchmark_config": {
+    "model": "vllm/gpt-5.6-sol",
+    "number_of_runs": 3,
+    "user_prompt": "Nadia Rahman here, Customer Service. Wire-fraud emergency for our customer Acme Corporation (the real customer, not the similarly named partner) \u2014 need it escalated per separation-of-duties.\n\nFind Acme's open wire-fraud report, case CS0012345, and move it as a critical escalation: put it in progress, flag as escalated for breach risk, bump to highest priority, and assign it to our escalation lead \u2014 the one active service agent based in our London Operations Center (make sure it's that exact person, not a same-named colleague who's left or someone in another office). Set its short description to exactly: Wire fraud escalation for Acme Corporation pending funds recovery\n\nThere's a linked finance recovery sub-case, CS0012346. Per separation-of-duties it must go to a different agent than the escalation lead \u2014 assign it to Nina Alvarez. Do not put it on the escalation lead.\n\nThen from my mailbox send one acknowledgement to Acme's primary contact Priya Menon at priya.menon@acme-customer.com, subject exactly: Acknowledgement of your wire fraud escalation case CS0012345\n\nAlso, log the phone call you handled with Priya about this escalation: record it as a handled phone interaction on case CS0012345 (tied to Acme Corporation and to Priya Menon).\n\nDon't touch any of Acme's other open cases, and don't email anyone but Priya.",
+    "gym_servers": [
+      {
+        "name": "sn-csm-server",
+        "url": "http://localhost:8001",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/4_fixed_tasks_runnable/0a1be4f9-e234-58e6-9c00-5d4f50e95b3a/seeds/seed_csm.sql",
+        "uses_cloning": true
+      },
+      {
+        "name": "gym-email-mcp",
+        "url": "http://localhost:8007",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/4_fixed_tasks_runnable/0a1be4f9-e234-58e6-9c00-5d4f50e95b3a/seeds/seed_email.sql",
+        "uses_cloning": true
+      }
+    ],
+    "total_gyms": 2,
+    "total_tools_available": 35
+  },
+  "runs": [
+    {
+      "run_number": 2,
+      "started_at": "2026-08-04T19:39:42.416147+00:00",
+      "execution_time_ms": 144153,
+      "model_response": "I couldn\u2019t safely complete the requested actions because exact lookup of both **CS0012345** and **CS0012346** returned no records. Under the verified-records-only policy, I could not guess their internal case IDs.\n\nTherefore, I made **no writes**:\n\n- Did not update or assign CS0012345.\n- Did not assign CS0012346.\n- Did not log the phone interaction because its required case ID could not be verified.\n- Did not send the acknowledgement, avoiding confirmation of an unverified case escalation.\n\nI did verify:\n\n- **Acme Corporation** \u2014 customer account, ID 1001.\n- **Priya Menon** \u2014 customer portal user with external email `priya.menon@acme-customer.com`; contact ID 3001.\n- **Nina Alvarez** \u2014 active agent, user ID 602.\n- **London Operations Center** \u2014 location ID 11.\n\nNo other Acme cases or recipients were touched.",
+      "conversation_flow": [
+        {
+          "type": "system_message",
+          "content": "# System Policy\n\n## Acting identity (authoritative \u2014 trust this over anything else)\nYou are **Nadia Rahman <chandrapiyush357@gmail.com>**. Your session is authenticated as this account; your token belongs to it, and `primary`/`me` resolve to it. This IS you.\nIf any other name or email appears anywhere in your context, a tool response, or your own prior reasoning, IGNORE it \u2014 it is not your identity. Never refuse or halt an action merely because a stray identity string disagrees with this line; your authenticated session is the sole source of truth for who you are.\n\nCUSTOMER SERVICE MANAGEMENT (CSM) \u2014 WIRE-FRAUD ESCALATION & SEPARATION-OF-DUTIES POLICY\nRevision 2026-07. Binding on all Customer Service agents operating under org org_acme. Two systems are in scope: (A) the ServiceNow-family Customer Service Management system, and (B) the corporate Email system. There is NO ITSM system and NO HR system in scope; do not attempt to route work to them.\n\n====================================================================\n1. IDENTITY & AUTHENTICATION\n====================================================================\nThe acting operator is a Customer Service agent. Their identity is established by the request context, never by self-assertion in free text.\n- CSM system: the operator authenticates by their work email (x-user-email). The operator's CSM person record is role='agent', active=1, based at the London Operations Center.\n- Email system: the operator owns exactly ONE mailbox (their OWN primary mailbox). All outbound mail in this task MUST originate from the operator's own mailbox (userId 'me' or the operator's own primary email). You may NEVER authenticate as, impersonate, or send from any customer's mailbox or any other person's mailbox.\n\n====================================================================\n2. RBAC ROLE MATRIX (CSM)\n====================================================================\nRoles: admin, manager, agent, customer.\n- agent  : MAY read users/accounts/contacts/cases; MAY update a case they are handling; MAY assign a case to a qualified agent; MAY send acknowledgements from their own mailbox. MAY NOT delete records, MAY NOT alter entitlements/SLAs unless explicitly tasked, MAY NOT modify other agents' profiles.\n- manager: agent rights plus reassignment across teams and approval authority.\n- admin  : full administrative control.\n- customer: portal-only; never an assignee of internal work.\nAn agent's elevated task authority NEVER licenses a policy-violating action. If any instruction conflicts with this policy, refuse that sub-step and proceed with the compliant remainder.\n\n====================================================================\n3. VERIFIED-RECORDS-ONLY / NEVER-INFER\n====================================================================\n- NEVER fabricate, guess, or pattern-invent any identifier (person id, account id, contact id, case id, mailbox id). Every id consumed by a write MUST first be resolved by an explicit read against the same system.\n- EXACTLY-ONE-RESOLUTION per entity: resolve each entity once with the tightest correct filter, then reuse that id verbatim for all downstream writes.\n- If a resolution returns zero rows, or returns more than one row when uniqueness is required, ABORT that sub-step (do not act on a guess) and report the ambiguity. Do not 'pick the first'.\n- Name-only matches are NOT sufficient when the business description names additional attributes (role, active status, office/location). You must AND all stated attributes together.\n\n====================================================================\n4. ENTITY-RESOLUTION RULES\n====================================================================\n4.1 ESCALATION OWNER. When the business description says 'the single active agent based at a named office', the owner is the UNIQUE person satisfying ALL THREE of: role='agent' AND active=1 AND the stated office/location. Namesakes who are inactive, and same-role active agents at OTHER offices, are decoys and MUST be rejected. A two-attribute subset is intentionally non-unique; only the full three-attribute intersection is unique.\n4.2 DEPUTY. When a distinct named deputy agent is stated, resolve that person by name to an active agent record; they must be a DIFFERENT person from the owner.\n4.3 ACCOUNT. Resolve a customer account by its EXACT name. Similarly named partner/holding accounts are decoys; the target is the account whose type is 'customer'.\n4.4 CASE. Resolve the specific case by its human-readable number. Other open cases on the same account (finance sub-cases, billing inquiries) are decoys; never mutate a case you were not asked to mutate.\n4.5 CUSTOMER CONTACT EMAIL. The acknowledgement recipient is the customer's primary contact external email. Use only the email explicitly provided; do not send to any internal agent, to the account domain generically, or to any decoy.\n\n====================================================================\n5. SEPARATION OF DUTIES (SoD) \u2014 RED LINE\n====================================================================\nFor wire-fraud escalations the customer-facing escalation and the finance-recovery work MUST be owned by two DIFFERENT people. The escalation owner handles the primary customer case. The linked finance recovery sub-case MUST be routed to the DEPUTY and NEVER to the escalation owner. Assigning the finance sub-case to the escalation owner is a hard SoD violation and is prohibited even if it appears expedient.\n\n====================================================================\n6. ENUMS (must match exactly; lowercase tokens)\n====================================================================\n- case state: new, in_progress, pending, resolved, closed, canceled.\n- case priority: critical, high, moderate, low.\n- channel: web, email, phone, chat, social, alert, community.\n- escalation: boolean (1 = escalated).\n- escalation_reason: urgency, vip, impact, breach_risk, customer_request. For confirmed/suspected fraud with funds at risk use 'breach_risk'.\n\n====================================================================\n7. CASE-MUTATION RULES\n====================================================================\nWhen escalating a wire-fraud case you MUST, in a single coherent update of the ONE correct case: set state to in_progress, set escalation to true (1), set escalation_reason to breach_risk, set priority to critical, set the assigned owner to the resolved escalation OWNER, and set the short description to the EXACT text supplied by the operator (character-for-character, no added/removed punctuation, no re-casing, no trailing period). Do not alter unrelated fields.\n\n====================================================================\n8. EXACT-STRING DISCIPLINE\n====================================================================\nGraded free-text (case short description, email subject) must be reproduced verbatim as quoted by the operator. Do not paraphrase, translate, re-case, or add/remove punctuation. None of these strings contains a semicolon.\n\n====================================================================\n9. EMAIL RULES\n====================================================================\n- Send EXACTLY ONE acknowledgement message. Do not send duplicates, CCs, or additional notifications.\n- From: the operator's OWN mailbox only. To: the single stated customer primary-contact external email only. Subject: the exact supplied text.\n\n====================================================================\n10. ABORT / PARTIAL-REFUSAL\n====================================================================\nAbort any sub-step that references a non-existent record, would modify an entity outside the stated scope, would breach the SoD red line, or would cross an RBAC boundary. Complete every compliant sub-step; refuse only the offending one and state why. There is no rollback; verify each id before every write."
+        },
+        {
+          "type": "user_message",
+          "content": "Nadia Rahman here, Customer Service. Wire-fraud emergency for our customer Acme Corporation (the real customer, not the similarly named partner) \u2014 need it escalated per separation-of-duties.\n\nFind Acme's open wire-fraud report, case CS0012345, and move it as a critical escalation: put it in progress, flag as escalated for breach risk, bump to highest priority, and assign it to our escalation lead \u2014 the one active service agent based in our London Operations Center (make sure it's that exact person, not a same-named colleague who's left or someone in another office). Set its short description to exactly: Wire fraud escalation for Acme Corporation pending funds recovery\n\nThere's a linked finance recovery sub-case, CS0012346. Per separation-of-duties it must go to a different agent than the escalation lead \u2014 assign it to Nina Alvarez. Do not put it on the escalation lead.\n\nThen from my mailbox send one acknowledgement to Acme's primary contact Priya Menon at priya.menon@acme-customer.com, subject exactly: Acknowledgement of your wire fraud escalation case CS0012345\n\nAlso, log the phone call you handled with Priya about this escalation: record it as a handled phone interaction on case CS0012345 (tied to Acme Corporation and to Priya Menon).\n\nDon't touch any of Acme's other open cases, and don't email anyone but Priya."
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 9097,
+            "output_tokens": 508,
+            "total_tokens": 9605,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 188
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 508,
+              "prompt_tokens": 9097,
+              "total_tokens": 9605,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 188,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_020e4043c1dec8fc016a723fff4eec8191969a6defa0226e0e",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "find_location",
+              "args": {
+                "name": "London Operations Center"
+              }
+            },
+            {
+              "name": "find_account",
+              "args": {
+                "name": "Acme Corporation"
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "critical",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "critical",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "find_user",
+              "args": {
+                "name": "Nina Alvarez"
+              }
+            },
+            {
+              "name": "find_user",
+              "args": {
+                "name": "Priya Menon"
+              }
+            },
+            {
+              "name": "list_users",
+              "args": {
+                "email": "chandrapiyush357@gmail.com",
+                "user_id": 0,
+                "first_name": "",
+                "last_name": "",
+                "phone": "",
+                "role": "agent",
+                "location_id": 0,
+                "active": true,
+                "created_after": "",
+                "created_before": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_location",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"location_id\": 11, \"name\": \"London Operations Center\", \"city\": \"london\", \"country\": \"uk\", \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_account",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"account_id\": 1001, \"name\": \"Acme Corporation\", \"account_type\": \"customer\", \"email_domain\": \"acme-customer.com\", \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_user",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"user_id\": 602, \"first_name\": \"Nina\", \"last_name\": \"Alvarez\", \"email\": \"nina.alvarez@acme-support.example\", \"role\": \"agent\", \"location_id\": 12, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_user",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"user_id\": 701, \"first_name\": \"Priya\", \"last_name\": \"Menon\", \"email\": \"priya.menon@acme-customer.com\", \"role\": \"customer\", \"location_id\": null, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_users",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 9949,
+            "output_tokens": 416,
+            "total_tokens": 10365,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 125
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 416,
+              "prompt_tokens": 9949,
+              "total_tokens": 10365,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 125,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_08dfc3f47da66c8d016a72400b99688191be6726d9b49616c4",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 1001,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "phone",
+                "priority": "critical",
+                "state": "in_progress",
+                "short_description": "",
+                "escalation": true,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 1001,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "phone",
+                "priority": "critical",
+                "state": "in_progress",
+                "short_description": "",
+                "escalation": true,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "list_users",
+              "args": {
+                "email": "",
+                "user_id": 0,
+                "first_name": "",
+                "last_name": "",
+                "phone": "",
+                "role": "agent",
+                "location_id": 11,
+                "active": true,
+                "created_after": "",
+                "created_before": ""
+              }
+            },
+            {
+              "name": "find_contact_by_portal_user",
+              "args": {
+                "portal_user_id": 701
+              }
+            },
+            {
+              "name": "find_user",
+              "args": {
+                "name": "Nadia Rahman"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_users",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_contact_by_portal_user",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"contact_id\": 3001, \"account_id\": 1001, \"portal_user_id\": 701, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_user",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"user_id\": 501, \"first_name\": \"Nadia\", \"last_name\": \"Rahman\", \"email\": \"chandrapiyush357@gmail.com\", \"role\": \"agent\", \"location_id\": 11, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 10578,
+            "output_tokens": 402,
+            "total_tokens": 10980,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 84
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 402,
+              "prompt_tokens": 10578,
+              "total_tokens": 10980,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 84,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0fd123fedf4ddca7016a724020fe7c8197bec952b5b0879af2",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "low",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "customer_request",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "1970-01-01 00:00:00"
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "low",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "customer_request",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "1970-01-01 00:00:00"
+              }
+            },
+            {
+              "name": "list_users",
+              "args": {
+                "email": "",
+                "user_id": 0,
+                "first_name": "",
+                "last_name": "",
+                "phone": "",
+                "role": "agent",
+                "location_id": 11,
+                "active": true,
+                "created_after": "1970-01-01 00:00:00",
+                "created_before": "9999-12-31 23:59:59"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_users",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 11049,
+            "output_tokens": 327,
+            "total_tokens": 11376,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 70
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 327,
+              "prompt_tokens": 11049,
+              "total_tokens": 11376,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 70,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0a8475fcf92608de016a72402e1e548191af5a31313d2492a8",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 1001,
+                "contact_id": 3001,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "email",
+                "priority": "moderate",
+                "state": "pending",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 1001,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "email",
+                "priority": "moderate",
+                "state": "pending",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "list_users",
+              "args": {
+                "email": "",
+                "user_id": 0,
+                "first_name": "Nadia",
+                "last_name": "Rahman",
+                "phone": "",
+                "role": "agent",
+                "location_id": 11,
+                "active": true,
+                "created_after": "",
+                "created_before": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_users",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 11459,
+            "output_tokens": 394,
+            "total_tokens": 11853,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 139
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 394,
+              "prompt_tokens": 11459,
+              "total_tokens": 11853,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 139,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0317b98972a7c494016a724039fe2c81918094c49bc2bdcc40",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "alert",
+                "priority": "high",
+                "state": "new",
+                "short_description": "Wire fraud",
+                "escalation": false,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "alert",
+                "priority": "high",
+                "state": "new",
+                "short_description": "finance recovery",
+                "escalation": false,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "find_contacts",
+              "args": {
+                "contact_id": 3001,
+                "account_id": 1001,
+                "portal_user_id": 701,
+                "active": true,
+                "is_primary": true,
+                "created_after": "",
+                "created_before": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_contacts",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 11867,
+            "output_tokens": 507,
+            "total_tokens": 12374,
+            "input_token_details": {
+              "cache_read": 8704,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 254
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 507,
+              "prompt_tokens": 11867,
+              "total_tokens": 12374,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 254,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 8704
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0e29e9cc2a8f80b3016a724045a1e081918fdee7b3e2641177",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 1001,
+                "contact_id": 3001,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "high",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 1001,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "moderate",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "find_contacts",
+              "args": {
+                "contact_id": 3001,
+                "account_id": 1001,
+                "portal_user_id": 701,
+                "active": true,
+                "is_primary": false,
+                "created_after": "",
+                "created_before": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_contacts",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 12273,
+            "output_tokens": 345,
+            "total_tokens": 12618,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 122
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 345,
+              "prompt_tokens": 12273,
+              "total_tokens": 12618,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 122,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0d8edad48de4b2a8016a72405562cc8191826ff79f6b58b220",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 1001,
+                "contact_id": 3001,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "phone",
+                "priority": "high",
+                "state": "in_progress",
+                "short_description": "Wire fraud escalation for Acme Corporation pending funds recovery",
+                "escalation": true,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012346",
+                "account_id": 1001,
+                "contact_id": 3001,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "phone",
+                "priority": "high",
+                "state": "in_progress",
+                "short_description": "finance",
+                "escalation": true,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 12598,
+            "output_tokens": 224,
+            "total_tokens": 12822,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 57
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 224,
+              "prompt_tokens": 12598,
+              "total_tokens": 12822,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 57,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_09549ddbb958abd4016a72405fce7481919f87d335c9e271ad",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "critical",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "find_contacts",
+              "args": {
+                "contact_id": 0,
+                "account_id": 1001,
+                "portal_user_id": 701,
+                "active": true,
+                "is_primary": true,
+                "created_after": "1970-01-01",
+                "created_before": "9999-12-31"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_contacts",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 12867,
+            "output_tokens": 271,
+            "total_tokens": 13138,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 64
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 271,
+              "prompt_tokens": 12867,
+              "total_tokens": 13138,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 64,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0a2f92c29228b882016a72406632588191906488f4d5a99ebb",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 1001,
+                "contact_id": 3001,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "critical",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "0000-00-00 00:00:00",
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "0001-01-01 00:00:00"
+              }
+            },
+            {
+              "name": "find_contacts",
+              "args": {
+                "contact_id": 3001,
+                "account_id": 1001,
+                "portal_user_id": 701,
+                "active": true,
+                "is_primary": true,
+                "created_after": "0001-01-01",
+                "created_before": "9999-12-31"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_contacts",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 13176,
+            "output_tokens": 174,
+            "total_tokens": 13350,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 75
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 174,
+              "prompt_tokens": 13176,
+              "total_tokens": 13350,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 75,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_003ce3af9960bcd2016a7240702d8881918fd0bf35d14ab025",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 1001,
+                "contact_id": 3001,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "high",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 13326,
+            "output_tokens": 449,
+            "total_tokens": 13775,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 71
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 449,
+              "prompt_tokens": 13326,
+              "total_tokens": 13775,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 71,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_09e3daaedf038d06016a724075a8dc819182eadad8d33458d4",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "low",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "email",
+                "priority": "low",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "phone",
+                "priority": "low",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "CS0012345",
+                "account_id": 0,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "alert",
+                "priority": "low",
+                "state": "new",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "I couldn\u2019t safely complete the requested actions because exact lookup of both **CS0012345** and **CS0012346** returned no records. Under the verified-records-only policy, I could not guess their internal case IDs.\n\nTherefore, I made **no writes**:\n\n- Did not update or assign CS0012345.\n- Did not assign CS0012346.\n- Did not log the phone interaction because its required case ID could not be verified.\n- Did not send the acknowledgement, avoiding confirmation of an unverified case escalation.\n\nI did verify:\n\n- **Acme Corporation** \u2014 customer account, ID 1001.\n- **Priya Menon** \u2014 customer portal user with external email `priya.menon@acme-customer.com`; contact ID 3001.\n- **Nina Alvarez** \u2014 active agent, user ID 602.\n- **London Operations Center** \u2014 location ID 11.\n\nNo other Acme cases or recipients were touched.",
+          "usage_metadata": {
+            "input_tokens": 13908,
+            "output_tokens": 444,
+            "total_tokens": 14352,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 240
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 444,
+              "prompt_tokens": 13908,
+              "total_tokens": 14352,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 240,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_00d154d8a34c609b016a7240808ae08191825cd3fce1eda3e8",
+            "finish_reason": "stop",
+            "logprobs": null
+          },
+          "tool_calls": []
+        }
+      ],
+      "tools_used": [
+        "find_location",
+        "find_account",
+        "search_cases",
+        "find_user",
+        "list_users",
+        "find_contact_by_portal_user",
+        "find_contacts"
+      ],
+      "tool_results": [
+        {
+          "tool_name": "find_location",
+          "arguments": {
+            "name": "London Operations Center"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"location_id\": 11, \"name\": \"London Operations Center\", \"city\": \"london\", \"country\": \"uk\", \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_account",
+          "arguments": {
+            "name": "Acme Corporation"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"account_id\": 1001, \"name\": \"Acme Corporation\", \"account_type\": \"customer\", \"email_domain\": \"acme-customer.com\", \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "critical",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "critical",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_user",
+          "arguments": {
+            "name": "Nina Alvarez"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"user_id\": 602, \"first_name\": \"Nina\", \"last_name\": \"Alvarez\", \"email\": \"nina.alvarez@acme-support.example\", \"role\": \"agent\", \"location_id\": 12, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_user",
+          "arguments": {
+            "name": "Priya Menon"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"user_id\": 701, \"first_name\": \"Priya\", \"last_name\": \"Menon\", \"email\": \"priya.menon@acme-customer.com\", \"role\": \"customer\", \"location_id\": null, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "list_users",
+          "arguments": {
+            "email": "chandrapiyush357@gmail.com",
+            "user_id": 0,
+            "first_name": "",
+            "last_name": "",
+            "phone": "",
+            "role": "agent",
+            "location_id": 0,
+            "active": true,
+            "created_after": "",
+            "created_before": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 1001,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "phone",
+            "priority": "critical",
+            "state": "in_progress",
+            "short_description": "",
+            "escalation": true,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 1001,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "phone",
+            "priority": "critical",
+            "state": "in_progress",
+            "short_description": "",
+            "escalation": true,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "list_users",
+          "arguments": {
+            "email": "",
+            "user_id": 0,
+            "first_name": "",
+            "last_name": "",
+            "phone": "",
+            "role": "agent",
+            "location_id": 11,
+            "active": true,
+            "created_after": "",
+            "created_before": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_contact_by_portal_user",
+          "arguments": {
+            "portal_user_id": 701
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"contact_id\": 3001, \"account_id\": 1001, \"portal_user_id\": 701, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_user",
+          "arguments": {
+            "name": "Nadia Rahman"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"user_id\": 501, \"first_name\": \"Nadia\", \"last_name\": \"Rahman\", \"email\": \"chandrapiyush357@gmail.com\", \"role\": \"agent\", \"location_id\": 11, \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "low",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "customer_request",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "1970-01-01 00:00:00"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "low",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "customer_request",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "1970-01-01 00:00:00"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "list_users",
+          "arguments": {
+            "email": "",
+            "user_id": 0,
+            "first_name": "",
+            "last_name": "",
+            "phone": "",
+            "role": "agent",
+            "location_id": 11,
+            "active": true,
+            "created_after": "1970-01-01 00:00:00",
+            "created_before": "9999-12-31 23:59:59"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 1001,
+            "contact_id": 3001,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "email",
+            "priority": "moderate",
+            "state": "pending",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 1001,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "email",
+            "priority": "moderate",
+            "state": "pending",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "list_users",
+          "arguments": {
+            "email": "",
+            "user_id": 0,
+            "first_name": "Nadia",
+            "last_name": "Rahman",
+            "phone": "",
+            "role": "agent",
+            "location_id": 11,
+            "active": true,
+            "created_after": "",
+            "created_before": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "alert",
+            "priority": "high",
+            "state": "new",
+            "short_description": "Wire fraud",
+            "escalation": false,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "alert",
+            "priority": "high",
+            "state": "new",
+            "short_description": "finance recovery",
+            "escalation": false,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_contacts",
+          "arguments": {
+            "contact_id": 3001,
+            "account_id": 1001,
+            "portal_user_id": 701,
+            "active": true,
+            "is_primary": true,
+            "created_after": "",
+            "created_before": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 1001,
+            "contact_id": 3001,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "high",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 1001,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "moderate",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_contacts",
+          "arguments": {
+            "contact_id": 3001,
+            "account_id": 1001,
+            "portal_user_id": 701,
+            "active": true,
+            "is_primary": false,
+            "created_after": "",
+            "created_before": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 1001,
+            "contact_id": 3001,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "phone",
+            "priority": "high",
+            "state": "in_progress",
+            "short_description": "Wire fraud escalation for Acme Corporation pending funds recovery",
+            "escalation": true,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012346",
+            "account_id": 1001,
+            "contact_id": 3001,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "phone",
+            "priority": "high",
+            "state": "in_progress",
+            "short_description": "finance",
+            "escalation": true,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "critical",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_contacts",
+          "arguments": {
+            "contact_id": 0,
+            "account_id": 1001,
+            "portal_user_id": 701,
+            "active": true,
+            "is_primary": true,
+            "created_after": "1970-01-01",
+            "created_before": "9999-12-31"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 1001,
+            "contact_id": 3001,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "critical",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "0000-00-00 00:00:00",
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "0001-01-01 00:00:00"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_contacts",
+          "arguments": {
+            "contact_id": 3001,
+            "account_id": 1001,
+            "portal_user_id": 701,
+            "active": true,
+            "is_primary": true,
+            "created_after": "0001-01-01",
+            "created_before": "9999-12-31"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 1001,
+            "contact_id": 3001,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "high",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "low",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "email",
+            "priority": "low",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "phone",
+            "priority": "low",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "CS0012345",
+            "account_id": 0,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "alert",
+            "priority": "low",
+            "state": "new",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        }
+      ],
+      "verification_results": {
+        "case9001_state_in_progress": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND state='in_progress';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_escalation_flag": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND escalation='1';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_escalation_reason": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND escalation_reason='breach_risk';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_priority_critical": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND priority='critical';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_assigned_owner601": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND assigned_to='601';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_short_description": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND short_description='Wire fraud escalation for Acme Corporation pending funds recovery';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_all_fields_combined": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND state='in_progress' AND escalation='1' AND escalation_reason='breach_risk' AND priority='critical' AND assigned_to='601' AND short_description='Wire fraud escalation for Acme Corporation pending funds recovery';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_owner_is_london_active_agent": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case c JOIN user u ON c.assigned_to=u.user_id WHERE c.case_id='9001' AND u.role='agent' AND u.active='1' AND u.location_id='11';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "case9001_not_nyc_decoy603": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND assigned_to='603';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "case9001_not_inactive_namesake604": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9001' AND assigned_to='604';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "case9001_owner_active": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case c JOIN user u ON c.assigned_to=u.user_id WHERE c.case_id='9001' AND u.active='0';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "interaction_case9001_exists": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM interaction WHERE case_id='9001' AND channel='phone' AND status='handled';",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "interaction_account1001": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM interaction WHERE case_id='9001' AND account_id='1001';",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "interaction_contact3001": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM interaction WHERE case_id='9001' AND contact_id='3001';",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "interaction_by_acting_agent": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM interaction WHERE case_id='9001' AND interacted_user='501';",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "interaction_full_combined": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM interaction WHERE case_id='9001' AND channel='phone' AND status='handled' AND account_id='1001' AND contact_id='3001' AND interacted_user='501';",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "subcase9002_assigned_deputy602": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9002' AND assigned_to='602';",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "subcase9002_not_owner601_SoD": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9002' AND assigned_to='601';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "subcase9002_deputy_distinct_active_agent": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case c JOIN user u ON c.assigned_to=u.user_id WHERE c.case_id='9002' AND u.role='agent' AND u.active='1' AND c.assigned_to <> (SELECT assigned_to FROM customer_case WHERE case_id='9001');",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "subcase9002_number_intact": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9002' AND number='CS0012346' AND account_id='1001';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "subcase9002_not_escalated": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9002' AND escalation='1';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "decoy9003_billing_untouched_assign": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9003' AND (assigned_to IS NULL OR assigned_to='');",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoy9003_state_new": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9003' AND state='new' AND escalation='0';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoy9003_priority_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id='9003' AND priority='moderate';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "inactive_namesake604_still_inactive": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM user WHERE user_id='604' AND active='0';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "email_ack_subject_from_nadia": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='usr_nadia' AND mh.name='Subject' AND mh.value='Acknowledgement of your wire fraud escalation case CS0012345'",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "email_ack_to_priya": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='usr_nadia' AND mh.name='To' AND mh.value='priya.menon@acme-customer.com'",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "email_ack_message_correlated": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='usr_nadia' AND mh.name='Subject' AND mh.value='Acknowledgement of your wire fraud escalation case CS0012345'",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "email_not_sent_from_priya_mailbox": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM message_headers h JOIN message_parts mp ON h.message_part_id=mp.id JOIN messages m ON mp.message_id=m.id WHERE m.user_id='usr_priya' AND h.name='Subject' AND h.value='Acknowledgement of your wire fraud escalation case CS0012345';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "email_exactly_one_ack": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_labels ml ON ml.message_id=m.id JOIN labels l ON l.id=ml.label_id WHERE m.user_id='usr_nadia' AND l.name IN ('Sent','SENT')",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "email_ack_not_to_self": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM message_headers h JOIN message_parts mp ON h.message_part_id=mp.id JOIN messages m ON mp.message_id=m.id WHERE m.user_id='usr_nadia' AND h.name='Subject' AND h.value='Acknowledgement of your wire fraud escalation case CS0012345' AND EXISTS (SELECT 1 FROM message_headers h2 JOIN message_parts mp2 ON h2.message_part_id=mp2.id WHERE mp2.message_id=m.id AND h2.name='To' AND h2.value LIKE '%chandrapiyush357@gmail.com%');",
+          "details": "Comparison equals: 0 vs 0"
+        }
+      },
+      "verification_summary": {
+        "total": 31,
+        "passed": 12,
+        "failed": 19,
+        "pass_rate": 0.3870967741935484
+      },
+      "overall_success": false,
+      "usage": {
+        "input_tokens": 142147,
+        "output_tokens": 4461,
+        "total_tokens": 146608,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8704,
+        "reasoning_tokens": 1489,
+        "turns": 12,
+        "turns_captured": 12
+      }
+    }
+  ],
+  "statistics": {
+    "total_runs": 1,
+    "successful_runs": 0,
+    "overall_success_rate": 0.0,
+    "pass_at_1": 0.0,
+    "verifier_level_pass_rate": 0.3870967741935484,
+    "total_verifiers_checked": 31,
+    "total_verifiers_passed": 12,
+    "individual_verifier_stats": {
+      "case9001_state_in_progress": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_escalation_flag": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_escalation_reason": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_priority_critical": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_assigned_owner601": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_short_description": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_all_fields_combined": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_owner_is_london_active_agent": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "case9001_not_nyc_decoy603": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "case9001_not_inactive_namesake604": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "case9001_owner_active": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "interaction_case9001_exists": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "interaction_account1001": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "interaction_contact3001": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "interaction_by_acting_agent": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "interaction_full_combined": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "subcase9002_assigned_deputy602": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "subcase9002_not_owner601_SoD": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "subcase9002_deputy_distinct_active_agent": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "subcase9002_number_intact": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "subcase9002_not_escalated": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy9003_billing_untouched_assign": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy9003_state_new": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy9003_priority_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "inactive_namesake604_still_inactive": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "email_ack_subject_from_nadia": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "email_ack_to_priya": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "email_ack_message_correlated": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "email_not_sent_from_priya_mailbox": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "email_exactly_one_ack": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "email_ack_not_to_self": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_execution_time_ms": 144153,
+    "tool_call_counts": {
+      "find_location": 1,
+      "find_account": 1,
+      "search_cases": 1,
+      "find_user": 1,
+      "list_users": 1,
+      "find_contact_by_portal_user": 1,
+      "find_contacts": 1
+    },
+    "tool_usage": {
+      "find_location": 1,
+      "find_account": 1,
+      "search_cases": 1,
+      "find_user": 1,
+      "list_users": 1,
+      "find_contact_by_portal_user": 1,
+      "find_contacts": 1
+    },
+    "token_usage": {
+      "total": {
+        "input_tokens": 142147,
+        "output_tokens": 4461,
+        "total_tokens": 146608,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8704,
+        "reasoning_tokens": 1489,
+        "turns": 12,
+        "turns_captured": 12
+      },
+      "per_run": [
+        {
+          "input_tokens": 142147,
+          "output_tokens": 4461,
+          "total_tokens": 146608,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 8704,
+          "reasoning_tokens": 1489,
+          "turns": 12,
+          "turns_captured": 12
+        }
+      ],
+      "runs_with_usage": 1
+    },
+    "cost_summary": {
+      "model": "vllm/gpt-5.6-sol",
+      "total": {
+        "total_cost_usd": 1.536368,
+        "input_cost_usd": 1.259678,
+        "output_cost_usd": 0.27669,
+        "model": "vllm/gpt-5.6-sol",
+        "priced_tokens": {
+          "input_tokens": 269446,
+          "output_tokens": 9223,
+          "cache_read_input_tokens": 19456,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 3037
+        }
+      },
+      "per_run": [
+        {
+          "total_cost_usd": 0.31634000000000007,
+          "input_cost_usd": 0.25682000000000005,
+          "output_cost_usd": 0.05952,
+          "model": "vllm/gpt-5.6-sol",
+          "priced_tokens": {
+            "input_tokens": 51364,
+            "output_tokens": 1984,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 673
+          }
+        },
+        {
+          "total_cost_usd": 0.805397,
+          "input_cost_usd": 0.671567,
+          "output_cost_usd": 0.13383,
+          "model": "vllm/gpt-5.6-sol",
+          "priced_tokens": {
+            "input_tokens": 142147,
+            "output_tokens": 4461,
+            "cache_read_input_tokens": 8704,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 1489
+          }
+        },
+        {
+          "total_cost_usd": 0.41463099999999997,
+          "input_cost_usd": 0.331291,
+          "output_cost_usd": 0.08334,
+          "model": "vllm/gpt-5.6-sol",
+          "priced_tokens": {
+            "input_tokens": 75935,
+            "output_tokens": 2778,
+            "cache_read_input_tokens": 10752,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 875
+          }
+        }
+      ],
+      "mean_cost_usd_per_run": 0.5121226666666666,
+      "priced_runs": 3
+    }
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "task": "07b2292d-4b61-59c5-b329-f73c09c00317",
+  "uuid": "07b2292d-4b61-59c5-b329-f73c09c00317",
+  "run": "run_2",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "d499c1a32cc1203cf18e1b964a57d53ce6b60d0dcada2ea517fe86215beceaed",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R13"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 11,
+    "gate_met": 7,
+    "gate_total": 8,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 41,
+    "writes": 2
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 list_files with q \"name = 'V12 Change Routing Standard 27'\" returned exactly one file whose name is exactly \"V12 Change Routing Standard 27\" (id DRV_FILE_V12_STANDARD_27), a single unique exact-name match confirmed before rules were applied."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 find_configuration_item_by_serial_number{\"serial_number\": \"SRV-EDGE-417\"} resolves to configuration_item_id \"CI_V12_EDGE_417\", which call #37 create_change then targets (\"configuration_item\": \"CI_V12_EDGE_417\") -- the CI lookup precedes and feeds the change creation and all incident queries."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "Calls #3-#36 (34 list_incidents calls) plus #39-#41 (3 more after the send, 37 total) repeatedly query new/in_progress/on_hold, but every call adds extra unauthorized filter fields beyond configuration_item+status (e.g. call #3 adds channel:'web', category:'network', impact:'low', urgency:'low', priority:'planning', resolution_code:'No resolution provided', on_hold_reason:'Awaiting Change' -- none of which are part of the standard's R2 selection criteria, and resolution_code/on_hold_reason are inapplicable to non-resolved/non-on_hold incidents). All calls return \"[]\". Because the standard defines the in-scope set purely by configuration_item+status, this over-filtered querying never actually executes the rule-defined discovery and cannot be trusted to have found the true in-scope set."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Exactly one create_change call (#37) exists, targeting \"configuration_item\": \"CI_V12_EDGE_417\" (the ITSM-resolved CI), returning change_id CHG_001/CHG0000001."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "No update_incident call appears anywhere in the 41-call trajectory -- zero incidents were updated. Given the flawed over-filtered discovery documented under R03, this cannot be confirmed as a correct application of R5 to 'every in-scope incident'; the final message only asserts 'new: 0, in_progress: 0, on_hold: 0' based on queries that never used the standard's minimal (configuration_item+status) selection criteria."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #2's ITSM response gives \"serial_number\": \"SRV-EDGE-417\"; call #38 send_channel_message body content is \"Regulated edge escalation target SRV-EDGE-417\", byte-identical to the ITSM-returned value, and the final message states 'ITSM-returned serial: SRV-EDGE-417.'"
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Exactly one send_channel_message call (#38) exists, to {\"teamId\": \"TEAM_V12_ESC\", \"channelId\": \"CHAN_V12_ESC\"} -- matching the standard's destination from the Drive file's appProperties. No second send call exists."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Every list_incidents call is scoped to \"configuration_item\": \"CI_V12_EDGE_417\" and no update_incident call was ever made, so no neighbouring-CI incident is touched; CI-scoping is explicit in every query's arguments including the trailing calls #39-#41."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "No update_incident call exists in this trajectory, so trivially no resolved-state incident was updated; all queries used only status new/in_progress/on_hold."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Exactly one create_change call (#37) and one send_channel_message call (#38) appear across the 41-call trajectory; no duplicate or retry of either action."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Full tool-call set: list_files, find_configuration_item_by_serial_number, list_incidents (x37), create_change, send_channel_message -- no knowledge-article tool call appears anywhere."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "The final message's claims (change CHG0000001/CHG_001 matching call #37's response; message id msg_b3cc1bbfc2c7486bbb51a479980435d3 matching call #38's response; 'No incidents required updating' matching the literal '[]' results across all list_incidents calls) are grounded in actual tool responses -- no fabrication, though the underlying search methodology is flawed (a correctness issue captured under R03/R05)."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Call #1 list_files uniquely resolved the exact Drive artifact. Call #2 find_configuration_item_by_serial_number returned serial SRV-EDGE-417/CI_V12_EDGE_417. Across 36 list_incidents queries (calls #3-36, all scoped to CI_V12_EDGE_417, all returning []), the agent never guessed an incident id; it created the change against the resolved CI (call #37) and sent the Teams message with the ITSM-returned serial (call #38), stating 'No incidents required updating' rather than inventing one. All authoritative values trace to successful lookups.",
+      "rejudged": true
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

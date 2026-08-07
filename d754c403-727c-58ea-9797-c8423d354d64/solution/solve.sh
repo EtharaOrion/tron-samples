@@ -1,0 +1,417 @@
+#!/usr/bin/env bash
+# Oracle solution for task d754c403-727c-58ea-9797-c8423d354d64 — Northstar Systems is offboarding an engineer and needs the leaver handoff run end to end across the systems you administer.
+# Auto-generated AFTER the oracle reproduced this answer key live — answer-key-reproducible, not an independent solve (17/17 verifiers, 8 repair(s)).
+# Self-contained: bash + python3 stdlib only. Seeds each gym on a fresh scratch db,
+# replays the tool-call plan over MCP, then checks every verifier. Exit 0 iff all pass.
+set -uo pipefail
+
+exec python3 - <<'ORACLE_PY'
+
+import json, time, urllib.request, urllib.error
+
+DATA = json.loads(r"""{
+ "task_id": "d754c403-727c-58ea-9797-c8423d354d64",
+ "gyms": {
+  "sn-hr-internal": {
+   "url": "http://localhost:8003",
+   "auth_header": "x-hr-token-access",
+   "auth_val": "hr_token_sarah_chen_001",
+   "seed_sql": "-- Database Seed Data for: qsm-2x-sn-hr-internal\n-- Database ID: db_1765529350682_48wb3wot7\n-- MCP Server: sn-hr-internal\n-- Created: 2025-12-12 08:49:13.297900+00:00\n-- Description: No description provided\n-- NOTE: This is seed data fallback (export-sql API was unavailable)\n\n-- ============================================\n-- SEED DATA (SQL Statements)\n-- ============================================\n\n\n-- HR Sample Data - Comprehensive Schema Compliant Data with RBAC & Tenant Scoping\n-- =====================================================\n\n-- Organizations (organization) - Tenant boundaries\nINSERT INTO organization (org_id, name, active, created_at, updated_at) VALUES\n(1, 'TechCorp HR', 1, datetime('2024-01-01 08:00:00'), datetime('2024-01-01 08:00:00')),\n(2, 'Acme Corp HR', 1, datetime('2024-01-01 08:00:00'), datetime('2024-01-01 08:00:00'));\n\n-- Roles (role) - Shared across organizations\nINSERT INTO role (role_id, name) VALUES\n(1, 'admin'),\n(2, 'manager'),\n(3, 'agent'),\n(4, 'employee');\n\n-- Permissions (permission) - Simplified model: CRUD and READ only\n-- 19 resources \u00d7 2 actions = 38 permissions total\nINSERT INTO permission (perm_id, resource, action) VALUES\n-- Users permissions\n(1, 'users', 'read'),\n(2, 'users', 'crud'),\n-- Groups permissions\n(3, 'groups', 'read'),\n(4, 'groups', 'crud'),\n-- HR Services permissions\n(5, 'hr_services', 'read'),\n(6, 'hr_services', 'crud'),\n-- HR Cases permissions\n(7, 'hr_cases', 'read'),\n(8, 'hr_cases', 'crud'),\n-- HR Profiles permissions\n(9, 'hr_profiles', 'read'),\n(10, 'hr_profiles', 'crud'),\n-- Topic Categories permissions\n(11, 'topic_categories', 'read'),\n(12, 'topic_categories', 'crud'),\n-- Topic Details permissions\n(13, 'topic_details', 'read'),\n(14, 'topic_details', 'crud'),\n-- Service Templates permissions\n(15, 'service_templates', 'read'),\n(16, 'service_templates', 'crud'),\n-- HR Criteria permissions\n(17, 'hr_criteria', 'read'),\n(18, 'hr_criteria', 'crud'),\n-- Skills permissions\n(19, 'skills', 'read'),\n(20, 'skills', 'crud'),\n-- Knowledge permissions\n(21, 'knowledge', 'read'),\n(22, 'knowledge', 'crud'),\n-- Surveys permissions\n(23, 'surveys', 'read'),\n(24, 'surveys', 'crud'),\n-- Assignment Rules permissions\n(25, 'assignment_rules', 'read'),\n(26, 'assignment_rules', 'crud'),\n-- Escalation Rules permissions\n(27, 'escalation_rules', 'read'),\n(28, 'escalation_rules', 'crud'),\n-- Notifications permissions\n(29, 'notifications', 'read'),\n(30, 'notifications', 'crud'),\n-- Checklists permissions\n(31, 'checklists', 'read'),\n(32, 'checklists', 'crud'),\n-- Survey Instances permissions\n(33, 'survey_instances', 'read'),\n(34, 'survey_instances', 'crud'),\n-- Reports permissions\n(35, 'reports', 'read'),\n(36, 'reports', 'crud'),\n-- HR Case Tasks permissions\n(37, 'hr_case_tasks', 'read'),\n(38, 'hr_case_tasks', 'crud');\n\n-- Role-Permission mappings (role_permission)\n-- Admin: all CRUD permissions (19 resources)\nINSERT INTO role_permission (role_id, perm_id) VALUES\n(1, 2), (1, 4), (1, 6), (1, 8), (1, 10), (1, 12), (1, 14), (1, 16), (1, 18), (1, 20), (1, 22), (1, 24), (1, 26), (1, 28), (1, 30), (1, 32), (1, 34), (1, 36), (1, 38);\n\n-- Manager: all CRUD permissions (19 resources)\nINSERT INTO role_permission (role_id, perm_id) VALUES\n(2, 2), (2, 4), (2, 6), (2, 8), (2, 10), (2, 12), (2, 14), (2, 16), (2, 18), (2, 20), (2, 22), (2, 24), (2, 26), (2, 28), (2, 30), (2, 32), (2, 34), (2, 36), (2, 38);\n\n-- Agent: mixed permissions\n-- CRUD: hr_cases\n-- READ: all other resources (18 resources, including hr_case_tasks)\nINSERT INTO role_permission (role_id, perm_id) VALUES\n(3, 1), (3, 3), (3, 5), (3, 8), (3, 9), (3, 11), (3, 13), (3, 15), (3, 17), (3, 19), (3, 21), (3, 23), (3, 25), (3, 27), (3, 29), (3, 31), (3, 33), (3, 35), (3, 37);\n\n-- Employee: all READ permissions (19 resources)\nINSERT INTO role_permission (role_id, perm_id) VALUES\n(4, 1), (4, 3), (4, 5), (4, 7), (4, 9), (4, 11), (4, 13), (4, 15), (4, 17), (4, 19), (4, 21), (4, 23), (4, 25), (4, 27), (4, 29), (4, 31), (4, 33), (4, 35), (4, 37);\n\n-- Users table (15 users - distributed across 2 organizations)\nINSERT INTO user (user_id, first_name, last_name, email, phone, role, active, static_token, org_id, created_at, updated_at) VALUES\n-- Organization 1 (TechCorp HR) - Users 1-8\n(1, 'Sarah', 'Chen', 'sarah.chen@techcorp.com', '+1-555-0101', 'admin', 1, 'hr_token_sarah_chen_001', 1, datetime('2024-01-15 09:00:00'), datetime('2024-01-15 09:00:00')),\n(2, 'Michael', 'Rodriguez', 'michael.rodriguez@techcorp.com', '+1-555-0102', 'manager', 1, 'hr_token_michael_rodriguez_002', 1, datetime('2024-01-16 10:00:00'), datetime('2024-01-16 10:00:00')),\n(3, 'Emily', 'Watson', 'emily.watson@techcorp.com', '+1-555-0103', 'agent', 1, 'hr_token_emily_watson_003', 1, datetime('2024-01-17 11:00:00'), datetime('2024-01-17 11:00:00')),\n(4, 'David', 'Kim', 'david.kim@techcorp.com', '+1-555-0104', 'agent', 1, 'hr_token_david_kim_004', 1, datetime('2024-01-18 12:00:00'), datetime('2024-01-18 12:00:00')),\n(5, 'Lisa', 'Anderson', 'lisa.anderson@techcorp.com', '+1-555-0105', 'employee', 1, 'hr_token_lisa_anderson_005', 1, datetime('2024-01-19 13:00:00'), datetime('2024-01-19 13:00:00')),\n(6, 'James', 'Brown', 'james.brown@techcorp.com', '+1-555-0106', 'employee', 1, 'hr_token_james_brown_006', 1, datetime('2024-01-20 14:00:00'), datetime('2024-01-20 14:00:00')),\n(7, 'Maria', 'Garcia', 'maria.garcia@techcorp.com', '+1-555-0107', 'employee', 1, 'hr_token_maria_garcia_007', 1, datetime('2024-01-21 15:00:00'), datetime('2024-01-21 15:00:00')),\n(8, 'Robert', 'Taylor', 'robert.taylor@techcorp.com', '+1-555-0108', 'employee', 1, 'hr_token_robert_taylor_008', 1, datetime('2024-01-22 16:00:00'), datetime('2024-01-22 16:00:00')),\n-- Organization 2 (Acme Corp HR) - Users 9-15\n(9, 'Jennifer', 'Martinez', 'jennifer.martinez@acme.com', '+1-555-0109', 'admin', 1, 'hr_token_jennifer_martinez_009', 2, datetime('2024-01-23 17:00:00'), datetime('2024-01-23 17:00:00')),\n(10, 'William', 'Lee', 'william.lee@acme.com', '+1-555-0110', 'manager', 1, 'hr_token_william_lee_010', 2, datetime('2024-01-24 18:00:00'), datetime('2024-01-24 18:00:00')),\n(11, 'Jessica', 'White', 'jessica.white@acme.com', '+1-555-0111', 'agent', 1, 'hr_token_jessica_white_011', 2, datetime('2024-01-25 19:00:00'), datetime('2024-01-25 19:00:00')),\n(12, 'Christopher', 'Harris', 'christopher.harris@acme.com', '+1-555-0112', 'employee', 1, 'hr_token_christopher_harris_012', 2, datetime('2024-01-26 20:00:00'), datetime('2024-01-26 20:00:00')),\n(13, 'Amanda', 'Clark', 'amanda.clark@acme.com', '+1-555-0113', 'employee', 1, 'hr_token_amanda_clark_013', 2, datetime('2024-01-27 21:00:00'), datetime('2024-01-27 21:00:00')),\n(14, 'Daniel', 'Lewis', 'daniel.lewis@acme.com', '+1-555-0114', 'employee', 1, 'hr_token_daniel_lewis_014', 2, datetime('2024-01-28 22:00:00'), datetime('2024-01-28 22:00:00')),\n(15, 'Ashley', 'Walker', 'ashley.walker@acme.com', '+1-555-0115', 'employee', 1, 'hr_token_ashley_walker_015', 2, datetime('2024-01-29 23:00:00'), datetime('2024-01-29 23:00:00'));\n\n-- User-Role assignments (user_role) - Org-wide roles\nINSERT INTO user_role (user_id, role_id, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 1, 1),  -- Sarah Chen - Admin\n(2, 2, 1),  -- Michael Rodriguez - Manager\n(3, 3, 1),  -- Emily Watson - Agent\n(4, 3, 1),  -- David Kim - Agent\n(5, 4, 1),  -- Lisa Anderson - Employee\n(6, 4, 1),  -- James Brown - Employee\n(7, 4, 1),  -- Maria Garcia - Employee\n(8, 4, 1),  -- Robert Taylor - Employee\n-- Organization 2 (Acme Corp HR)\n(9, 1, 2),  -- Jennifer Martinez - Admin\n(10, 2, 2), -- William Lee - Manager\n(11, 3, 2), -- Jessica White - Agent\n(12, 4, 2), -- Christopher Harris - Employee\n(13, 4, 2), -- Amanda Clark - Employee\n(14, 4, 2), -- Daniel Lewis - Employee\n(15, 4, 2); -- Ashley Walker - Employee\n\n-- HR Profiles (1:1 with users, scoped to organizations)\nINSERT INTO hr_profile (hr_profile_id, number, gender, user_id, personal_email, marital_status, type, dob, nationality, employment_start_date, employment_end_date, manager, location_type, national_tax_id, position, org_id, created_at, updated_at) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'HR-001', 'Female', 1, 'sarah.chen.personal@gmail.com', 'Married', 'full-time', datetime('1985-03-15'), 'US', datetime('2020-01-15'), NULL, NULL, 'Office Based', 'TAX-001-001', 'Manager', 1, datetime('2024-01-15 09:00:00'), datetime('2024-01-15 09:00:00')),\n(2, 'HR-002', 'Male', 2, 'michael.rodriguez.personal@gmail.com', 'Single', 'full-time', datetime('1988-07-22'), 'US', datetime('2019-06-01'), NULL, 1, 'Remote', 'TAX-001-002', 'Manager', 1, datetime('2024-01-16 10:00:00'), datetime('2024-01-16 10:00:00')),\n(3, 'HR-003', 'Female', 3, 'emily.watson.personal@gmail.com', 'Married', 'full-time', datetime('1990-11-08'), 'GB', datetime('2021-03-10'), NULL, 2, 'Hotdesk', 'TAX-002-001', 'IT Support', 1, datetime('2024-01-17 11:00:00'), datetime('2024-01-17 11:00:00')),\n(4, 'HR-004', 'Male', 4, 'david.kim.personal@gmail.com', 'Single', 'full-time', datetime('1992-05-14'), 'US', datetime('2022-01-05'), NULL, 2, 'Office Based', 'TAX-001-003', 'IT Support', 1, datetime('2024-01-18 12:00:00'), datetime('2024-01-18 12:00:00')),\n(5, 'HR-005', 'Female', 5, 'lisa.anderson.personal@gmail.com', 'Divorced', 'full-time', datetime('1987-09-30'), 'CA', datetime('2020-08-20'), NULL, 1, 'Remote', 'TAX-003-001', 'Software Engineer', 1, datetime('2024-01-19 13:00:00'), datetime('2024-01-19 13:00:00')),\n(6, 'HR-006', 'Male', 6, 'james.brown.personal@gmail.com', 'Married', 'full-time', datetime('1989-12-05'), 'US', datetime('2021-02-15'), NULL, 1, 'Office Based', 'TAX-001-004', 'Software Engineer', 1, datetime('2024-01-20 14:00:00'), datetime('2024-01-20 14:00:00')),\n(7, 'HR-007', 'Female', 7, 'maria.garcia.personal@gmail.com', 'Single', 'part-time', datetime('1991-04-18'), 'US', datetime('2022-05-10'), NULL, 1, 'Hotdesk', 'TAX-001-005', 'QA', 1, datetime('2024-01-21 15:00:00'), datetime('2024-01-21 15:00:00')),\n(8, 'HR-008', 'Male', 8, 'robert.taylor.personal@gmail.com', 'Married', 'full-time', datetime('1986-08-25'), 'GB', datetime('2019-11-01'), NULL, 2, 'Office Based', 'TAX-002-002', 'Sales', 1, datetime('2024-01-22 16:00:00'), datetime('2024-01-22 16:00:00')),\n-- Organization 2 (Acme Corp HR)\n(9, 'HR-009', 'Female', 9, 'jennifer.martinez.personal@gmail.com', 'Single', 'full-time', datetime('1993-01-12'), 'US', datetime('2023-01-10'), NULL, NULL, 'Remote', 'TAX-002-001', 'HR', 2, datetime('2024-01-23 17:00:00'), datetime('2024-01-23 17:00:00')),\n(10, 'HR-010', 'Male', 10, 'william.lee.personal@gmail.com', 'Married', 'full-time', datetime('1984-06-20'), 'US', datetime('2018-09-15'), NULL, 9, 'Office Based', 'TAX-002-002', 'Administration', 2, datetime('2024-01-24 18:00:00'), datetime('2024-01-24 18:00:00')),\n(11, 'HR-011', 'Female', 11, 'jessica.white.personal@gmail.com', 'Married', 'full-time', datetime('1990-03-25'), 'US', datetime('2022-07-01'), NULL, 10, 'Remote', 'TAX-002-003', 'HR', 2, datetime('2024-01-25 19:00:00'), datetime('2024-01-25 19:00:00')),\n(12, 'HR-012', 'Male', 12, 'christopher.harris.personal@gmail.com', 'Single', 'full-time', datetime('1991-08-10'), 'US', datetime('2023-02-15'), NULL, 10, 'Office Based', 'TAX-002-004', 'Software Engineer', 2, datetime('2024-01-26 20:00:00'), datetime('2024-01-26 20:00:00')),\n(13, 'HR-013', 'Female', 13, 'amanda.clark.personal@gmail.com', 'Married', 'full-time', datetime('1989-05-18'), 'US', datetime('2021-11-20'), NULL, 10, 'Hotdesk', 'TAX-002-005', 'Manager', 2, datetime('2024-01-27 21:00:00'), datetime('2024-01-27 21:00:00')),\n(14, 'HR-014', 'Male', 14, 'daniel.lewis.personal@gmail.com', 'Single', 'full-time', datetime('1992-12-03'), 'CA', datetime('2022-09-10'), NULL, 10, 'Office Based', 'TAX-003-001', 'QA', 2, datetime('2024-01-28 22:00:00'), datetime('2024-01-28 22:00:00')),\n(15, 'HR-015', 'Female', 15, 'ashley.walker.personal@gmail.com', 'Married', 'part-time', datetime('1993-07-22'), 'US', datetime('2023-05-01'), NULL, 10, 'Remote', 'TAX-002-006', 'Sales', 2, datetime('2024-01-29 23:00:00'), datetime('2024-01-29 23:00:00'));\n\n-- User Groups (scoped to organizations)\nINSERT INTO user_group (group_id, name, type, active, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'IT Support', 'IT Support', 1, 1),\n(2, 'Service Desk', 'Service Desk', 1, 1),\n(3, 'Field Support Team', 'Field Support Technicians', 1, 1),\n(4, 'Infrastructure Team', 'Infrastructure Problem Team', 1, 1),\n(5, 'Level 1 Support', 'Service Desk', 1, 1),\n(6, 'Level 2 Support', 'IT Support', 1, 1),\n(7, 'Level 3 Support', 'Infrastructure Problem Team', 1, 1),\n(8, 'Network Operations', 'Infrastructure Problem Team', 1, 1),\n(9, 'Application Support', 'IT Support', 1, 1),\n(10, 'Security Team', 'IT Support', 1, 1),\n-- Organization 2 (Acme Corp HR)\n(11, 'Field Support Technicians', 'Field Support Technicians', 1, 2),\n(12, 'Infrastructure Problem Team', 'Infrastructure Problem Team', 1, 2),\n(13, 'Service Desk Team', 'Service Desk', 1, 2),\n(14, 'IT Operations', 'IT Support', 1, 2),\n(15, 'Database Team', 'Infrastructure Problem Team', 1, 2),\n(16, 'Cloud Operations', 'Infrastructure Problem Team', 1, 2),\n(17, 'Desktop Support', 'Field Support Technicians', 1, 2),\n(18, 'Help Desk', 'Service Desk', 1, 2);\n\n-- User Group Members (some users in groups, some not - for future association)\nINSERT INTO user_group_member (member_id, group_id, user_id, org_id) VALUES\n(1, 1, 3, 1),\n(2, 1, 4, 1),\n(3, 2, 3, 1),\n(4, 2, 4, 1),\n(5, 3, 3, 1),\n(6, 4, 2, 1);\n\n-- Topic Categories (scoped to organizations)\nINSERT INTO topic_category (topic_category_id, active, name, coe_type, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 1, 'Onboarding', 'HRIT', 1),\n(2, 1, 'Benefits Enrollment', 'Total Rewards', 1),\n(3, 1, 'Payroll Issues', 'Payroll', 1),\n-- Organization 2 (Acme Corp HR)\n(4, 1, 'Performance Review', 'Talent Management', 2),\n(5, 1, 'Workplace Policies', 'Workforce Administration', 2);\n\n-- Topic Details (scoped to organizations)\nINSERT INTO topic_detail (topic_detail_id, active, name, topic_category, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 1, 'New Employee Setup', 1, 1),\n(2, 1, 'Equipment Request', 1, 1),\n(3, 1, 'Health Insurance', 2, 1),\n(4, 1, '401k Enrollment', 2, 1),\n(5, 1, 'Paycheck Discrepancy', 3, 1),\n-- Organization 2 (Acme Corp HR)\n(6, 1, 'Tax Form Update', 3, 2),\n(7, 1, 'Annual Review', 4, 2),\n(8, 1, 'Goal Setting', 4, 2),\n(9, 1, 'Remote Work Policy', 5, 2),\n(10, 1, 'Time Off Request', 5, 2);\n\n-- Service Templates (scoped to organizations)\nINSERT INTO service_template (service_template_id, name, change_request_values, active, coe_type, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'Onboarding Template', '{\"short_description\": \"New employee onboarding request\", \"category\": \"onboarding\"}', 1, 'HRIT', 1),\n(2, 'Benefits Template', '{\"short_description\": \"Benefits enrollment assistance\", \"category\": \"benefits\"}', 1, 'Total Rewards', 1),\n(3, 'Payroll Template', '{\"short_description\": \"Payroll inquiry\", \"category\": \"payroll\"}', 1, 'Payroll', 1),\n-- Organization 2 (Acme Corp HR)\n(4, 'Performance Template', '{\"short_description\": \"Performance review setup\", \"category\": \"performance\"}', 1, 'Talent Management', 2),\n(5, 'Policy Template', '{\"short_description\": \"Workplace policy question\", \"category\": \"policy\"}', 1, 'Workforce Administration', 2);\n\n-- HR Criteria (scoped to organizations)\nINSERT INTO hr_criteria (hr_criteria_id, name, type, active, user_group, users, org_id, created_at, updated_at) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'Admin Only Visibility', 'case_visibility', 1, 4, '[1, 2]', 1, datetime('2024-01-10 08:00:00'), datetime('2024-01-10 08:00:00')),\n(2, 'Manager Approval Required', 'approval', 1, NULL, '[2]', 1, datetime('2024-01-10 09:00:00'), datetime('2024-01-10 09:00:00')),\n-- Organization 2 (Acme Corp HR)\n(3, 'HR Team Visibility', 'case_visibility', 1, 2, '[9, 10]', 2, datetime('2024-01-10 10:00:00'), datetime('2024-01-10 10:00:00'));\n\n-- HR Services (scoped to organizations)\nINSERT INTO hr_service (hr_service_id, service_name, fulfillment_type, topic_detail, service_template, hr_criteria, active, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'Employee Onboarding', 'workflow', 1, 1, 1, 1, 1),\n(2, 'Benefits Enrollment', 'manual', 3, 2, 1, 1, 1),\n(3, 'Payroll Support', 'service_activity', 5, 3, 2, 1, 1),\n-- Organization 2 (Acme Corp HR)\n(4, 'Performance Review', 'workflow', 7, 4, 3, 1, 2),\n(5, 'Policy Questions', 'manual', 9, 5, 3, 1, 2);\n\n-- Skills (scoped to organizations)\nINSERT INTO skill (skill_id, name, active, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'Onboarding Specialist', 1, 1),\n(2, 'Benefits Advisor', 1, 1),\n(3, 'Payroll Expert', 1, 1),\n(4, 'Performance Management', 1, 1),\n-- Organization 2 (Acme Corp HR)\n(5, 'Policy Interpretation', 1, 2),\n(6, 'HRIS Administration', 1, 2),\n(7, 'Compliance', 1, 2),\n(8, 'Employee Relations', 1, 2);\n\n-- User Skills (some users have skills, some don't - for future association)\nINSERT INTO user_skill (user_skill_id, skill, user, org_id) VALUES\n-- Organization 1 (TechCorp HR) - Users 1-8, Skills 1-4\n(1, 1, 3, 1),\n(2, 2, 3, 1),\n(3, 3, 4, 1),\n(4, 4, 2, 1),\n-- Organization 2 (Acme Corp HR) - Users 9-15, Skills 5-8\n(5, 5, 11, 2),\n(6, 6, 9, 2),\n(7, 7, 10, 2),\n(8, 8, 11, 2);\n\n-- HR Cases (scoped to organizations)\nINSERT INTO hr_case (hr_case_id, number, status, hr_service, opened_for, opened_by, priority, source, assigned_to, assignment_group, short_description, worknotes, skills, approval_criteria, coe_type, approver, request_status, account_number, account_type, org_id, created_at, updated_at) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'HRC-0001', 'work_in_progress', 1, 5, 2, 'high', 'self-service', 3, 1, 'New employee onboarding for Lisa Anderson', 'Setting up equipment and access', '[1, 2]', 1, 'HRIT', 2, 'approved', 'ACC-001-001', NULL, 1, datetime('2024-02-01 09:00:00'), datetime('2024-02-01 14:30:00')),\n(2, 'HRC-0002', 'awaiting_approval', 2, 6, 2, 'moderate', 'email', 3, 2, 'Benefits enrollment for James Brown', 'Health insurance and 401k setup', '[2]', 2, 'Total Rewards', 2, 'requested', 'ACC-001-002', NULL, 1, datetime('2024-02-02 10:15:00'), datetime('2024-02-02 10:15:00')),\n(3, 'HRC-0003', 'closed_complete', 3, 7, 3, 'high', 'phone', 4, 2, 'Paycheck discrepancy for Maria Garcia', 'Fixed missing overtime pay', '[3]', NULL, 'Payroll', NULL, NULL, 'ACC-001-003', 'checking', 1, datetime('2024-02-03 11:30:00'), datetime('2024-02-03 16:45:00')),\n-- Additional awaiting_approval cases for user 1 (Sarah Chen - admin)\n(7, 'HRC-0007', 'awaiting_approval', 1, 6, 3, 'high', 'email', 4, 1, 'Emergency onboarding approval for James Brown', 'Requires admin approval for expedited setup', '[1, 2]', 1, 'HRIT', 1, 'requested', 'ACC-001-007', NULL, 1, datetime('2024-02-07 09:00:00'), datetime('2024-02-07 09:00:00')),\n(8, 'HRC-0008', 'awaiting_approval', 2, 7, 4, 'critical', 'phone', 3, 2, 'Executive benefits package for Maria Garcia', 'High-level benefits setup needing admin sign-off', '[2]', 2, 'Total Rewards', 1, 'requested', 'ACC-001-008', 'savings', 1, datetime('2024-02-07 10:30:00'), datetime('2024-02-07 10:30:00')),\n(9, 'HRC-0009', 'awaiting_approval', 3, 8, 2, 'high', 'self-service', 4, 2, 'Payroll exception for Robert Taylor', 'Special payment approval needed', '[3]', 2, 'Payroll', 1, 'requested', 'ACC-001-009', 'checking', 1, datetime('2024-02-07 11:45:00'), datetime('2024-02-07 11:45:00')),\n-- Additional awaiting_approval cases for user 2 (Michael Rodriguez - manager)\n(10, 'HRC-0010', 'awaiting_approval', 2, 5, 3, 'moderate', 'chat', 3, 1, 'Benefits update for Lisa Anderson', 'Annual benefits enrollment approval', '[2]', 2, 'Total Rewards', 2, 'requested', 'ACC-001-010', NULL, 1, datetime('2024-02-08 08:30:00'), datetime('2024-02-08 08:30:00')),\n(11, 'HRC-0011', 'awaiting_approval', 1, 8, 4, 'high', 'email', 3, 1, 'Onboarding request for Robert Taylor transfer', 'Department transfer requires manager approval', '[1]', 2, 'HRIT', 2, 'requested', 'ACC-001-011', NULL, 1, datetime('2024-02-08 09:15:00'), datetime('2024-02-08 09:15:00')),\n-- Additional awaiting_approval cases for user 3 (Emily Watson - agent)\n(12, 'HRC-0012', 'awaiting_approval', 2, 5, 2, 'moderate', 'self-service', 4, 2, 'Health insurance change for Lisa Anderson', 'Plan upgrade request pending agent approval', '[2]', 1, 'Total Rewards', 3, 'requested', 'ACC-001-012', NULL, 1, datetime('2024-02-09 10:00:00'), datetime('2024-02-09 10:00:00')),\n(13, 'HRC-0013', 'awaiting_approval', 1, 6, 2, 'high', 'email', 3, 1, 'Access request for James Brown', 'System access upgrade needs agent approval', '[1]', 1, 'HRIT', 3, 'requested', 'ACC-001-013', NULL, 1, datetime('2024-02-09 11:20:00'), datetime('2024-02-09 11:20:00')),\n(14, 'HRC-0014', 'awaiting_approval', 3, 7, 4, 'moderate', 'phone', 4, 2, 'Payroll adjustment for Maria Garcia', 'Overtime calculation review by agent', '[3]', 1, 'Payroll', 3, 'requested', 'ACC-001-014', 'checking', 1, datetime('2024-02-09 12:40:00'), datetime('2024-02-09 12:40:00')),\n-- Organization 2 (Acme Corp HR)\n(4, 'HRC-0004', 'draft', 4, 12, 10, 'low', 'self-service', NULL, 13, 'Performance review setup for Christopher Harris', NULL, NULL, NULL, 'Talent Management', NULL, NULL, 'ACC-002-001', NULL, 2, datetime('2024-02-04 12:00:00'), datetime('2024-02-04 12:00:00')),\n(5, 'HRC-0005', 'ready', 5, 13, 11, 'moderate', 'chat', NULL, 13, 'Remote work policy question', 'Need clarification on hybrid schedule', '[5]', NULL, 'Workforce Administration', NULL, NULL, 'ACC-002-002', NULL, 2, datetime('2024-02-05 13:20:00'), datetime('2024-02-05 13:20:00')),\n(6, 'HRC-0006', 'closed_incomplete', 4, 14, 10, 'moderate', 'walk-in', 11, 13, 'Performance review for Amanda Clark', 'Pending documentation', '[4]', NULL, 'Talent Management', NULL, NULL, 'ACC-002-003', NULL, 2, datetime('2024-02-06 14:00:00'), datetime('2024-02-07 10:00:00'));\n\n-- HR Case Tasks (scoped to organizations via parent_case)\nINSERT INTO hr_case_task (hr_case_task_id, number, status, assigned_to, assignment_group, short_description, task_type, hr_service, external_url, worknotes, active, parent_case, org_id) VALUES\n-- Organization 1 (TechCorp HR) - Tasks 1-3 belong to cases in org 1\n(1, 'TASK-0001', 'work_in_progress', 3, 1, 'Complete equipment setup checklist', 'checklist', 1, NULL, 'Laptop and accessories ordered', 1, 1, 1),\n(2, 'TASK-0002', 'ready', 3, 2, 'Review benefits enrollment form', 'survey', 2, NULL, NULL, 1, 2, 1),\n(3, 'TASK-0003', 'closed_complete', 4, 2, 'Verify payroll correction', 'mark when complete', 3, NULL, 'Payroll correction verified and processed', 1, 3, 1),\n-- Organization 2 (Acme Corp HR) - Tasks 4-5 belong to cases in org 2\n(4, 'TASK-0004', 'draft', NULL, NULL, 'Schedule performance review meeting', 'hr service', 4, NULL, NULL, 0, 4, 2),\n(5, 'TASK-0005', 'ready', NULL, 13, 'Review remote work policy document', 'url', 5, 'https://company.com/policies/remote-work', NULL, 1, 5, 2);\n\n-- Checklists (scoped to organizations)\nINSERT INTO checklist (checklist_id, checklist_item_description, checked, case_task_id, org_id) VALUES\n-- Organization 1 (TechCorp HR) - Tasks 1-3 belong to org 1\n(1, 'Order laptop', 1, 1, 1),\n(2, 'Order monitor', 1, 1, 1),\n(3, 'Order keyboard and mouse', 0, 1, 1),\n(4, 'Setup email account', 1, 1, 1),\n(5, 'Setup access badges', 0, 1, 1);\n\n-- Surveys (scoped to organizations)\nINSERT INTO survey (survey_id, question_1, question_2, question_3, question_4, question_5, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'Which health insurance plan do you prefer?', 'Would you like to enroll in 401k?', 'What is your beneficiary information?', 'Any dependent coverage needed?', 'Additional comments?', 1),\n-- Organization 2 (Acme Corp HR)\n(2, 'How would you rate the onboarding process?', 'Was the information clear?', 'Any suggestions for improvement?', 'Would you recommend this process?', 'Additional feedback?', 2);\n\n-- Survey Instances\nINSERT INTO survey_instance (survey_instance_id, survey_id, case_task_id, assigned_to, org_id, answer_1, answer_2, answer_3, answer_4, answer_5) VALUES\n(1, 1, 2, 6, 1, 'Premium Plan', 'Yes', 'Spouse and children', 'Yes, 2 dependents', 'Need dental coverage info');\n\n-- Assignment Rules (scoped to organizations)\nINSERT INTO assignment_rules (assignment_rule_id, name, based_on_skills, based_on_country, based_on_priority, active, user_group, users, org_id) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'US Payroll Rule', '[3]', 'US', 'high', 1, 2, '[3, 4]', 1),\n(2, 'UK Benefits Rule', '[2]', 'GB', 'moderate', 1, 2, '[3]', 1),\n-- Organization 2 (Acme Corp HR)\n(3, 'Critical Priority Escalation', NULL, NULL, 'critical', 1, 4, '[9, 10]', 2);\n\n-- Escalation Rules (scoped to organizations)\nINSERT INTO escalation_rule (escalation_rule_id, escalate_from, escalate_to, org_id) VALUES\n-- Organization 1 (TechCorp HR) - Multi-tier escalation path\n(1, 5, 6, 1),   -- Level 1 Support -> Level 2 Support\n(2, 6, 7, 1),   -- Level 2 Support -> Level 3 Support\n(3, 2, 4, 1),   -- Service Desk -> Infrastructure Team\n(4, 1, 9, 1),   -- IT Support -> Application Support\n(5, 3, 8, 1),   -- Field Support Team -> Network Operations\n(6, 9, 10, 1),  -- Application Support -> Security Team\n-- Organization 2 (Acme Corp HR) - Multi-tier escalation path\n(7, 18, 13, 2),  -- Help Desk -> Service Desk Team\n(8, 13, 14, 2),  -- Service Desk Team -> IT Operations\n(9, 17, 11, 2),  -- Desktop Support -> Field Support Technicians\n(10, 11, 12, 2), -- Field Support Technicians -> Infrastructure Problem Team\n(11, 14, 15, 2), -- IT Operations -> Database Team\n(12, 15, 16, 2); -- Database Team -> Cloud Operations\n\n-- Knowledge (scoped to organizations)\nINSERT INTO knowledge (knowledge_id, kb_number, title, body, state, visibility, owner_id, org_id, created_at, updated_at) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 'KB-001', 'Onboarding Checklist', 'Complete guide for new employee onboarding process including equipment, access, and documentation requirements.', 'published', 'internal', 1, 1, datetime('2024-01-10 08:00:00'), datetime('2024-01-10 08:00:00')),\n(2, 'KB-002', 'Benefits Enrollment Guide', 'Step-by-step instructions for enrolling in health insurance and 401k plans.', 'published', 'internal', 2, 1, datetime('2024-01-11 09:00:00'), datetime('2024-01-11 09:00:00')),\n(3, 'KB-003', 'Payroll FAQ', 'Common payroll questions and answers including paycheck timing, deductions, and tax forms.', 'published', 'internal', 3, 1, datetime('2024-01-12 10:00:00'), datetime('2024-01-12 10:00:00')),\n-- Organization 2 (Acme Corp HR)\n(4, 'KB-001', 'Remote Work Policy', 'Detailed remote work policy including eligibility, requirements, and approval process.', 'published', 'external', 9, 2, datetime('2024-01-13 11:00:00'), datetime('2024-01-13 11:00:00')),\n(5, 'KB-002', 'Performance Review Process', 'Guide to the annual performance review process and timeline.', 'draft', 'internal', 10, 2, datetime('2024-01-14 12:00:00'), datetime('2024-01-14 12:00:00'));\n\n-- HR Case Knowledge\nINSERT INTO hr_case_knowledge (hr_case_kb_id, hr_case_id, knowledge_id, used_as, org_id) VALUES\n(1, 1, 1, 'suggested', 1),\n(2, 2, 2, 'applied', 1),\n(3, 3, 3, 'resolution', 1),\n(4, 5, 4, 'suggested', 2);\n\n-- Notifications (scoped to organizations)\nINSERT INTO notification (notification_id, hr_case_id, email, type, status, org_id, created_at) VALUES\n-- Organization 1 (TechCorp HR)\n(1, 1, 'lisa.anderson@techcorp.com', 'report', 'ready', 1, datetime('2024-02-01 09:05:00')),\n(2, 2, 'james.brown@techcorp.com', 'update', 'work_in_progress', 1, datetime('2024-02-02 10:20:00')),\n(3, 3, 'maria.garcia@techcorp.com', 'alert', 'closed_complete', 1, datetime('2024-02-03 16:50:00')),\n-- Organization 2 (Acme Corp HR)\n(4, 5, 'amanda.clark@acme.com', 'reminder', 'awaiting_approval', 2, datetime('2024-02-05 13:25:00'));\n\n\n-- ============================================\n-- End of Seed Data\n-- ============================================\n\n\n-- ============================================\n-- TRON task2 v2 trap block (2026-07-13)\n-- Inactive near-name group: agents that grab the first plausible\n-- 'Service Desk*' group without checking active/exact name fail\n-- the criteria verifier (which requires the exact, active group).\n-- ============================================\nINSERT INTO user_group (group_id, name, type, active, org_id) VALUES\n(19, 'Service Desk Support', 'Service Desk', 0, 1);\n\n-- ============================================\n-- TRON task 90b6626a additions: offboarding access revocation across HR, ITSM\n-- and Email, with the revocation target derived from the departing employee's\n-- work location and a second departing employee left untouched.\n-- ============================================\n\nINSERT INTO knowledge (knowledge_id, kb_number, title, body, state, visibility, owner_id, org_id, created_at, updated_at) VALUES\n(8, 'KB-HR-OFFB-030', 'Offboarding Access Revocation Standard',\n 'This article is the binding offboarding procedure and supersedes KB-HR-OFFB-020, which is retired and must not be followed. R1 Record. Open exactly one HR case for the departure, Center of Excellence type Workforce Administration, status ready. R2 Revocation target. Raise exactly one access revocation change in the ITSM system against the configuration item that the departing employee work location maps to. The mapping is fixed. A location type of Office Based maps to the physical access controller with serial number SEC-BDG-01. A location type of Remote maps to the directory synchronisation service with serial number CLD-AZR-772. A location type of Hotdesk maps to the physical access controller with serial number SEC-BDG-01, because a hotdesk user still carries a building badge. R3 Notification. Send exactly one email to the departing employee reporting manager. The subject line quotes the serial number of the configuration item selected under R2, byte for byte, in the exact form Access revocation for FIRST LAST on SERIAL. R4 Precedence. The mapping in R2 is decided by the employee own HR profile and never by the description of the departure request.',\n 'published', 'internal', 1, 1, datetime('2026-02-10 08:00:00'), datetime('2026-02-10 08:00:00')),\n(9, 'KB-HR-OFFB-020', 'Offboarding Access Revocation Standard (superseded)',\n 'RETIRED. Superseded by KB-HR-OFFB-030 and must not be followed. It stated that every access revocation change is raised against the directory synchronisation service with serial number CLD-AZR-772 regardless of work location.',\n 'retired', 'internal', 1, 1, datetime('2025-04-01 08:00:00'), datetime('2026-02-10 08:00:00'));\n\n-- ============================================\n-- v13 task 01 scenario: offboarding handoff (Northstar), skip-level exception\n-- ============================================\nINSERT INTO user (user_id, first_name, last_name, email, phone, role, active, static_token, org_id, created_at, updated_at) VALUES\n(20, 'Dana', 'Cole', 'dana.cole@northstar.example', '+1-555-2001', 'manager', 1, 'hr_token_dana_cole_020', 1, datetime('2024-03-01 09:00:00'), datetime('2024-03-01 09:00:00')),\n(21, 'Alan', 'Reeves', 'alan.reeves@northstar.example', '+1-555-2002', 'manager', 1, 'hr_token_alan_reeves_021', 1, datetime('2024-03-02 09:00:00'), datetime('2024-03-02 09:00:00')),\n(22, 'Priya', 'Nair', 'priya.nair@northstar.example', '+1-555-2003', 'employee', 1, 'hr_token_priya_nair_022', 1, datetime('2024-03-03 09:00:00'), datetime('2024-03-03 09:00:00')),\n(23, 'Priya', 'Shah', 'priya.shah@northstar.example', '+1-555-2004', 'employee', 1, 'hr_token_priya_shah_023', 1, datetime('2024-03-04 09:00:00'), datetime('2024-03-04 09:00:00'));\n\nINSERT INTO user_role (user_id, role_id, org_id) VALUES\n(20, 2, 1), (21, 2, 1), (22, 4, 1), (23, 4, 1);\n\nINSERT INTO hr_profile (hr_profile_id, number, gender, user_id, personal_email, marital_status, type, dob, nationality, employment_start_date, employment_end_date, manager, location_type, national_tax_id, position, org_id, created_at, updated_at) VALUES\n(20, 'HR-020', 'Female', 20, 'dana.cole@northmail.example', 'Married', 'full-time', datetime('1980-02-10'), 'US', datetime('2016-05-01'), NULL, NULL, 'Office Based', 'TAX-020', 'Manager', 1, datetime('2024-03-01 09:00:00'), datetime('2024-03-01 09:00:00')),\n(21, 'HR-021', 'Male', 21, 'alan.reeves@northmail.example', 'Single', 'full-time', datetime('1985-06-15'), 'US', datetime('2018-04-01'), NULL, 20, 'Office Based', 'TAX-021', 'Manager', 1, datetime('2024-03-02 09:00:00'), datetime('2024-03-02 09:00:00')),\n(22, 'HR-022', 'Female', 22, 'priya.nair@northmail.example', 'Single', 'full-time', datetime('1992-09-20'), 'US', datetime('2021-07-01'), NULL, 21, 'Remote', 'TAX-022', 'Software Engineer', 1, datetime('2024-03-03 09:00:00'), datetime('2024-03-03 09:00:00')),\n(23, 'HR-023', 'Female', 23, 'priya.shah@northmail.example', 'Married', 'full-time', datetime('1991-11-11'), 'US', datetime('2021-09-01'), NULL, 21, 'Office Based', 'TAX-023', 'Software Engineer', 1, datetime('2024-03-04 09:00:00'), datetime('2024-03-04 09:00:00'));\n\nINSERT INTO knowledge (knowledge_id, kb_number, title, body, state, visibility, owner_id, org_id, created_at, updated_at) VALUES\n(20, 'KB-HR-HANDOFF-051', 'Offboarding Handoff Routing Standard',\n 'This article is the binding offboarding-handoff routing standard and supersedes KB-HR-HANDOFF-040, which is retired and must not be followed. R1 General rule. The offboarding handoff for a departing employee is routed to that employee reporting manager, the manager named on the departing employee HR profile. R2 Exception. When the departing employee work-location type is Remote, the handoff is instead routed to the reporting manager own manager, the skip-level manager, because a remote leaver handoff requires director-level sign-off. R3 Precedence. Where both R1 and R2 match, R2 overrides R1. The applicable rule is decided by the departing employee own HR profile and never by the wording of the request. R4 Record the handoff owner by their HR personal email on the offboarding change. R5 The offboarding-handoff notification subject must quote the minted change number byte for byte.',\n 'published', 'internal', 1, 1, datetime('2026-05-01 08:00:00'), datetime('2026-05-01 08:00:00')),\n(21, 'KB-HR-HANDOFF-040', 'Offboarding Handoff Routing Standard (superseded)',\n 'RETIRED. Superseded by KB-HR-HANDOFF-051 and must not be followed. It stated that every offboarding handoff is routed to the departing employee reporting manager regardless of work location.',\n 'retired', 'internal', 1, 1, datetime('2025-01-01 08:00:00'), datetime('2026-05-01 08:00:00'));\n"
+  },
+  "gym-itsm-mcp": {
+   "url": "http://localhost:8002",
+   "auth_header": "x-itsm-user-token",
+   "auth_val": "itsm_v12_escalation_token",
+   "seed_sql": "INSERT INTO organization (org_id, name, active, created_at, updated_at) VALUES\n('ORG_V12_ESC', 'Northstar Edge Operations', TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO role (role_id, name) VALUES\n('ROLE_V12_ESC_ADMIN', 'admin');\n\nINSERT INTO permission (perm_id, resource, action) VALUES\n('PERM_V12_ESC_CI_READ', 'configuration_items', 'read'),\n('PERM_V12_ESC_CHANGE_CRUD', 'changes', 'crud'),\n('PERM_V12_ESC_INC_READ', 'incidents', 'read'),\n('PERM_V12_ESC_INC_CRUD', 'incidents', 'crud');\n\nINSERT INTO role_permission (role_id, perm_id) VALUES\n('ROLE_V12_ESC_ADMIN', 'PERM_V12_ESC_CI_READ'),\n('ROLE_V12_ESC_ADMIN', 'PERM_V12_ESC_CHANGE_CRUD'),\n('ROLE_V12_ESC_ADMIN', 'PERM_V12_ESC_INC_READ'),\n('ROLE_V12_ESC_ADMIN', 'PERM_V12_ESC_INC_CRUD');\n\nINSERT INTO location (\n  location_id, name, org_id, plot_no, street, city, state, country,\n  active, created_on, updated_on\n) VALUES\n('LOC_V12_ESC', 'Northstar Edge Site', 'ORG_V12_ESC', '417', 'Relay Way',\n 'Pune', 'Maharashtra', 'India', TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO users (\n  user_id, user_name, first_name, last_name, email, phone, role, active,\n  static_token, org_id, location_id, created_on, updated_on\n) VALUES\n('USER_V12_ESC', 'rina.shah', 'Rina', 'Shah', 'rina.shah@northstar.example',\n '+91-90000-00417', 'admin', TRUE, 'itsm_v12_escalation_token',\n 'ORG_V12_ESC', 'LOC_V12_ESC', '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO user_role (user_id, role_id, org_id) VALUES\n('USER_V12_ESC', 'ROLE_V12_ESC_ADMIN', 'ORG_V12_ESC');\n\nINSERT INTO configuration_item (\n  configuration_item_id, name, serial_number, owner_id, location_id, org_id,\n  status, cost, created_on, updated_on\n) VALUES\n('CI_V12_EDGE_417', 'Regulated Edge Gateway 417', 'SRV-EDGE-417',\n 'USER_V12_ESC', 'LOC_V12_ESC', 'ORG_V12_ESC', 'in_use', 41700.00,\n '2026-07-20 09:00:00', '2026-07-20 09:00:00'),\n('CI_V12_EDGE_410', 'Neighbour Edge Gateway 410', 'SRV-EDGE-410',\n 'USER_V12_ESC', 'LOC_V12_ESC', 'ORG_V12_ESC', 'in_use', 41000.00,\n '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO incident (\n  incident_id, number, short_description, caller_id, configuration_item, org_id,\n  channel, contact_type, status, category, description, worknotes, impact,\n  urgency, priority, on_hold_reason, created_at, updated_at\n) VALUES\n('inc_offboarding_tracker', 'INC-OFFB-2207', 'Edge telemetry loss', 'USER_V12_ESC',\n 'CI_V12_EDGE_417', 'ORG_V12_ESC', 'web', 'portal', 'new', 'network',\n 'Regulated edge telemetry is intermittent', '', 'high', 'high', 'critical',\n NULL, '2026-07-20 09:15:00', '2026-07-20 09:15:00'),\n('INC_V12_ESC_PROGRESS', 'INC-V12-0417-B', 'Edge routing degradation', 'USER_V12_ESC',\n 'CI_V12_EDGE_417', 'ORG_V12_ESC', 'phone', 'phone', 'in_progress', 'network',\n 'Regulated edge routes are degrading', '', 'high', 'high', 'critical',\n NULL, '2026-07-20 09:20:00', '2026-07-20 09:20:00'),\n('INC_V12_ESC_HOLD', 'INC-V12-0417-C', 'Edge maintenance prerequisite', 'USER_V12_ESC',\n 'CI_V12_EDGE_417', 'ORG_V12_ESC', 'email', 'email', 'on_hold', 'hardware',\n 'Regulated edge awaits coordinated maintenance', '', 'medium', 'high', 'high',\n 'Awaiting Change', '2026-07-20 09:25:00', '2026-07-20 09:25:00'),\n('INC_V12_ESC_RESOLVED', 'INC-V12-0417-D', 'Historical edge alert', 'USER_V12_ESC',\n 'CI_V12_EDGE_417', 'ORG_V12_ESC', 'web', 'portal', 'resolved', 'network',\n 'Historical alert is already resolved', 'Closed before this escalation', 'low',\n 'low', 'low', NULL, '2026-07-18 09:00:00', '2026-07-19 09:00:00'),\n('INC_V12_ESC_NEIGHBOUR', 'INC-V12-0410-A', 'Neighbour gateway alert', 'USER_V12_ESC',\n 'CI_V12_EDGE_410', 'ORG_V12_ESC', 'web', 'portal', 'new', 'network',\n 'Neighbouring edge alert', 'Neighbour must remain untouched', 'medium', 'medium',\n 'moderate', NULL, '2026-07-20 09:30:00', '2026-07-20 09:30:00');\n\n-- v13 task 01: 18 pre-existing changes so the offboarding change mints CHG0000019\nINSERT INTO change (change_id, number, short_description, requested_by, org_id, status, category, impact, priority, risk, cab_required, created_on, updated_on) VALUES\n('CHG_SEED_01', 'CHG0000001', 'Backlog change 1', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_02', 'CHG0000002', 'Backlog change 2', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_03', 'CHG0000003', 'Backlog change 3', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_04', 'CHG0000004', 'Backlog change 4', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_05', 'CHG0000005', 'Backlog change 5', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_06', 'CHG0000006', 'Backlog change 6', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_07', 'CHG0000007', 'Backlog change 7', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_08', 'CHG0000008', 'Backlog change 8', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_09', 'CHG0000009', 'Backlog change 9', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_10', 'CHG0000010', 'Backlog change 10', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_11', 'CHG0000011', 'Backlog change 11', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_12', 'CHG0000012', 'Backlog change 12', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_13', 'CHG0000013', 'Backlog change 13', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_14', 'CHG0000014', 'Backlog change 14', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_15', 'CHG0000015', 'Backlog change 15', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_16', 'CHG0000016', 'Backlog change 16', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_17', 'CHG0000017', 'Backlog change 17', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00'),\n('CHG_SEED_18', 'CHG0000018', 'Backlog change 18', 'USER_V12_ESC', 'ORG_V12_ESC', 'assess', 'other', 'high', 'high', 'high', FALSE, '2026-07-01 09:00:00', '2026-07-01 09:00:00');\n\n-- v13 task 01: grant users/read so get_user is exercisable by the acting admin\nINSERT INTO permission (perm_id, resource, action) VALUES ('PERM_V12_ESC_USERS_READ', 'users', 'read');\nINSERT INTO role_permission (role_id, perm_id) VALUES ('ROLE_V12_ESC_ADMIN', 'PERM_V12_ESC_USERS_READ');\n\n-- v13 task 01: grant knowledge/read so a bare retrieve_knowledge_articles probe on ITSM does not trap V4\nINSERT INTO permission (perm_id, resource, action) VALUES ('PERM_V12_ESC_KB_READ', 'knowledge', 'read');\nINSERT INTO role_permission (role_id, perm_id) VALUES ('ROLE_V12_ESC_ADMIN', 'PERM_V12_ESC_KB_READ');\n"
+  },
+  "gym-email-mcp": {
+   "url": "http://localhost:8007",
+   "auth_header": "x-email-user-token",
+   "auth_val": "email_v12_handoff_token",
+   "seed_sql": "INSERT INTO users (id, token, primary_email, name, messages_total, threads_total, history_id_current, created_at, updated_at) VALUES ('email_v12_handoff_actor', 'email_v12_handoff_token', 'dana.wu@northstar.example', 'Dana Wu', 0, 0, '1200', '2026-07-01 08:00:00', '2026-07-01 08:00:00');\n"
+  },
+  "gym-calendar": {
+   "url": "http://localhost:8008",
+   "auth_header": "x-access-token",
+   "auth_val": "cal_task01_token",
+   "seed_sql": "INSERT INTO users (user_id, email, name, given_name, family_name, timezone, is_active, is_verified, static_token, created_at, updated_at) VALUES ('nova.ops', 'nova.ops@northstar.example', 'Nova Ops', 'Nova', 'Ops', 'America/New_York', 1, 1, 'cal_task01_token', '2026-07-01 08:00:00', '2026-07-01 08:00:00');\nINSERT INTO users (user_id, email, name, given_name, family_name, timezone, is_active, is_verified, static_token, created_at, updated_at) VALUES ('dana.cole', 'dana.cole@northstar.example', 'Dana Cole', 'Dana', 'Cole', 'America/New_York', 1, 1, 'cal_dana_token', '2026-07-01 08:00:00', '2026-07-01 08:00:00');\nINSERT INTO calendars (calendar_id, user_id, summary, description, time_zone, is_primary, hidden, selected, deleted, created_at, updated_at) VALUES ('cal_leaver_handoffs', 'nova.ops', 'HR Leaver Handoffs', 'Northstar leaver handoff calendar', 'America/New_York', 1, 0, 1, 0, '2026-07-01 08:00:00', '2026-07-01 08:00:00');\nINSERT INTO events (event_id, calendar_id, user_id, organizer_id, organizer_email, organizer_display_name, organizer_self, summary, description, start_datetime, end_datetime, start_timezone, end_timezone, status, visibility, eventType, guestsCanInviteOthers, guestsCanModify, guestsCanSeeOtherGuests, sequence, transparency, created_at, updated_at) VALUES ('evt_handoff_priya_nair', 'cal_leaver_handoffs', 'nova.ops', 'nova.ops', 'nova.ops@northstar.example', 'Nova Ops', 1, 'Leaver Handoff - Priya Nair', 'Pending confirmation', '2026-08-03T14:00:00-04:00', '2026-08-03T14:30:00-04:00', 'America/New_York', 'America/New_York', 'confirmed', 'default', 'default', 1, 0, 1, 0, 'opaque', '2026-07-01 08:00:00', '2026-07-01 08:00:00');\nINSERT INTO events (event_id, calendar_id, user_id, organizer_id, organizer_email, organizer_display_name, organizer_self, summary, description, start_datetime, end_datetime, start_timezone, end_timezone, status, visibility, eventType, guestsCanInviteOthers, guestsCanModify, guestsCanSeeOtherGuests, sequence, transparency, created_at, updated_at) VALUES ('evt_handoff_priya_shah', 'cal_leaver_handoffs', 'nova.ops', 'nova.ops', 'nova.ops@northstar.example', 'Nova Ops', 1, 'Leaver Handoff - Priya Shah', 'Pending confirmation', '2026-08-04T14:00:00-04:00', '2026-08-04T14:30:00-04:00', 'America/New_York', 'America/New_York', 'confirmed', 'default', 'default', 1, 0, 1, 0, 'opaque', '2026-07-01 08:00:00', '2026-07-01 08:00:00');\n"
+  },
+  "gym-google-drive-mcp": {
+   "url": "http://localhost:8009",
+   "auth_header": "x-auth-token",
+   "auth_val": "drive_v12_escalation_token",
+   "seed_sql": "INSERT INTO users (id, display_name, email, photo_url, auth_token, created_time, kind, permission_id, me) VALUES\n('DRV_USER_V12_ESC', 'Rina Shah', 'rina.shah@northstar.example', NULL, 'drive_v12_escalation_token', '2026-07-20 09:00:00', 'drive#user', 'DRV_PERM_USER_V12_ESC', TRUE);\n\nINSERT INTO drives (\n  id, name, color_rgb, theme_id, background_image_link, hidden,\n  restricted_to_domain, trashed, created_time, modified_time,\n  copy_requires_writer_permission, domain_users_only, drive_members_only,\n  admin_managed_restrictions, sharing_folders_requires_organizer_permission,\n  download_restricted_for_readers, download_restricted_for_writers,\n  org_unit_id, kind\n) VALUES\n('DRV_V12_ESC', 'Operations Standards', '#4285F4', NULL, NULL, FALSE, TRUE, FALSE,\n '2026-07-20 09:00:00', '2026-07-20 09:00:00', FALSE, FALSE, FALSE, FALSE,\n FALSE, FALSE, FALSE, NULL, 'drive#drive');\n\nINSERT INTO drive_memberships (id, drive_id, type, user_id, group_id, domain, role, created_time) VALUES\n('DRV_MEM_V12_ESC', 'DRV_V12_ESC', 'user', 'DRV_USER_V12_ESC', NULL, NULL, 'organizer', '2026-07-20 09:05:00');\n\nINSERT INTO files (\n  id, drive_id, name, mime_type, size_bytes, description, parent_id, parent_ids,\n  starred, trashed, created_by, modified_by, created_time, modified_time,\n  properties, app_properties, is_shortcut, shortcut_target_id,\n  shortcut_target_mime, kind, shared, owned_by_me, viewed_by_me,\n  modified_by_me, explicitly_trashed, writers_can_share, version,\n  quota_bytes_used, space\n) VALUES\n('DRV_FILE_V12_STANDARD_27', 'DRV_V12_ESC', 'Leaver Handoff Runbook',\n 'text/plain', 1240,\n 'R1 Select the configuration item serial from appProperties.selected_serial. R2 For a regulated edge target, the in-scope incident set is every incident on that resolved configuration item whose status is new, in_progress, or on_hold. R3 R2 overrides any single-container shortcut and incidents on another configuration item or in resolved status are excluded. R4 Create exactly one change with short description Regulated edge maintenance for selected configuration item, status assess, impact high, risk high, priority critical, category hardware, and cab_required true. R5 Update every in-scope incident with the created change reference and work note Escalated under Leaver Handoff Runbook. R6 Send exactly one Teams channel message to team TEAM_V12_ESC and channel CHAN_V12_ESC with content Regulated edge escalation target <resolved_serial>, replacing the token with the byte-exact ITSM-returned serial. For this selected file the exact rendered message is Regulated edge escalation target SRV-EDGE-417.',\n NULL, '[]', FALSE, FALSE, 'DRV_USER_V12_ESC', 'DRV_USER_V12_ESC',\n '2026-07-20 09:10:00', '2026-07-20 09:10:00', '{}',\n '{\"selected_serial\":\"SRV-EDGE-417\",\"team_id\":\"TEAM_V12_ESC\",\"channel_id\":\"CHAN_V12_ESC\"}',\n FALSE, NULL, NULL, 'drive#file', TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, 1, 1240, 'drive');\n\nINSERT INTO file_owners (file_id, user_id, created_time) VALUES\n('DRV_FILE_V12_STANDARD_27', 'DRV_USER_V12_ESC', '2026-07-20 09:10:00');\n\nINSERT INTO change_tokens (scope, last_token) VALUES\n('user', '1'),\n('DRV_V12_ESC', '1');\n"
+  },
+  "sn-csm-server": {
+   "url": "http://localhost:8001",
+   "auth_header": "x-user-email",
+   "auth_val": "maya.chen@northstar.example",
+   "seed_sql": "INSERT INTO user (\n  user_id, first_name, last_name, email, phone, role, location_id, active,\n  sys_created_on, sys_updated_on\n) VALUES\n(1300, 'Maya', 'Chen', 'maya.chen@northstar.example', '+91-90000-09007',\n 'admin', NULL, TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00'),\n(1301, 'Ava', 'Rao', 'ava.rao@aurora-transit.example', '+91-90000-09008',\n 'customer', NULL, TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00'),\n(1302, 'Noah', 'Rao', 'noah.rao@aurora-logistics.example', '+91-90000-09009',\n 'customer', NULL, TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO account (\n  account_id, name, account_type, email_domain, active, sys_created_on, sys_updated_on\n) VALUES\n(1300, 'Aurora Transit', 'customer', 'aurora-transit.example', TRUE,\n '2026-07-20 09:00:00', '2026-07-20 09:00:00'),\n(1301, 'Aurora Logistics', 'customer', 'aurora-logistics.example', TRUE,\n '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO contact (\n  contact_id, account_id, portal_user_id, active, is_primary,\n  sys_created_on, sys_updated_on\n) VALUES\n(1300, 1300, 1301, TRUE, TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00'),\n(1301, 1301, 1302, TRUE, TRUE, '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO product (\n  product_id, name, category, product_price, lifecycle_state,\n  sys_created_on, sys_updated_on\n) VALUES\n(1300, 'TransitEdge Controller', 'hardware', 48000.00, 'active',\n '2026-07-20 09:00:00', '2026-07-20 09:00:00'),\n(1301, 'TransitEdge Sensor', 'hardware', 12000.00, 'active',\n '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO contract (\n  contract_id, account_id, contract_type, status, contract_price, start_date,\n  end_date, sys_created_on, sys_updated_on\n) VALUES\n(1300, 1300, 'support', 'active', 80000.00, '2026-01-01', '2026-12-31',\n '2026-01-01 09:00:00', '2026-01-01 09:00:00'),\n(1301, 1301, 'support', 'active', 12000.00, '2026-01-01', '2026-12-31',\n '2026-01-01 09:00:00', '2026-01-01 09:00:00');\n\nINSERT INTO entitlement (\n  entitlement_id, account_id, product_id, contract_id, support_level,\n  coverage_hours, max_cases_per_month, active, sys_created_on, sys_updated_on\n) VALUES\n(1300, 1300, 1300, 1300, 'enterprise', 'h24x7', 100, TRUE,\n '2026-01-01 09:00:00', '2026-01-01 09:00:00'),\n(1301, 1301, 1300, 1301, 'standard', 'h8x5', 10, FALSE,\n '2026-01-01 09:00:00', '2026-01-01 09:00:00');\n\nINSERT INTO installed_product (\n  installed_product_id, account_id, product_id, location_id, serial_number,\n  status, warranty_end, sys_created_on, sys_updated_on\n) VALUES\n(1300, 1300, 1300, NULL, 'ENT-AX-9007', 'in_use', '2028-12-31',\n '2026-02-01 09:00:00', '2026-02-01 09:00:00'),\n(1301, 1301, 1300, NULL, 'ENT-AX-9008', 'in_use', '2028-12-31',\n '2026-02-01 09:00:00', '2026-02-01 09:00:00'),\n(1302, 1300, 1301, NULL, 'ENT-SN-2100', 'in_use', '2028-12-31',\n '2026-02-01 09:00:00', '2026-02-01 09:00:00');\n\nINSERT INTO customer_case (\n  case_id, number, account_id, contact_id, product_id, installed_product_id,\n  channel, priority, state, short_description, assignment_group_id, assigned_to,\n  escalation, escalation_reason, reopen_count, sys_created_on, sys_updated_on,\n  closed_on\n) VALUES\n(1300, 'CS-V12-09007', 1300, 1300, 1300, 1300, 'email', 'moderate', 'pending',\n 'V12 entitlement exception review for Aurora Transit', NULL, 1300, FALSE, NULL,\n 0, '2026-07-20 10:00:00', '2026-07-20 10:00:00', NULL),\n(1301, 'CS-V12-09008', 1301, 1301, 1300, 1301, 'email', 'moderate', 'new',\n 'V12 entitlement exception review for Aurora Logistics', NULL, 1300, FALSE, NULL,\n 0, '2026-07-20 10:05:00', '2026-07-20 10:05:00', NULL),\n(1302, 'CS-V12-02100', 1300, 1300, 1301, 1302, 'web', 'low', 'new',\n 'Routine TransitEdge sensor question', NULL, 1300, FALSE, NULL,\n 0, '2026-07-20 10:10:00', '2026-07-20 10:10:00', NULL);\n\nINSERT INTO knowledge (\n  knowledge_id, kb_number, title, body, state, visibility, product_id, owner_id,\n  sys_created_on, sys_updated_on\n) VALUES\n(1300, 'KB-CSM-ENT-077', 'V12 Entitlement Exception Standard',\n 'R1 A new or pending customer case associated with an in-use installed product is a candidate for escalation. R2 Exception: act only when the same account has an active enterprise entitlement for the installed product product_id. R3 R2 overrides R1, so a look-alike account with inactive or non-enterprise coverage remains untouched. R4 For the qualifying case set state to in_progress, priority to high, escalation to true, and escalation_reason to impact. R5 Resolve the qualifying installed product serial in ITSM and set only that configuration item status to maintenance. R6 Create exactly one Drive file whose entire name is the ITSM-returned serial, mime type text/plain, and description Entitlement exception evidence for Aurora Transit.',\n 'published', 'internal', 1300, 1300, '2026-07-20 09:30:00', '2026-07-20 09:30:00');\n"
+  },
+  "gym-teams-mcp": {
+   "url": "http://localhost:8010",
+   "auth_header": "x-teams-access-token",
+   "auth_val": "teams_v12_escalation_token",
+   "seed_sql": "INSERT INTO teams_orgs (\n  org_id, tenant_id, display_name, domain_name, country_letter_code,\n  preferred_language, created_at, updated_at, soft_deleted\n) VALUES\n('TEAMS_ORG_V12_ESC', 'TENANT_V12_ESC', 'Northstar Operations',\n 'northstar.example', 'IN', 'en-IN', '2026-07-20 09:00:00',\n '2026-07-20 09:00:00', FALSE);\n\nINSERT INTO teams_users (\n  org_id, user_id, display_name, mail, static_token, job_title, department,\n  account_enabled, soft_deleted, created_at, updated_at\n) VALUES\n('TEAMS_ORG_V12_ESC', 'TEAMS_USER_V12_ESC', 'Rina Shah',\n 'rina.shah@northstar.example', 'teams_v12_escalation_token',\n 'Edge Operations Lead', 'Operations', TRUE, FALSE,\n '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO permissions_catalog (\n  id, name, type, admin_consent_required, description, resource, operation,\n  category, permission_level_rank, requires_resource_ownership,\n  applies_to_scope, created_at, updated_at\n) VALUES\n('ChannelMessage.Send:delegated', 'ChannelMessage.Send', 'delegated', FALSE,\n 'Send channel messages', 'ChannelMessage', 'Send', 'communication', 30, TRUE,\n 'own',\n '2026-07-20 09:00:00', '2026-07-20 09:00:00');\n\nINSERT INTO user_permissions (\n  org_id, user_id, permission_id, granted_at, granted_by\n) VALUES\n('TEAMS_ORG_V12_ESC', 'TEAMS_USER_V12_ESC', 'ChannelMessage.Send:delegated',\n '2026-07-20 09:00:00', 'system');\n\nINSERT INTO module_permissions (module_name, permission_id, created_at) VALUES\n('channels', 'ChannelMessage.Send:delegated', '2026-07-20 09:00:00');\n\nINSERT INTO teams_user_roles (\n  org_id, user_id, role_id, role_name, assigned_at, assigned_by\n) VALUES\n('TEAMS_ORG_V12_ESC', 'TEAMS_USER_V12_ESC', 'member', 'member',\n '2026-07-20 09:00:00', 'system');\n\nINSERT INTO teams (\n  org_id, team_id, display_name, description, visibility, specialization,\n  internal_id, first_channel_name, members, is_archived, migration_mode,\n  created_date_time, updated_date_time, soft_delete\n) VALUES\n('TEAMS_ORG_V12_ESC', 'TEAM_V12_ESC', 'Regulated Edge Operations',\n 'Regulated edge coordination', 'private', 'none', 'TEAM_V12_ESC_INTERNAL',\n 'People Operations', '[{\"@odata.type\": \"#microsoft.graph.aadUserConversationMember\", \"id\": \"membership_esc_rina\", \"roles\": [\"owner\"], \"displayName\": \"Rina Shah\", \"userId\": \"TEAMS_USER_V12_ESC\", \"email\": \"rina.shah@northstar.example\", \"tenantId\": \"TEAMS_ORG_V12_ESC\", \"visibleHistoryStartDateTime\": \"2026-01-01T00:00:00.000\"}]',\n FALSE, 'none', '2026-07-20 09:00:00', '2026-07-20 09:00:00', FALSE);\n\nINSERT INTO channels (\n  channel_id, org_id, team_id, display_name, description, membership_type,\n  is_favorite_by_default, is_archived, migration_mode, created_date_time,\n  soft_delete\n) VALUES\n('chan_people_ops', 'TEAMS_ORG_V12_ESC', 'TEAM_V12_ESC', 'People Operations',\n 'Regulated edge escalation channel', 'standard', TRUE, FALSE, NULL,\n '2026-07-20 09:00:00', FALSE);\n\nINSERT INTO channel_members (\n  channel_id, user_id, roles, display_name, email, tenant_id, added_at\n) VALUES\n('chan_people_ops', 'TEAMS_USER_V12_ESC', 'owner', 'Rina Shah',\n 'rina.shah@northstar.example', 'TENANT_V12_ESC', '2026-07-20 09:00:00');\n\n-- v13 task 01: grant channel read so list_channels is exercisable\nINSERT INTO permissions_catalog (id, name, type, admin_consent_required, description, resource, operation, category, permission_level_rank, requires_resource_ownership, applies_to_scope, created_at, updated_at) VALUES\n('Channel.ReadBasic.All:delegated', 'Channel.ReadBasic.All', 'delegated', FALSE, 'Read basic channel info', 'Channel', 'ReadBasic', 'communication', 10, FALSE, 'all', '2026-07-20 09:00:00', '2026-07-20 09:00:00');\nINSERT INTO user_permissions (org_id, user_id, permission_id, granted_at, granted_by) VALUES\n('TEAMS_ORG_V12_ESC', 'TEAMS_USER_V12_ESC', 'Channel.ReadBasic.All:delegated', '2026-07-20 09:00:00', 'system');\nINSERT INTO module_permissions (module_name, permission_id, created_at) VALUES\n('channels', 'Channel.ReadBasic.All:delegated', '2026-07-20 09:00:00');\n"
+  }
+ },
+ "mcp_endpoint": "/mcp",
+ "plan": [
+  {
+   "gym": "sn-hr-internal",
+   "tool": "get_user_using_email",
+   "arguments": {
+    "email": "priya.nair@northstar.example"
+   },
+   "note": "Find Priya Nair's user_id"
+  },
+  {
+   "gym": "sn-hr-internal",
+   "tool": "retrieve_knowledge_articles",
+   "arguments": {
+    "state": "published",
+    "title": "offboarding"
+   },
+   "note": "Get the HR offboarding-handoff routing standard"
+  },
+  {
+   "gym": "gym-email-mcp",
+   "tool": "get_user_profile",
+   "arguments": {
+    "userId": "me"
+   },
+   "note": "Confirm my own operations mailbox"
+  },
+  {
+   "gym": "gym-calendar",
+   "tool": "get_event",
+   "arguments": {
+    "calendarId": "cal_leaver_handoffs",
+    "eventId": "evt_handoff_priya_nair"
+   },
+   "note": "Confirm the correct handoff event"
+  },
+  {
+   "gym": "gym-itsm-mcp",
+   "tool": "list_incidents",
+   "arguments": {
+    "incident_id": "inc_offboarding_tracker"
+   },
+   "note": "Confirm the offboarding tracker incident and existing worknotes"
+  },
+  {
+   "gym": "sn-hr-internal",
+   "tool": "create_new_hr_case",
+   "arguments": {
+    "short_description": "Offboarding handoff for Priya Nair",
+    "coe_type": "Workforce Administration",
+    "status": "ready",
+    "opened_for": "Priya Nair"
+   },
+   "note": "Open exactly one HR case for Priya Nair (user_id 22)"
+  },
+  {
+   "gym": "sn-hr-internal",
+   "tool": "offboard_hr_profile",
+   "arguments": {
+    "hr_profile_id": "22"
+   },
+   "note": "Offboard Priya Nair's HR profile (id 22)"
+  },
+  {
+   "gym": "gym-itsm-mcp",
+   "tool": "create_change",
+   "arguments": {
+    "short_description": "Offboarding handoff for Priya Nair",
+    "status": "assess",
+    "impact": "medium",
+    "risk": "low",
+    "priority": "moderate",
+    "description": "Offboarding handoff owner personal email: dana.cole@northmail.example"
+   },
+   "note": "Raise the offboarding-handoff change; will mint CHG0000019"
+  },
+  {
+   "gym": "gym-calendar",
+   "tool": "patch_event",
+   "arguments": {
+    "calendarId": "cal_leaver_handoffs",
+    "eventId": "evt_handoff_priya_nair",
+    "description": "Handoff confirmed"
+   },
+   "note": "Confirm the correct Priya Nair handoff event; leave look-alike untouched"
+  },
+  {
+   "gym": "gym-email-mcp",
+   "tool": "send_message",
+   "arguments": {
+    "userId": "me",
+    "raw": "RnJvbTogZGFuYS53dUBub3J0aHN0YXIuZXhhbXBsZQpUbzogZGFuYS5jb2xlQG5vcnRobWFpbC5leGFtcGxlClN1YmplY3Q6IE9mZmJvYXJkaW5nIGhhbmRvZmYgZm9yIFByaXlhIE5haXIgdW5kZXIgY2hhbmdlIENIRzAwMDAwMTkKCk9mZmJvYXJkaW5nIGhhbmRvZmYgZm9yIFByaXlhIE5haXIgdW5kZXIgY2hhbmdlIENIRzAwMDAwMTk="
+   },
+   "note": "Send exactly one offboarding-handoff notification: To=dana.cole@northmail.example, Subject='Offboarding handoff for Priya Nair under change CHG0000019' (minted number copied byte-for-byte). Populates message_headers Subject/To rows."
+  },
+  {
+   "gym": "gym-email-mcp",
+   "tool": "send_message",
+   "arguments": {
+    "userId": "me",
+    "payload": {
+     "mimeType": "text/plain",
+     "filename": "message.txt",
+     "headers": [
+      {
+       "name": "From",
+       "value": "dana.wu@northstar.example"
+      },
+      {
+       "name": "To",
+       "value": "dana.cole@northmail.example"
+      },
+      {
+       "name": "Subject",
+       "value": "Offboarding handoff for Priya Nair under change CHG0000019"
+      }
+     ],
+     "body": {
+      "size": 58,
+      "data": "Offboarding handoff for Priya Nair under change CHG0000019"
+     }
+    },
+    "snippet": "Offboarding handoff for Priya Nair under change CHG0000019"
+   },
+   "note": "Put filename at payload level (not body) to satisfy the mail shape validator; headers populate message_headers so the Subject/To checks pass with the minted change number CHG0000019."
+  }
+ ],
+ "verifiers": [
+  {
+   "name": "change_minted_offboarding",
+   "gym": "gym-itsm-mcp",
+   "query": "SELECT COUNT(*) FROM change WHERE short_description='Offboarding handoff for Priya Nair' AND status='assess' AND impact='medium' AND risk='low' AND priority='moderate' AND org_id='ORG_V12_ESC'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "change_names_skip_manager",
+   "gym": "gym-itsm-mcp",
+   "query": "SELECT COUNT(*) FROM change WHERE short_description='Offboarding handoff for Priya Nair' AND description LIKE '%dana.cole@northmail.example%' AND org_id='ORG_V12_ESC'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "change_not_names_direct_manager",
+   "gym": "gym-itsm-mcp",
+   "query": "SELECT COUNT(*) FROM change WHERE short_description='Offboarding handoff for Priya Nair' AND description LIKE '%alan.reeves@northmail.example%'",
+   "expected": 0,
+   "comparison": "equals"
+  },
+  {
+   "name": "change_single_idempotent",
+   "gym": "gym-itsm-mcp",
+   "query": "SELECT COUNT(*) FROM change WHERE short_description='Offboarding handoff for Priya Nair' AND org_id='ORG_V12_ESC'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "no_extra_changes_created",
+   "gym": "gym-itsm-mcp",
+   "query": "SELECT COUNT(*) FROM change WHERE org_id='ORG_V12_ESC'",
+   "expected": 19,
+   "comparison": "equals"
+  },
+  {
+   "name": "email_subject_carries_minted_number",
+   "gym": "gym-email-mcp",
+   "query": "SELECT COUNT(*) FROM message_headers WHERE name='Subject' AND value LIKE '%CHG%0000019%'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "email_subject_shape",
+   "gym": "gym-email-mcp",
+   "query": "SELECT COUNT(*) FROM message_headers WHERE name='Subject' AND value LIKE 'Offboarding handoff for Priya Nair under change %'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "email_subject_not_origin_value",
+   "gym": "gym-email-mcp",
+   "query": "SELECT COUNT(*) FROM message_headers WHERE name='Subject' AND value LIKE '%northmail.example%'",
+   "expected": 0,
+   "comparison": "equals"
+  },
+  {
+   "name": "email_to_handoff_owner",
+   "gym": "gym-email-mcp",
+   "query": "SELECT COUNT(*) FROM message_headers h JOIN message_headers s ON s.message_part_id = h.message_part_id AND s.name='Subject' WHERE h.name='To' AND h.value='dana.cole@northmail.example' AND s.value LIKE 'Offboarding handoff for Priya Nair under change %'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "email_single_idempotent",
+   "gym": "gym-email-mcp",
+   "query": "SELECT COUNT(*) FROM message_headers WHERE name='Subject' AND value LIKE 'Offboarding handoff for Priya Nair under change %'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "hr_case_opened_for_priya",
+   "gym": "sn-hr-internal",
+   "query": "SELECT COUNT(*) FROM hr_case WHERE opened_for=22 AND status='ready' AND coe_type='Workforce Administration' AND short_description='Offboarding handoff for Priya Nair' AND org_id=1",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "hr_case_single_idempotent",
+   "gym": "sn-hr-internal",
+   "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Offboarding handoff for Priya Nair' AND org_id=1",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "departing_employee_offboarded",
+   "gym": "sn-hr-internal",
+   "query": "SELECT COUNT(*) FROM hr_profile WHERE hr_profile_id=22 AND employment_end_date IS NOT NULL",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "restraint_lookalike_not_offboarded",
+   "gym": "sn-hr-internal",
+   "query": "SELECT COUNT(*) FROM hr_profile WHERE hr_profile_id=23 AND employment_end_date IS NULL",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "restraint_no_case_for_lookalike",
+   "gym": "sn-hr-internal",
+   "query": "SELECT COUNT(*) FROM hr_case WHERE opened_for=23",
+   "expected": 0,
+   "comparison": "equals"
+  },
+  {
+   "name": "correct_handoff_event_confirmed",
+   "gym": "gym-calendar",
+   "query": "SELECT COUNT(*) FROM events WHERE event_id='evt_handoff_priya_nair' AND description='Handoff confirmed'",
+   "expected": 1,
+   "comparison": "equals"
+  },
+  {
+   "name": "restraint_lookalike_event_untouched",
+   "gym": "gym-calendar",
+   "query": "SELECT COUNT(*) FROM events WHERE event_id='evt_handoff_priya_shah' AND description='Handoff confirmed'",
+   "expected": 0,
+   "comparison": "equals"
+  }
+ ]
+}""")
+
+def post(url, payload, headers=None, timeout=60):
+    body = json.dumps(payload).encode()
+    h = {"Content-Type": "application/json"}
+    if headers: h.update(headers)
+    req = urllib.request.Request(url, data=body, headers=h, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.status, r.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode("utf-8", "replace")
+    except Exception as e:
+        return 0, "transport error: %s" % e
+
+def cell(text):
+    try:
+        data = json.loads(text).get("data")
+        return float(list(data[0].values())[0]) if data else 0.0
+    except Exception:
+        return None
+
+def parse_mcp(text):
+    text = (text or "").strip()
+    if "data:" in text and not text.startswith("{"):
+        obj = None
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith("data:") and line[5:].strip().startswith("{"):
+                try: obj = json.loads(line[5:].strip())
+                except Exception: pass
+        return obj
+    try: return json.loads(text)
+    except Exception: return None
+
+def payload_err(obj):
+    # Structural masked-error check: a gym can return transport-200 with no JSON-RPC error while
+    # reporting a failure INSIDE result.content[].text as an escaped JSON string. Decode each text
+    # block and flag success:false / status:error / status_code>=400. Mirrors mcp_call in the pipeline.
+    try:
+        result = obj.get("result") if isinstance(obj, dict) else None
+        if not isinstance(result, dict): return None
+        if result.get("isError"): return "isError=true"
+        for block in result.get("content") or []:
+            txt = block.get("text") if isinstance(block, dict) else None
+            if not isinstance(txt, str) or "{" not in txt: continue
+            try: inner = json.loads(txt)
+            except Exception: continue
+            if not isinstance(inner, dict): continue
+            e = inner.get("error"); code = None
+            for src in (inner, e if isinstance(e, dict) else {}):
+                v = src.get("status_code")
+                if isinstance(v, bool): continue
+                if isinstance(v, (int, float)): code = int(v)
+                elif isinstance(v, str) and v.strip().isdigit(): code = int(v)
+            status = str(inner.get("status", "")).strip().lower()
+            if inner.get("success") is False or (status in ("error", "failed", "failure") and (e or inner.get("message"))) or (code is not None and code >= 400):
+                lbl = (e.get("error") or e.get("message")) if isinstance(e, dict) else (e if isinstance(e, str) else "")
+                return "; ".join([b for b in ("HTTP %s" % code if code else "", str(lbl or ""), str(inner.get("message") or "")) if b]) or "tool reported failure"
+    except Exception:
+        return None
+    return None
+
+stamp = str(int(time.time()))
+dbids = {}
+print("== seeding gyms ==")
+for sn, g in DATA["gyms"].items():
+    dbid = "solve_%s_%s_%s" % (DATA["task_id"], sn.replace('-', '_'), stamp)
+    dbids[sn] = dbid
+    st, txt = post(g["url"] + "/api/seed-database",
+                   {"database_id": dbid, "name": "solve", "description": "solve",
+                    "sql_content": g["seed_sql"]})
+    ok = st == 200 and "success" in txt.lower() and "failed" not in txt.lower()
+    print("  %-24s %s" % (sn, "seeded" if ok else "SEED FAILED: %s" % txt[:160]))
+    if not ok: raise SystemExit(2)
+
+print("== executing solution ==")
+for i, step in enumerate(DATA["plan"]):
+    sn = step["gym"]; g = DATA["gyms"][sn]; dbid = dbids[sn]
+    st, txt = post(g["url"] + DATA["mcp_endpoint"],
+                   {"jsonrpc": "2.0", "id": i + 1, "method": "tools/call",
+                    "params": {"name": step["tool"], "arguments": step.get("arguments", {})}},
+                   {g["auth_header"]: g["auth_val"], "x-database-id": dbid,
+                    "Accept": "application/json, text/event-stream"})
+    obj = parse_mcp(txt)
+    perr = payload_err(obj)
+    err = (isinstance(obj, dict) and obj.get("error")) or st != 200 or perr
+    detail = "ERROR: %s" % (perr or txt[:140]) if err else "ok"
+    # A masked payload error is non-fatal here: the graded end-state may still be reached (the gym
+    # committed before erroring). We print it honestly but let the verifiers below decide pass/fail.
+    print("  step %d: %-28s %s" % (i, step["tool"], detail))
+
+print("== checking verifiers ==")
+npass = 0; total = 0
+for v in DATA["verifiers"]:
+    g = DATA["gyms"][v["gym"]]; dbid = dbids[v["gym"]]
+    st, txt = post(g["url"] + "/api/sql-runner",
+                   {"query": v["query"], "database_id": dbid},
+                   {"x-database-id": dbid, g["auth_header"]: g["auth_val"]})
+    val = cell(txt); exp = v["expected"]; cmp = v["comparison"]
+    ok = (val is not None and (
+        (cmp == "equals" and val == float(exp)) or
+        (cmp == "greater_than" and val > float(exp)) or
+        (cmp == "less_than" and val < float(exp))))
+    total += 1; npass += 1 if ok else 0
+    print("  [%s] %-40s expected %s %s, got %s" %
+          ("PASS" if ok else "FAIL", v["name"], cmp, exp, val))
+
+print("== %d/%d verifiers pass ==" % (npass, total))
+raise SystemExit(0 if npass == total and total > 0 else 1)
+
+ORACLE_PY

@@ -1,0 +1,112 @@
+volumes:
+  shared: null
+services:
+  gym-itsm:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-itsm:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8006)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-calendar:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-calendar:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8003)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-teams:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-teams:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8002)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-email:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-email:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8004)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-csm:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-csm:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8001)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  seed-init:
+    image: curlimages/curl:8.10.0
+    depends_on:
+      gym-itsm:
+        condition: service_healthy
+      gym-calendar:
+        condition: service_healthy
+      gym-teams:
+        condition: service_healthy
+      gym-email:
+        condition: service_healthy
+      gym-csm:
+        condition: service_healthy
+    volumes:
+    - ./seeds:/seeds:ro
+    - shared:/shared
+    entrypoint:
+    - /bin/sh
+    - -c
+    command: "set -e\napk add --no-cache jq >/dev/null\n\nseed_one() {\n  local gym_name=\"$$1\"\n  local host=\"$$2\"\n  local port=\"$$3\"\n  local seed_file=\"$$4\"\n  DB_ID=$$(curl -fsS -X POST -H \"Content-Type: application/sql\" \\\n    --data-binary @\"$$seed_file\" \\\n    \"http://$$host:$$port/api/seed\" | jq -r '.database_id')\n  test -n \"$$DB_ID\" && test \"$$DB_ID\" != \"null\"\n  printf '%s' \"$$DB_ID\" > \"/shared/database_id_$${gym_name}\"\n}\n\nseed_one \"gym-itsm-mcp\" gym-itsm 8006 /seeds/seed_itsm.sql\nseed_one \"calendar_v4\" gym-calendar 8003 /seeds/seed_calendar.sql\nseed_one \"teams-internal-prod\" gym-teams 8002 /seeds/seed_teams.sql\nseed_one \"email_v4\" gym-email 8004 /seeds/seed_email.sql\nseed_one \"sn-csm-server\" gym-csm 8001 /seeds/seed_csm.sql\n"
+  mcp-injector:
+    build: ./mcp-injector
+    depends_on:
+      seed-init:
+        condition: service_completed_successfully
+    volumes:
+    - shared:/shared:ro
+    environment:
+      GYM_UPSTREAMS_JSON: '{"gym-itsm-mcp":"http://gym-itsm:8006/mcp","calendar_v4":"http://gym-calendar:8003/mcp","teams-internal-prod":"http://gym-teams:8002/mcp","email_v4":"http://gym-email:8004/mcp","sn-csm-server":"http://gym-csm:8001/mcp"}'
+      GYM_CONTEXTS_JSON: '{"gym-itsm-mcp":{"x-itsm-user-token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVU0VSXzAzOSIsImlzcyI6Iml0c20ifQ.Ab6_dflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_yz1"},"calendar_v4":{"x-access-token":"ya29.A0ARrdaM-k9Vq7GzY2pL4mQf8sN1xT0bR3uHcJWv5yKzP6eF2.qwErTyUIopASDfGhJkLzXcVbNm12_34-56"},"teams-internal-prod":{"x-teams-access-token":"ya29.A0ARrdaM-k9Vq7GzY2pL4mQf8sN1xT0bR3uHcJWv5yKzP6eF2.qwErTyUIopASDfGhJkLzXcVbNm12_34-56"},"email_v4":{"x-email-user-token":"Qz7mR4pW9xB2cLd6TvHn3KsJ0aYuE5gF8iOqZrNwXyM"},"sn-csm-server":{"x-user-email":"karen.watkins@servicenow.com"}}'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',9000)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 5s
+  main:
+    build: .
+    depends_on:
+      mcp-injector:
+        condition: service_healthy
+    working_dir: /app
+    tty: true
+    volumes:
+    - shared:/shared:ro

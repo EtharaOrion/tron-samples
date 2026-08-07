@@ -1,0 +1,89 @@
+version = "1.0"
+
+[task]
+name = "default/90b6626a-da8b-5d0b-a01b-3bf3e7052497"
+description = "James Brown, `james.brown@techcorp.com`, is leaving TechCorp and his access has to be revoked."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "hr",
+    "itsm",
+    "email",
+]
+gyms = [
+    "sn-hr-internal",
+    "gym-itsm-mcp",
+    "gym-email-mcp",
+]
+source_task_id = "90b6626a-da8b-5d0b-a01b-3bf3e7052497"
+selected_tools = [
+    "get_user_using_email",
+    "get_users_hr_profile",
+    "retrieve_knowledge_articles",
+    "get_user",
+    "create_new_hr_case",
+    "find_configuration_item_by_serial_number",
+    "create_change",
+    "get_user_profile",
+    "send_message",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.sn-hr-internal]
+x-hr-token-access = "hr_token_sarah_chen_001"
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVU0VSXzAwNCIsImlzcyI6Iml0c20ifQ.kL3_dflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_123"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "Kx5XwZK6imPxgyAE88USnS4lF3np3br81Tf9FZr4Vno"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-itsm",
+    "gym-email",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-hr-internal"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-hr-internal"
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-itsm",
+    "gym-email",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

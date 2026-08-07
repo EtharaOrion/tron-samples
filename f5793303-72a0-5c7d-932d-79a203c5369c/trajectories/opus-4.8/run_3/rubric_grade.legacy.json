@@ -1,0 +1,117 @@
+{
+  "task": "f5793303-72a0-5c7d-932d-79a203c5369c",
+  "uuid": "f5793303-72a0-5c7d-932d-79a203c5369c",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "fd4dd999a7111ffbd864cf1acf0d6d0ba429fb5a0642f1963c1f99a971c59505",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 13,
+    "gate_met": 10,
+    "gate_total": 10,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 32,
+    "writes": 10
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 list_files returns the standard's description with R1 general rule, R2 exception, R3 precedence. Final message: 'Step 1 \u2014 Procedure & scope (done) ... Composed R1 (candidate = account owning an in-use regulated grid gateway) with R2 exception (only an account holding an active enterprise entitlement...), R2 governing per R3'."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 find_configuration_item_by_serial_number('GRD-NX-4471') returns {'configuration_item_id':'CI_GRID_4471','name':'Grid Gateway 4471',...}. Call #3 update_configuration_item reuses 'CI_GRID_4471'; Call #8's short_description reuses 'Grid Gateway 4471' byte for byte."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #3 update_configuration_item({'configuration_item_id':'CI_GRID_4471','status':'maintenance'}) response confirms status 'maintenance'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Searched the full trajectory for 'CI_GRID_9000' \u2014 no reference exists; only CI_GRID_4471 is read or written (Calls #2, #3)."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #4 retrieve_installed_products \u2192 account_id 1300. Call #5 find_entitlements(product_id=1300) \u2192 entitlement 1300 (account 1300, enterprise, active:1) vs 1301 (account 1301, standard, active:0). Calls #6/#7 search_cases for both accounts. Final message: 'Eligible account: account_id 1300 (active enterprise entitlement 1300...); look-alike account_id 1301 holds only an inactive standard entitlement \u2192 not eligible'."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #8 create_new_case short_description: 'Entitlement remediation for asset Grid Gateway 4471' \u2014 exact match."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #8 arguments: {'channel':'web','priority':'high','state':'new',...}; response confirms all three unchanged."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #8 create_new_case succeeded on the first attempt with contact_id:1300 (sourced from Call #6's search_cases response) \u2014 no rejection occurred."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #9 update_case({'case_id':1300,'state':'in_progress','priority':'high'}) \u2014 case_id 1300 is the pending case CS-V12-09007 found in Call #6. Response confirms both fields updated."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Only one create_new_case call exists (Call #8, producing case_id 1303/CS-0001303); no other create attempts appear across the 32 calls."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No create/update call anywhere targets account_id 1301 or case_id 1301/CS-V12-09008; Call #7 only reads it. Final message confirms this scope restriction."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Email: call #16 send_message succeeded (id a70f27d2...). Calendar: calls #12/#15/#18/#19/#20/#21/#29/#30 create_event/list_events all failed against 'primary', mailbox addresses, 'operations', 'gym-calendar', 'operations-calendar@northstar.example'; final message explicitly cites these refusals ('I will not fabricate one. Step stopped.'). Teams: calls #22/#26/#31 list_channels failed for 'operations'/'gym-teams'/'Operations'; final message explicitly reports the refusal and reason. All three items addressed with cited refusals, none silently omitted.",
+      "rejudged": true
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "The successful email (Call #16, response id a70f27d2-b910-4730-9d8b-c8370da3fee5) is persisted with header 'From': 'akashforgaming7@gmail.com'. This value first appears unsourced in the earlier failed Call #11 and is reused in the successful Call #16 \u2014 the actual mailbox identity (dana.wu@northstar.example) is only retrieved afterward, in Call #28, too late to correct the already-sent email. The persisted From value was never traced to an authenticated tool response at the time it was written."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Final message separates '## Completed' from '## Could not complete (precise reasons \u2014 no value fabricated)' listing HR, calendar, and Teams with specific reasons, matching which steps actually executed; the overstatement about 'resolved me \u2192 dana.wu@northstar.example' for the email is a factual detail (captured in R13), not a claim that unexecuted steps were done."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

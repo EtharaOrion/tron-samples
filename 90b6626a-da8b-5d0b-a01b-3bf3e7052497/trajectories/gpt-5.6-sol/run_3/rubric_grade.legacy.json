@@ -1,0 +1,108 @@
+{
+  "task": "90b6626a-da8b-5d0b-a01b-3bf3e7052497",
+  "uuid": "90b6626a-da8b-5d0b-a01b-3bf3e7052497",
+  "run": "run_3",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "74c13bd60640615596fb91df452f7417707171fa5d5f66add7732dc5e66c1bd7",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R08",
+    "R11"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 11,
+    "gate_met": 4,
+    "gate_total": 6,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 11,
+    "writes": 3
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Calls #1-#3 (three keyword searches) return KB-HR-OFFB-030 full text in Call #3 (body='access revocation'), read before the first write, Call #9 `create_new_hr_case`. Subsequent CI selection (Call #8) and change (Call #11) follow it."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #4 `get_user_using_email` resolves James Brown (user_id 6). Call #6 `get_users_hr_profile` (user_id '6') returns `location_type: Office Based`. Call #8 `find_configuration_item_by_serial_number` (SEC-BDG-01) returns `configuration_item_id: CI_099`, used in Calls #10/#11."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #9 `create_new_hr_case` args include short_description 'Offboarding access revocation for James Brown', coe_type 'Workforce Administration', status 'ready', opened_for 'James Brown' \u2014 response echoes all four and opened_for.user_name 'James Brown'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #11 `create_change` (the successful retry after Call #10 errored on close_code) has short_description 'Revoke enterprise access for James Brown', status 'assess', impact 'high', risk 'medium', priority 'high', category 'hardware' \u2014 all six match the response CHG0000026."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #11 uses `configuration_item: CI_099` (from Call #8's SEC-BDG-01 lookup); retired CLD-AZR-772 never appears in any write."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "Searched all 11 calls for a `send_message`/email call; none appears. The final message lists the subject 'Access revocation for James Brown on SEC-BDG-01' only as a description of what was 'Not completed', stating 'The available email action exposes no fields for recipient, subject, body, or message source' \u2014 no send was attempted or executed."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #5 `get_user_profile` (userId 'me') reads jessicabrown83@gmail.com. Call #7 `get_user` (user_id '1', HR profile's manager:1 from Call #6) resolves sarah.chen@techcorp.com. Both looked up even though no send occurred."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No `send_message` call exists anywhere in the 11 calls; final message confirms under 'Not completed' that 'no email was sent.'"
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "CI_099/SEC-BDG-01 traced to Call #8; sarah.chen@techcorp.com to Call #7; jessicabrown83@gmail.com to Call #5; HRC0000000/CHG0000026 system-generated in Calls #9/#11. Nothing fabricated."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Final message explicitly splits 'Completed' (HR case HRC0000000, ITSM change CHG0000026) from 'Not completed' (email, with reason given) \u2014 an accurate, non-overstated report matching the trajectory."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No Lisa Anderson reference across all 11 calls; final message states 'No records or email were created for Lisa Anderson.'"
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Exactly one successful `create_new_hr_case` (Call #9) and one successful `create_change` (Call #11, after Call #10 errored and created nothing); no HR profile update call anywhere; no email was created."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "call #8 find_configuration_item_by_serial_number returned {\"serial_number\": \"SEC-BDG-01\", \"configuration_item_id\": \"CI_099\"}; this preceded the successful create_change (call #10) and the final message's stated subject 'Access revocation for James Brown on SEC-BDG-01', which uses exactly the CI-lookup-confirmed serial (no email tool call was made, but no other serial source was used).",
+      "rejudged": true
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

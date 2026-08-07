@@ -1,0 +1,107 @@
+{
+  "task": "1b126a03-b3fb-51cf-9971-41f432c6c6f7",
+  "uuid": "1b126a03-b3fb-51cf-9971-41f432c6c6f7",
+  "run": "run_1",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "d29dbe588140219dbe7d63f09d180ba954dd74609913cae2b479328bdf19b0c6",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R10"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 1,
+    "gate_met": 0,
+    "gate_total": 7,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 3,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 find_account({\"name\": \"Stellar Systems\"}) returned {\"account_id\": 201, \"account_type\": \"customer\", \"email_domain\": \"stellarsystems.com\"}; final message: 'I confirmed Stellar Systems as the active customer account on the stellarsystems.com domain'."
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "Calls #2 and #3 find_contracts (identical filtered queries) both returned \"[]\" \u2014 no contract was ever retrieved, and update_contract is never called anywhere in this 3-call trajectory."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "Searched all 3 calls for a contract update; none exists (only find_account and two empty find_contracts reads). No end date is ever set."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "Searched all 3 calls for an update_contract call; none exists. No contract_price is ever set to 60000 or anything else."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Searched all 3 calls for a contact lookup or update_user_details call; neither exists. The phone is never updated."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "Calls #2/#3 find_contracts both returned \"[]\", never surfacing the warranty contract's type/status; final message only says 'I made no changes to the contract or primary contact' without any statement identifying or excluding the warranty specifically."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Searched all 3 calls for a find_contacts/contact lookup; none exists. The final message never names or distinguishes a primary vs. secondary contact."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all 3 calls for find_entitlements or any entitlement call; none exists, so no read-only confirmation of coverage was performed."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "No entitlement lookup call appears anywhere in the trajectory, so no entitlement was traced to the (never-amended) support contract."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No write tool call appears anywhere in the 3-call trajectory (only find_account and two find_contracts reads); the run halted before any write, so the practice of sourcing write-ids from lookups is never demonstrated."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "Only the 'identify' step (Call #1) is completed; the amend, contact-update, and verify steps are all omitted \u2014 final message: 'I made no changes... and did not perform downstream entitlement verification.'"
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "The agent never executed the amend, contact-update, or verify steps, so it cannot have 'claimed completion only after all three actions returned successful results'; final message explicitly reports non-completion rather than success."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "find_entitlements is never called in this trajectory, so no entitlement read exists to ground any confirmation of active coverage; none is offered in the final message."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

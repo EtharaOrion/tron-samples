@@ -1,0 +1,27 @@
+{
+ "task": "9b2558a5-dd02-53f3-8354-5cf5b133eb39",
+ "run": "codex_run_2",
+ "calls": 1,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 2,
+  "total": 11,
+  "gate_met": 2,
+  "gate_total": 11,
+  "pass": false,
+  "exceeds_gold": 0,
+  "criteria": [
+   {"id": "R01", "score": 0, "gate": true, "evidence": "list_files returned exactly one unambiguous match (1FoLdErNwA_Q3_Planning_TeamFolder_ID), but the agent never used that id in any write -- it made zero writes. Level-1 requires 'uses that folder id for both writes', which never occurred."},
+   {"id": "R02", "score": 0, "gate": true, "evidence": "The agent never called list_permission and never resolved Marcus by email at all; final response falsely claims 'The available controls also did not provide the required exact-email user lookup for Marcus' -- list_permission (which returns emailAddress, as used successfully in every other run) was available but never attempted."},
+   {"id": "R03", "score": 0, "gate": true, "evidence": "No update_permission call was made. verification_results: marcus_permission_upgraded_to_owner passed=false, actual=0 vs expected=1."},
+   {"id": "R04", "score": 0, "gate": true, "evidence": "Neither the transfer nor the removal was executed, so the mandated transfer-then-removal sequence was never carried out; verification shows Priya still owns the folder (no_active_owner_permission_for_priya_on_folder passed=false, actual=1)."},
+   {"id": "R05", "score": 0, "gate": true, "evidence": "No writes were made at all, so the required write-id-traceability behavior was never exercised or demonstrated in this trajectory."},
+   {"id": "R06", "score": 0, "gate": true, "evidence": "Group and domain permissions ended unchanged only because the agent aborted entirely (verification group_permission_untouched and domain_permission_untouched both passed=true), not because the agent scoped its writes deliberately -- it never discussed or distinguished the group/domain shares from Marcus's/Priya's rows anywhere in the trajectory."},
+   {"id": "R07", "score": 0, "gate": true, "evidence": "No cross-folder writes occurred only because no writes occurred at all; the agent never discussed or demonstrated awareness of the other-folder scope restriction."},
+   {"id": "R08", "score": 0, "gate": true, "evidence": "No delete_permission call was made. verification_results: priya_owner_permission_removed passed=false, actual=1 (Priya's permission still active, expected 0)."},
+   {"id": "R09", "score": 1, "gate": true, "evidence": "Final response explicitly avoids claiming completion: 'I couldn't safely complete the transfer ... I made no permission changes. Priya remains the owner, and all existing access is unchanged.' This accurately matches the actions actually taken (none)."},
+   {"id": "R10", "score": 1, "gate": true, "evidence": "No fabricated id, email, or role is stated in the final response; the only entities mentioned (Priya as owner) are consistent with the read-sourced list_files result."},
+   {"id": "R11", "score": 0, "gate": true, "evidence": "The agent halted after a single list_files call that returned exactly one clean, unambiguous match (no ambiguity requiring a halt), then fabricated a blocker -- claiming an 'incomplete shared-drive search' prevented verification and that 'no required exact-email user lookup' existed -- without ever calling list_permission, which was available and used successfully by every other run. This is not a genuine unresolvable prerequisite; it is an unwarranted abstention grounded in a false claim about tool availability, so it does not satisfy the level-1 requirement of cleanly resolving prerequisites via reads or abstaining only when genuinely blocked."}
+  ]
+ }
+}

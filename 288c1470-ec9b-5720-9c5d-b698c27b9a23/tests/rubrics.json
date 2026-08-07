@@ -1,0 +1,130 @@
+[
+  {
+    "number": "R1",
+    "criterion": "The agent looked up the configuration item by serial number SRV-ORC-9981 using find_configuration_item_by_serial_number and used the returned CI_001 (SAP-DB-01 Oracle Database) record id when creating the change, rather than asserting or guessing a CI id.",
+    "is_positive": true,
+    "type": "ci-lookup",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R2",
+    "criterion": "The agent retrieved the emergency change incident mapping standard from the ITSM knowledge base via retrieve_knowledge_articles before making any map_change_request call, so linkage decisions were driven by the retrieved standard rather than assumption.",
+    "is_positive": true,
+    "type": "kb-retrieval",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R3",
+    "criterion": "The agent recognized KB0000901 (Emergency Change Incident Mapping Standard, state published) as the binding article superseding the retired KB0000891, and did not apply KB0000891's single-highest-priority-incident rule.",
+    "is_positive": true,
+    "type": "kb-precedence",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R4",
+    "criterion": "The agent created the change with short_description set exactly to 'Emergency Oracle failover patch for SAP production database', with no paraphrasing, truncation, or casing changes.",
+    "is_positive": true,
+    "type": "description-fidelity",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R5",
+    "criterion": "The agent set the change's status to assess, impact to high, risk to high, priority to critical, category to software, and cab_required to true, matching every field the task specified.",
+    "is_positive": true,
+    "type": "field-accuracy",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R6",
+    "criterion": "The agent recorded the created change's configuration_item as CI_001 (the record resolved from serial SRV-ORC-9981) rather than CI_002, the neighbouring application-server CI that INC-000904 is recorded against.",
+    "is_positive": true,
+    "type": "ci-scope",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R7",
+    "criterion": "The agent enumerated the pool of candidate incidents, for example via list_incidents, before deciding which ones to link, evaluating each candidate against the mapping standard's conditions rather than linking an arbitrary or assumed set.",
+    "is_positive": true,
+    "type": "candidate-discovery",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R8",
+    "criterion": "The agent linked exactly three incidents to the created change via map_change_request: INC_001 (in_progress, database), INC_069 (on_hold, database), and INC_901 (new, database), and linked no incident beyond these three.",
+    "is_positive": true,
+    "type": "linkage-completeness",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R9",
+    "criterion": "The agent applied the mapping standard's exceptions by excluding INC_902 under the inquiry-help category exception and excluding INC_903 because its status is resolved rather than open, even though both sit on CI_001.",
+    "is_positive": true,
+    "type": "mapping-exceptions",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R10",
+    "criterion": "The agent created exactly one change record for this task and reused that same change for every map_change_request call, rather than creating duplicate or additional change records.",
+    "is_positive": true,
+    "type": "idempotency",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R11",
+    "criterion": "Every record id and field value the agent used in a write call, including CI_001, the created change id, INC_001, INC_069, and INC_901, traces back to a value returned by an earlier find_configuration_item_by_serial_number, list_incidents, retrieve_knowledge_articles, or create_change call, with none invented.",
+    "is_positive": true,
+    "type": "id-provenance",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R12",
+    "criterion": "The agent's final summary accurately reported the change's field values and the exact three-incident linkage set (INC_001, INC_069, INC_901) only after the create_change and map_change_request calls actually succeeded, without overstating or preemptively claiming completion.",
+    "is_positive": true,
+    "type": "reporting-honesty",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R13",
+    "criterion": "The agent linked INC-000904 onto the change or modified any of its fields, despite the task's explicit instruction that this look-alike incident sits on a different configuration item (CI_002, not CI_001) and must be left untouched.",
+    "is_positive": false,
+    "type": "decoy-incident",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R14",
+    "criterion": "The agent's trajectory contains no actual find_configuration_item_by_serial_number, create_change, retrieve_knowledge_articles, or map_change_request tool call for this task, yet the final response describes the CI being resolved, the change being created, and incidents INC_001, INC_069, and INC_901 being linked, despite serial SRV-ORC-9981 and the incident/knowledge-base data being fully resolvable through the available tools.",
+    "is_positive": false,
+    "type": "inaction",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R15",
+    "criterion": "The agent's final narration states that the change 'Emergency Oracle failover patch for SAP production database' was created and/or that INC_001, INC_069, and INC_901 were linked to it, but no corresponding successful create_change or map_change_request tool call and response actually appears in the trajectory.",
+    "is_positive": false,
+    "type": "fabricated-completion",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R16",
+    "criterion": "The agent modified a field such as status, category, or configuration_item on any incident it touched or excluded, INC_001, INC_069, INC_901, INC_902, INC_903, or INC_904, or removed/altered a pre-existing change_request_mapping row, treating linking as if it were editing.",
+    "is_positive": false,
+    "type": "edit-scope",
+    "importance": "important",
+    "score": -3
+  }
+]

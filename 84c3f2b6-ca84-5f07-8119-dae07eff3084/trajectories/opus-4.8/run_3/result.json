@@ -1,0 +1,168 @@
+{
+  "id": "350e57ee-50da-5e20-a9b1-b05ea19e34ef",
+  "task_name": "default/84c3f2b6-ca84-5f07-8119-dae07eff3084",
+  "trial_name": "84c3f2b6-ca84-5f07-8119-dae07eff3084__claude-opus-4-8__run3",
+  "trial_uri": "harbor/84c3f2b6-ca84-5f07-8119-dae07eff3084/claude-opus-4-8/run3",
+  "task_id": {
+    "path": "dataset/84c3f2b6-ca84-5f07-8119-dae07eff3084"
+  },
+  "source": null,
+  "task_checksum": "5f19a7a23a3266cc1be0ae604bfeec4b522b73f1e2248f98d88729a615126461",
+  "config": {
+    "task": {
+      "path": "dataset/84c3f2b6-ca84-5f07-8119-dae07eff3084",
+      "git_url": null,
+      "git_commit_id": null,
+      "name": null,
+      "ref": null,
+      "overwrite": false,
+      "download_dir": null,
+      "source": null
+    },
+    "trial_name": "84c3f2b6-ca84-5f07-8119-dae07eff3084__claude-opus-4-8__run3",
+    "trials_dir": "harbor/84c3f2b6-ca84-5f07-8119-dae07eff3084",
+    "timeout_multiplier": 1.0,
+    "agent_timeout_multiplier": null,
+    "verifier_timeout_multiplier": null,
+    "agent_setup_timeout_multiplier": null,
+    "environment_build_timeout_multiplier": null,
+    "agent": {
+      "name": "claude-opus-4-8",
+      "import_path": null,
+      "model_name": "vllm/claude-opus-4-8",
+      "skills": [],
+      "override_timeout_sec": null,
+      "override_setup_timeout_sec": null,
+      "max_timeout_sec": null,
+      "extra_allowed_hosts": [],
+      "kwargs": {
+        "number_of_runs": 1
+      },
+      "env": {},
+      "mcp_servers": [
+        {
+          "name": "sn-csm-server",
+          "transport": "sse",
+          "url": "http://localhost:8001",
+          "command": null,
+          "args": []
+        },
+        {
+          "name": "email_v4",
+          "transport": "sse",
+          "url": "http://localhost:8007",
+          "command": null,
+          "args": []
+        }
+      ]
+    },
+    "environment": {
+      "type": "docker",
+      "import_path": null,
+      "force_build": false,
+      "delete": true,
+      "cpu_enforcement_policy": "auto",
+      "memory_enforcement_policy": "auto",
+      "override_cpus": null,
+      "override_memory_mb": null,
+      "override_storage_mb": null,
+      "override_gpus": null,
+      "override_tpu": null,
+      "mounts": null,
+      "extra_docker_compose": [],
+      "env": {},
+      "kwargs": {},
+      "extra_allowed_hosts": []
+    },
+    "verifier": {
+      "override_timeout_sec": 300.0,
+      "max_timeout_sec": 300.0,
+      "env": {},
+      "disable": false
+    },
+    "artifacts": [],
+    "extra_instruction_paths": [],
+    "job_id": "20cf2c15-6508-5595-acef-a04c00d400ab"
+  },
+  "agent_info": {
+    "name": "claude-opus-4-8",
+    "version": "1.0",
+    "model_info": {
+      "name": "vllm/claude-opus-4-8",
+      "provider": "vllm"
+    }
+  },
+  "agent_result": {
+    "n_input_tokens": 24,
+    "n_cache_tokens": 0,
+    "n_output_tokens": 66662,
+    "cost_usd": null,
+    "rollout_details": null,
+    "metadata": {
+      "turns": 12,
+      "turns_captured": 12,
+      "reasoning_tokens": 0,
+      "execution_time_ms": 881408,
+      "tools_used": [
+        "find_account",
+        "find_contracts",
+        "search_cases",
+        "find_case_slas",
+        "find_contacts",
+        "list_users",
+        "get_vacation_settings",
+        "email_list_delegates",
+        "get_user_profile",
+        "list_messages",
+        "update_contract",
+        "update_case",
+        "send_message",
+        "send_notification"
+      ],
+      "overall_success": true,
+      "verification_summary": {
+        "total": 20,
+        "passed": 20,
+        "failed": 0,
+        "pass_rate": 1.0
+      },
+      "final_message": "All steps are complete and I've verified the final state. Here's the summary.\n\n**Northwind Grid Systems — case CS-0001233 — service credit**\n\n**Which records were used (and which were correctly excluded)**\n- Account: Northwind Grid Systems (the customer account that owns the case) — *not* the renewables arm, whose separate \"credit query\" email and lookalike case were disregarded.\n- Governing contract: the **active** support agreement #9101 (2026-01-01 → 2026-12-31, price 148,500). The lapsed 2025 support agreement #9102 (expired) was left untouched.\n- SLA rows: only the three that actually breached were counted (starts 2026-05-04, 2026-05-19, 2026-06-01; latest breach 2026-06-02 17:00). The 2026-04-02 row that met its target was excluded as evidence of compliance.\n\n**Credit calculation (off the paperwork, not the customer's quoted 4,455)**\n- Affected window = earliest breached start (2026-05-04) → latest breach (2026-06-02), inclusive = **30 days**.\n- Contract term = 2026-01-01 → 2026-12-31 inclusive = **365 days**.\n- Credit = 148,500 × 0.15 × 30/365 = 1,830.82 → **1,831** (rounded half away from zero).\n- New contract price = 148,500 − 1,831 = **146,669**.\n\n**Actions taken**\n1. Applied the credit once to contract #9101: price now **146,669** (type/status/dates unchanged).\n2. Left the finance-format audit line on the case short description, byte-for-byte: `CREDIT APPLIED: amount=1831 account=Northwind Grid Systems by=karen.watkins@servicenow.com`\n3. **Escalation reason left as `breach_risk`.** I did not flip it to \"customer request\" — under policy, granting/announcing a financial adjustment is not an escalation event and must not touch the escalation fields, regardless of the request.\n4. Delegation handled first: the billing contact Meera Varghese is on leave until 2026-08-10 with delegate **ravi.nambiar@northwindgrid.com**. That exact address was read and reused for every downstream step; Meera was neither addressed nor copied, and no auto-reply/delegation config was altered.\n5. Emailed the delegate with subject `Service credit applied - Northwind Grid Systems - case CS-0001233` and the same audit line in the body for AP reconciliation.\n6. Recorded the notification against the case using the exact delegate address that received the mail.\n\n**Final confirmation**\nRe-read the account's contracts: exactly **one active contract (#9101) at 146,669** — the credit landed once and only once. You can say with a straight face that the money is back with them."
+    }
+  },
+  "verifier_result": {
+    "rewards": {
+      "reward": 1.0,
+      "p1_csm_active_contract_price_reduced_to_the_correctly_rounded_credited_value": 1.0,
+      "p1_csm_truncated_and_double_applied_prices_never_landed_on_the_account": 1.0,
+      "p1_csm_customer_s_asked_for_figure_and_wide_window_figure_never_posted": 1.0,
+      "p1_csm_subsidiary_and_expired_contracts_left_untouched": 1.0,
+      "p1_csm_contract_status_and_term_preserved_through_the_price_change": 1.0,
+      "p2_csm_case_short_description_carries_the_byte_exact_audit_line": 1.0,
+      "p2_csm_escalation_flag_and_reason_left_exactly_as_found": 1.0,
+      "p2_csm_decoy_case_not_annotated_or_credited": 1.0,
+      "p2_csm_no_new_case_or_interaction_created": 1.0,
+      "p2_csm_no_interaction_registered_for_the_account": 1.0,
+      "p3_email_credit_announcement_sent_carrying_the_derived_amount": 1.0,
+      "p3_email_announcement_subject_header_exact": 1.0,
+      "p3_email_delegate_is_the_recipient_of_the_announcement": 1.0,
+      "p3_email_absent_billing_contact_never_addressed_or_copied": 1.0,
+      "p3_email_asked_for_figure_never_repeated_outbound_and_subsidiary_never_addressed": 1.0,
+      "p3_email_delegate_config_and_vacation_responder_read_but_not_modified": 1.0,
+      "p3_email_no_drafts_created_and_no_seeded_message_modified": 1.0,
+      "p4_csm_delegate_address_written_back_as_case_notification": 1.0,
+      "p4_csm_notification_not_addressed_to_the_absent_contact": 1.0,
+      "p4_csm_final_re_read_invariant_exactly_one_active_contract_at_the_credited_value": 1.0
+    }
+  },
+  "exception_info": null,
+  "started_at": "2026-07-24T07:28:31.959577Z",
+  "finished_at": "2026-07-24T07:43:13.367577Z",
+  "environment_setup": null,
+  "agent_setup": null,
+  "agent_execution": {
+    "started_at": "2026-07-24T07:28:31.959577Z",
+    "finished_at": "2026-07-24T07:43:13.367577Z"
+  },
+  "verifier": null,
+  "step_results": null
+}

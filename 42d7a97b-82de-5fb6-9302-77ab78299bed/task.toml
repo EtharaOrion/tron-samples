@@ -1,0 +1,156 @@
+version = "1.0"
+
+[task]
+name = "default/42d7a97b-82de-5fb6-9302-77ab78299bed"
+description = "# Contractor to full-time conversion — Marcus Chen"
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "hr",
+    "teams",
+    "email",
+    "drive",
+]
+gyms = [
+    "sn-hr-internal",
+    "gym-teams-mcp",
+    "gym-email-mcp",
+    "gym-google-drive-mcp",
+]
+source_task_id = "42d7a97b-82de-5fb6-9302-77ab78299bed"
+selected_tools = [
+    "retrieve_knowledge_articles",
+    "fetch_hr_profiles",
+    "fetch_hr_profile_by_number",
+    "get_users_hr_profile",
+    "get_hr_profile_by_id",
+    "update_hr_profile",
+    "create_new_hr_case",
+    "create_hr_case_task",
+    "update_hr_case",
+    "list_group_members",
+    "find_group_by_name",
+    "list_user_groups",
+    "add_new_group_member",
+    "remove_group_membership",
+    "get_user_using_name",
+    "list_users",
+    "add_channel_member",
+    "list_teams",
+    "list_channels",
+    "list_all_channels",
+    "get_user",
+    "list_team_members",
+    "get_user_profile",
+    "list_forwarding_addresses",
+    "delete_forwarding_address",
+    "email_create_delegate",
+    "email_list_delegates",
+    "list_messages",
+    "get_message",
+    "list_drives",
+    "list_files",
+    "get_files",
+    "create_permission",
+    "list_permission",
+    "onboard_new_hr_profile",
+    "offboard_hr_profile",
+    "update_user_details",
+    "add_new_user",
+    "update_user_group",
+    "send_notification",
+    "delete_notifications",
+    "update_channel",
+    "archive_channel",
+    "delete_user",
+    "create_forwarding_address",
+    "update_auto_forwarding",
+    "update_vacation_settings",
+    "create_send_as_alias",
+    "delete_message",
+    "trash_message",
+    "batch_delete_messages",
+    "delete_files",
+    "empty_files_trash",
+    "delete_permission",
+    "update_permission",
+    "create_file",
+    "update_files",
+]
+restricted_tools = []
+
+[metadata.actor]
+email = "priya.sharma@techcorp.com"
+name = "Priya Sharma"
+user_id = "880002"
+
+[metadata.gym_contexts.sn-hr-internal]
+x-user-email = "priya.sharma@techcorp.com"
+
+[metadata.gym_contexts.gym-teams-mcp]
+x-teams-access-token = "ya29.A0ARrdaM-super999unique888token777special666.SuperUserAllPermissionsTokenAccess_99-99"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "tok_marcus_convert"
+user_id = "EM_MARCUS"
+primary_email = "marcus.chen@techcorp.com"
+
+[metadata.gym_contexts.gym-google-drive-mcp]
+x-auth-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUpCUU0zSzhUR0haWDlSTlZRTTVZMlA3VyIsImVtYWlsIjoiam9obi5zbWl0aEBjb21wYW55LmNvbSIsIm5hbWUiOiJKb2huIFNtaXRoIiwiaWF0IjoxNzA1MzI0NjAwLCJleHAiOjE3MzY4NjA2MDB9.8K2vQx9mN7pL3sR6tY1uI4oP5aE8wC2bV9nM6xZ3kS"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-teams",
+    "gym-email",
+    "gym-drive",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-hr-internal"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-hr-internal"
+
+[[environment.mcp_servers]]
+name = "gym-teams-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-teams-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-google-drive-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-google-drive-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-teams",
+    "gym-email",
+    "gym-drive",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

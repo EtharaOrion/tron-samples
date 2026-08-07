@@ -1,0 +1,6 @@
+-- MCP Server: email_v4
+INSERT INTO users (id, token, primary_email, name, messages_total, threads_total, history_id_current, created_at, updated_at) VALUES ('user_piyush_001', 'tok_piyush_2025_a1b2', 'chandrapiyush357@gmail.com', 'Piyush Chandra', 0, 0, 1000, '2026-01-10T09:00:00Z', '2026-07-20T09:00:00Z');
+INSERT INTO pop_settings (id, user_id, access_window, disposition, created_at, updated_at) VALUES ('pop_piyush_001', 'user_piyush_001', 'disabled', 'leaveInInbox', '2026-01-10T09:00:00Z', '2026-07-20T09:00:00Z');
+INSERT INTO imap_settings (id, user_id, enabled, auto_expunge, expunge_behavior, max_folder_size, created_at, updated_at) VALUES ('imap_piyush_001', 'user_piyush_001', 'true', 'true', 'archive', 0, '2026-01-10T09:00:00Z', '2026-07-20T09:00:00Z');
+INSERT INTO auto_forwarding (id, user_id, enabled, email_address, disposition, created_at, updated_at) VALUES ('autofwd_piyush_001', 'user_piyush_001', 'false', NULL, 'leaveInInbox', '2026-01-10T09:00:00Z', '2026-07-20T09:00:00Z');
+INSERT INTO vacation_settings (id, user_id, enable_auto_reply, response_subject, response_body_plain_text, response_body_html, restrict_to_contacts, restrict_to_domain, start_time, end_time, created_at, updated_at) VALUES ('vac_piyush_001', 'user_piyush_001', 'false', NULL, NULL, NULL, 'false', 'false', NULL, NULL, '2026-01-10T09:00:00Z', '2026-07-20T09:00:00Z');

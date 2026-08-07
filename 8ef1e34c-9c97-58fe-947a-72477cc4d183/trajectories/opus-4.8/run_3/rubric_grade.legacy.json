@@ -1,0 +1,122 @@
+{
+  "task": "8ef1e34c-9c97-58fe-947a-72477cc4d183",
+  "uuid": "8ef1e34c-9c97-58fe-947a-72477cc4d183",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "8e32b645b18dd0ee8d487c18656429466a2fac21d2b48013c877172aea42dc7d",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 14,
+    "gate_met": 13,
+    "gate_total": 13,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 12,
+    "writes": 7
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #4 update_problem fix_notes = 'Recurring outage RCA complete; root cause isolated to cache memory leak and permanent fix v2.3 deployed.' \u2014 exact canonical match, status resolved.",
+      "rejudged": true
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #9 update_case (9001) short_description = 'Resolved via ITSM problem PRB0040001; recurring outage permanently fixed and validated.' \u2014 exact canonical match, state closed.",
+      "rejudged": true
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #6 (INC0050002) and Call #7 (INC0050003) worknotes both = 'RCA coordination: master problem PRB0040001 resolved; permanent fix deployed across affected nodes.' \u2014 exact canonical match on both.",
+      "rejudged": true
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #12 send_message raw decodes to 'From: marcus.reed@acme.com / To: jordan.blake@northwind.com / Subject: Re: Recurring service outage - urgent' body identical to the canonical string. Sent on thr_001.",
+      "rejudged": true
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "PRB0040001 confirmed via Call #1; thr_001/msg_001/sender via Call #2; INC0050002/INC0050003 via Call #3; account_id 8001 via Call #5; case_id 9001 via Call #8 \u2014 all ids in writes (Calls #4,6,7,9,12) trace to a prior read."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #2 list_threads returned From: \"jordan.blake@northwind.com\" on the inbound message; final message states \"Thread ... was sent by jordan.blake@northwind.com\" and reply Call #12 targets that address."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Final summary (problem resolved, both children noted, case closed, reply sent) matches the successful Calls #4, #6, #7, #9, #12; the two failed send_message attempts (Calls #10, #11) are not misrepresented as successes."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #3 list_incidents(problem=\"PRB0040001\") returned INC0050001 (master), INC0050002 and INC0050003 (parent_incident=\"INC0050001\" each) before Calls #6/#7 wrote to the children."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #4 update_problem (resolved) has updated_on \"2026-07-31T11:35:43.850312\"; Call #9 update_case (closed) has sys_updated_on \"2026-07-31 11:36:07\" \u2014 problem resolution precedes case closure."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Call #5 find_account(\"Northwind Traders\") uniquely returned account_id 8001; Call #8 search_cases(account_id=8001) returned three cases, and case 9001 (state \"new\") was isolated as the single open case before Call #9's write."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Call #6 and Call #7 responses show status \"in_progress\" retained on both INC0050002 and INC0050003 after the worknote update; no status argument in either call, and INC0050001 (master) is never written to."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "No call targets the unrelated problem or cases CS0009002/CS0009003. Call #9 only sets short_description, state, and closed_on on case 9001 \u2014 no escalation or account_id field touched. Every write (Calls #4,6,7,9,12) addresses a specific verified id."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Only thr_001 is targeted by send_message (Calls #10, #11, #12); all email calls use userId \"me\"; no newsletter thread or other mailbox appears in the trajectory."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "ITSM writes via gym-itsm-mcp (Calls #1,3,4,6,7), CSM writes via sn-csm-server (Calls #5,8,9), email via gym-email-mcp userId \"me\" (Calls #2,10-12) \u2014 consistent with Marcus's routed capabilities; no identity confusion or refusal appears anywhere."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

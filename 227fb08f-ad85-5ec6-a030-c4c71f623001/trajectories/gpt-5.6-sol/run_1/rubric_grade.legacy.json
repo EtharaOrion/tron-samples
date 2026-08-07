@@ -1,0 +1,134 @@
+{
+  "task": "adopted_227fb08f",
+  "uuid": "227fb08f-ad85-5ec6-a030-c4c71f623001",
+  "run": "run_1",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "1ac30cad327199af36ae5deaeb6ac141c7b9f65aa1d6443fa8fd6518766ad1a4",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 0,
+    "gate_met": 0,
+    "gate_total": 15,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 52,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Searched all 52 calls: call #1 retrieve_knowledge_articles fails validation, and every subsequent retrieve_knowledge_articles attempt (#3-#36, #38-#39, #41-#52) returns {\"knowledges\": [], \"total_count\": 0} because the agent keeps adding spurious title/body/owner_id/date filters that never match. KB-BREACH-RESP is never successfully retrieved anywhere in the trajectory."
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "Searched all 52 calls for list_group_members or any enumeration of a 'Data Warehouse Service' group; none appears. The only group call is #37 find_group_by_name{\"name\":\"Security Operations\"}, which returns GRP_SECOPS, unrelated to the affected cohort."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no get_user or other lookup targets USR_SVC, and no reasoning text distinguishes it (the incident's caller_id \"USR_SVC\" appears only inside call #2's raw response, never referenced again). No confirmation or exclusion reasoning is shown."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "Searched all 52 calls; 'Data Warehouse Support' is never queried (only 'Security Operations' is looked up at call #37). The Support group is never inspected or ruled out."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no create_problem call appears anywhere. No ITSM Problem was ever created."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No Problem was created at all (see R05), so there is no create call, single or otherwise, to credit."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no update_incident or other escalation/link call appears. The incident is never escalated or linked."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no send_notification call appears. No containment notification was ever sent."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no update_user_details, remove_group_membership, or Teams update_user call appears. None of the affected members were ever contained."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No account was modified in this trajectory at all (only reads/failed lookups occurred), and no reasoning about the scope boundary is shown; the run never reached a point where it could demonstrate the required distinction."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no mailbox tool (list_forwarding_addresses, delete_forwarding_address, list_filters, delete_filter, list_send_as_aliases, delete_send_as_alias, email_create_delegate) is ever called. The mailbox stage was never reached."
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "The mailbox was never touched at all (see R11), so no removal-versus-preservation of forwarding entries can be confirmed as having been performed correctly."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "The run never reaches the mailbox stage -- no forwarding/delegate call of any kind (read or write) appears among the 52 calls, so compliant mailbox handling was never actually exercised or demonstrated."
+    },
+    {
+      "id": "R14",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no create_comments or any Drive tool call appears. No evidence-hold comments were added."
+    },
+    {
+      "id": "R15",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no update_problem call appears (no Problem was even created, see R05). No worknote or fix note was ever set."
+    },
+    {
+      "id": "R16",
+      "score": 0,
+      "evidence": "Searched all 52 calls; no send_channel_message call appears. The final message is simply the raw JSON body of the last failed retrieve_knowledge_articles response, not a war-room post -- containment was never completed or reported."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

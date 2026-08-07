@@ -1,0 +1,106 @@
+version = "1.0"
+
+[task]
+name = "default/84c3f2b6-ca84-5f07-8119-dae07eff3084"
+description = "Hi - picking your brains on the Northwind mess before I go into the QBR, because I have to be able to say the money is already back with them."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "csm",
+    "email",
+]
+gyms = [
+    "sn-csm-server",
+    "gym-email-mcp",
+]
+source_task_id = "84c3f2b6-ca84-5f07-8119-dae07eff3084"
+selected_tools = [
+    "find_account",
+    "get_accounts",
+    "find_contracts",
+    "update_contract",
+    "find_contacts",
+    "find_user",
+    "find_user_by_email",
+    "list_users",
+    "search_cases",
+    "update_case",
+    "find_case_slas",
+    "find_sla_definitions",
+    "find_entitlements",
+    "send_notification",
+    "find_notifications",
+    "get_user_profile",
+    "list_messages",
+    "get_message",
+    "list_threads",
+    "get_thread",
+    "send_message",
+    "email_list_delegates",
+    "email_get_delegate",
+    "get_vacation_settings",
+    "list_labels",
+    "list_send_as_aliases",
+]
+restricted_tools = [
+    "update_contact",
+    "create_new_case",
+    "register_new_interaction",
+    "email_create_delegate",
+    "update_vacation_settings",
+    "modify_message",
+    "create_draft",
+    "send_draft",
+]
+
+[metadata.actor]
+email = "karen.watkins@servicenow.com"
+
+[metadata.gym_contexts.sn-csm-server]
+x-user-email = "karen.watkins@servicenow.com"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "Kx5XwZK6imPxgyAE88USnS4lF3np3br81Tf9FZr4Vno"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "gym-email",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-csm-server"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-csm-server"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "gym-email",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

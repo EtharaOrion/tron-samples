@@ -1,0 +1,38 @@
+{
+  "task_uuid": "d6e96910-5aa6-5edc-8bbc-b00e3fa6537d",
+  "task_slug": "task_d6e96910",
+  "validated_on": "2026-08-01",
+  "sft_eligible": true,
+  "solve_sh_sha256": "92c1d7e531cc715f720f1b90cf9e1b0a71ca1d8b59ca91bc8eef9b2bf3f20c3e",
+  "golden_json_sha256": "605a392a81f0e7c9ff68e487c707eba9ae9606dd3975e49d1335e46a130d8d48",
+  "plan_only": {
+    "what": "tool-calls-only golden replayed against a fresh seed; reward earned by the MCP plan alone.",
+    "mcp_calls": 8,
+    "mcp_calls_failed": 0,
+    "log_complete": false,
+    "reward": 1.0,
+    "verifiers_passed": 12,
+    "verifiers_total": 12,
+    "verdict": "SOLVABLE BY TOOL CALLS ALONE"
+  },
+  "discovery_gate": {
+    "what": "every identifier-shaped argument must trace to a prompt, an earlier tool response, or an explained computation.",
+    "steps": 4,
+    "verdict": "D01 PASS",
+    "note": "solve.sh PLAN is discovery-complete (winnability gate passed at generation)"
+  },
+  "golden_replay": {
+    "what": "golden.json's OWN tool calls executed against a freshly seeded gym. Proves the SFT artifact reproduces reward by tool calls alone.",
+    "mcp_calls": 8,
+    "mcp_calls_failed": 0,
+    "reward": 1.0,
+    "verifiers_passed": 12,
+    "verifiers_total": 12,
+    "verdict": "GOLDEN REPRODUCES THE TASK"
+  },
+  "caveats": [
+    "Gyms were the locally available images on mapped host ports; shipped bundle bytes were not modified.",
+    "Reward is the ORACLE's path — it proves the task is solvable, not easy.",
+    "golden.json assembled by replaying the validated solve.sh PLAN against freshly seeded live gyms, capturing each tool response; reasoning lifted from the PLAN step notes."
+  ]
+}

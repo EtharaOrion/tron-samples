@@ -1,0 +1,163 @@
+{
+  "id": "ff620719-7029-5268-949f-63528f557d88",
+  "task_name": "default/84c3f2b6-ca84-5f07-8119-dae07eff3084",
+  "trial_name": "84c3f2b6-ca84-5f07-8119-dae07eff3084__gpt-5-6__run1",
+  "trial_uri": "harbor/84c3f2b6-ca84-5f07-8119-dae07eff3084/gpt-5-6/run1",
+  "task_id": {
+    "path": "dataset/84c3f2b6-ca84-5f07-8119-dae07eff3084"
+  },
+  "source": null,
+  "task_checksum": "4edb155e4534bbfc81ac1f0ee11e2778253ef750bb059b13a636ba8445a64f8f",
+  "config": {
+    "task": {
+      "path": "dataset/84c3f2b6-ca84-5f07-8119-dae07eff3084",
+      "git_url": null,
+      "git_commit_id": null,
+      "name": null,
+      "ref": null,
+      "overwrite": false,
+      "download_dir": null,
+      "source": null
+    },
+    "trial_name": "84c3f2b6-ca84-5f07-8119-dae07eff3084__gpt-5-6__run1",
+    "trials_dir": "harbor/84c3f2b6-ca84-5f07-8119-dae07eff3084",
+    "timeout_multiplier": 1.0,
+    "agent_timeout_multiplier": null,
+    "verifier_timeout_multiplier": null,
+    "agent_setup_timeout_multiplier": null,
+    "environment_build_timeout_multiplier": null,
+    "agent": {
+      "name": "gpt-5-6",
+      "import_path": null,
+      "model_name": "vllm/gpt-5.6-sol",
+      "skills": [],
+      "override_timeout_sec": null,
+      "override_setup_timeout_sec": null,
+      "max_timeout_sec": null,
+      "extra_allowed_hosts": [],
+      "kwargs": {
+        "number_of_runs": 1
+      },
+      "env": {},
+      "mcp_servers": [
+        {
+          "name": "sn-csm-server",
+          "transport": "sse",
+          "url": "http://localhost:8001",
+          "command": null,
+          "args": []
+        },
+        {
+          "name": "email_v4",
+          "transport": "sse",
+          "url": "http://localhost:8007",
+          "command": null,
+          "args": []
+        }
+      ]
+    },
+    "environment": {
+      "type": "docker",
+      "import_path": null,
+      "force_build": false,
+      "delete": true,
+      "cpu_enforcement_policy": "auto",
+      "memory_enforcement_policy": "auto",
+      "override_cpus": null,
+      "override_memory_mb": null,
+      "override_storage_mb": null,
+      "override_gpus": null,
+      "override_tpu": null,
+      "mounts": null,
+      "extra_docker_compose": [],
+      "env": {},
+      "kwargs": {},
+      "extra_allowed_hosts": []
+    },
+    "verifier": {
+      "override_timeout_sec": 300.0,
+      "max_timeout_sec": 300.0,
+      "env": {},
+      "disable": false
+    },
+    "artifacts": [],
+    "extra_instruction_paths": [],
+    "job_id": "0e4aff16-2e12-54c6-86aa-107e51d56752"
+  },
+  "agent_info": {
+    "name": "gpt-5-6",
+    "version": "1.0",
+    "model_info": {
+      "name": "vllm/gpt-5.6-sol",
+      "provider": "vllm"
+    }
+  },
+  "agent_result": {
+    "n_input_tokens": 281212,
+    "n_cache_tokens": 11776,
+    "n_output_tokens": 7826,
+    "cost_usd": null,
+    "rollout_details": null,
+    "metadata": {
+      "turns": 28,
+      "turns_captured": 28,
+      "reasoning_tokens": 2618,
+      "execution_time_ms": 259303,
+      "tools_used": [
+        "find_account",
+        "search_cases",
+        "find_contracts",
+        "find_contacts",
+        "list_messages",
+        "email_list_delegates",
+        "find_user",
+        "get_accounts",
+        "find_entitlements"
+      ],
+      "overall_success": false,
+      "verification_summary": {
+        "total": 20,
+        "passed": 8,
+        "failed": 12,
+        "pass_rate": 0.4
+      },
+      "final_message": "I could not safely complete the credit.\n\n- The CSM lookup returned no case for **CS-0001233** and no active support contract for **Northwind Grid Systems**, so there was no verified contract price, term, breached SLA window, or writable agreement.\n- The mailbox delegation listing returned no delegation records. I therefore could not obtain a verified delegate address from the required source.\n- No contract, case, escalation fields, notification, or email was changed or sent. No credit was applied."
+    }
+  },
+  "verifier_result": {
+    "rewards": {
+      "reward": 0.4,
+      "p1_csm_active_contract_price_reduced_to_the_correctly_rounded_credited_value": 0.0,
+      "p1_csm_truncated_and_double_applied_prices_never_landed_on_the_account": 0.0,
+      "p1_csm_customer_s_asked_for_figure_and_wide_window_figure_never_posted": 0.0,
+      "p1_csm_subsidiary_and_expired_contracts_left_untouched": 1.0,
+      "p1_csm_contract_status_and_term_preserved_through_the_price_change": 0.0,
+      "p2_csm_case_short_description_carries_the_byte_exact_audit_line": 0.0,
+      "p2_csm_escalation_flag_and_reason_left_exactly_as_found": 1.0,
+      "p2_csm_decoy_case_not_annotated_or_credited": 0.0,
+      "p2_csm_no_new_case_or_interaction_created": 1.0,
+      "p2_csm_no_interaction_registered_for_the_account": 1.0,
+      "p3_email_credit_announcement_sent_carrying_the_derived_amount": 0.0,
+      "p3_email_announcement_subject_header_exact": 0.0,
+      "p3_email_delegate_is_the_recipient_of_the_announcement": 0.0,
+      "p3_email_absent_billing_contact_never_addressed_or_copied": 1.0,
+      "p3_email_asked_for_figure_never_repeated_outbound_and_subsidiary_never_addressed": 1.0,
+      "p3_email_delegate_config_and_vacation_responder_read_but_not_modified": 0.0,
+      "p3_email_no_drafts_created_and_no_seeded_message_modified": 1.0,
+      "p4_csm_delegate_address_written_back_as_case_notification": 0.0,
+      "p4_csm_notification_not_addressed_to_the_absent_contact": 1.0,
+      "p4_csm_final_re_read_invariant_exactly_one_active_contract_at_the_credited_value": 0.0
+    }
+  },
+  "exception_info": null,
+  "started_at": "2026-07-24T07:02:47.905931Z",
+  "finished_at": "2026-07-24T07:07:07.208931Z",
+  "environment_setup": null,
+  "agent_setup": null,
+  "agent_execution": {
+    "started_at": "2026-07-24T07:02:47.905931Z",
+    "finished_at": "2026-07-24T07:07:07.208931Z"
+  },
+  "verifier": null,
+  "step_results": null
+}

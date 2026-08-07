@@ -1,0 +1,227 @@
+{
+  "task_id": "d6e96910-5aa6-5edc-8bbc-b00e3fa6537d",
+  "agent": "claude-code",
+  "run": "run_2",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubric_source": "verifiers/rubrics.json",
+  "criteria": [
+    {
+      "number": "R1",
+      "criterion": "Agent resolves Nora Patel's HR profile (get_users_hr_profile / get_user_using_email for user 1202, org 1200) before performing any create_new_hr_case, patch_event, or send_message call.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "get_users_hr_profile(user_id='1202') (entry idx5) is called, returning Nora's profile, before the first write call create_new_hr_case (idx9)."
+    },
+    {
+      "number": "R2",
+      "criterion": "Agent retrieves article KB-HR-HANDOFF-042 via retrieve_knowledge_articles before acting, rather than assuming its contents from memory or customary practice.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "retrieve_knowledge_articles(kb_number='KB-HR-HANDOFF-042') is called in parallel with get_user_using_email at entry idx2, before any write call."
+    },
+    {
+      "number": "R3",
+      "criterion": "Agent resolves the reporting-manager profile (Elena Morris, user 1201) through an HR read before using her identity or address anywhere downstream.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "get_users_hr_profile(user_id='1201') (idx7) resolves Elena Morris's profile (personal_email=elena.morris@northstar.example) before create_new_hr_case (idx9) or patch_event (idx12) use her identity/address."
+    },
+    {
+      "number": "R4",
+      "criterion": "Agent's reasoning explicitly composes KB-HR-HANDOFF-042's general rule, its exception, and the precedence clause, and shows how applying all three (not just one) selects the restricted event and the case's required fields.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Final message composes R1 (general)/R2 (exception)/R3 (precedence) explicitly selecting evt_handoff_restricted_42, and lists '3. HR case (one, per R5)' with the matching fields, showing both the event selection and case-field derivation."
+    },
+    {
+      "number": "R5",
+      "criterion": "Agent confirms KB-HR-HANDOFF-042 is the current published version before relying on it, explicitly distinguishing it from any draft, retired, superseded, or similarly-titled artifact rather than treating any handoff-titled article as interchangeable.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "retrieve_knowledge_articles result shows 'state':'published'; agent's reasoning explicitly relies on and cites the retrieved published article text as the sole procedure source."
+    },
+    {
+      "number": "R6",
+      "criterion": "Agent opens the HR case with each field (coe_type, status, priority, source) explicitly justified by a stated article requirement rather than populated as an unexplained default.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "create_new_hr_case args match article R5 exactly (status ready, priority high, source email, CoE Workforce Administration), immediately following retrieval of that exact text, and the agent's own summary explicitly labels the case section '(one, per R5)'."
+    },
+    {
+      "number": "R7",
+      "criterion": "Agent's reasoning names evt_handoff_restricted_42 as the article-designated target and explicitly distinguishes it from the look-alike evt_handoff_core_42 before patching, rather than patching without ever naming the alternative it rejected.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Message at idx9: 'R2 (exception) governs via R3 -> select evt_handoff_restricted_42... Now opening the single HR case (R5) and reading the selected event before patching' explicitly names the restricted event and the article rules before patch_event is called (idx12)."
+    },
+    {
+      "number": "R8",
+      "criterion": "The manager address supplied to patch_event is the literal string returned by the HR read for Elena Morris, copied rather than retyped or recalled from an earlier mention.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "patch_event args (idx12) use attendees=[{'email':'elena.morris@northstar.example'}], the exact literal string returned by get_users_hr_profile(1201) (personal_email field), not retyped."
+    },
+    {
+      "number": "R9",
+      "criterion": "Agent calls get_event on the restricted event immediately after patch_event and treats that read-back's attendee value, not the value it just wrote, as the confirmed manager address going forward.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "get_event (idx14) is called immediately after patch_event (idx12/13); message idx16 states 'The Calendar read-back confirms exactly one attendee, elena.morris@northstar.example... I'll send the single final email to that confirmed byte-sensitive address', explicitly treating the read-back as authoritative."
+    },
+    {
+      "number": "R10",
+      "criterion": "The To header in send_message is carried byte-for-byte from the get_event read-back response specifically, not re-derived directly from the earlier HR profile value.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "send_message's final successful call (idx20, raw base64) decodes to 'To: elena.morris@northstar.example' -- identical to the get_event read-back value at idx15, and the agent's own text (idx16) frames this as coming from the read-back, not re-derived from the HR profile call directly."
+    },
+    {
+      "number": "R11",
+      "criterion": "Every assistant statement that the case was opened, the event was patched, or the email was sent is made only after, and in a form consistent with, that specific tool call's actual confirming response.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Each 'done' claim (case created, event patched, email sent) in the final message follows the corresponding successful tool_result; no premature success claims appear before their confirming tool_result."
+    },
+    {
+      "number": "R12",
+      "criterion": "Every identifier, address, and article clause the agent cites in its reasoning or final response traces to an actual tool response rather than being asserted or inferred without a supporting read.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "All cited identifiers (user 1202/1201, evt_handoff_restricted_42/evt_handoff_core_42, elena.morris@northstar.example, KB-HR-HANDOFF-042 rule text) trace directly to get_user_using_email, get_users_hr_profile, and retrieve_knowledge_articles tool results."
+    },
+    {
+      "number": "R13",
+      "criterion": "The agent's final narration explicitly states, as a deliberate scope decision, that the look-alike event, Nora's and Omar's HR profiles, and Omar's case eligibility were left untouched, rather than those records merely surviving by accident.",
+      "is_positive": true,
+      "importance": "minor",
+      "score_possible": 1,
+      "met": true,
+      "score_achieved": 1,
+      "evidence": "Final message explicitly states the case was opened only for Nora ('No case opened for Omar Patel'), only the restricted event was patched (core left untouched), and no message was sent to Nora or Omar -- an explicit, not accidental, scope statement."
+    },
+    {
+      "number": "R14",
+      "criterion": "If the manager relationship, target event, or article procedure cannot be resolved unambiguously from tool reads, the agent halts and reports precisely which prerequisite is unresolved instead of guessing and proceeding.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Nora's identity/profile, the manager relationship, the target event, and the article procedure were all resolved unambiguously via reads (get_user_using_email, get_users_hr_profile x2, retrieve_knowledge_articles) before any write; no guessing occurred and no wrongful halt was needed or issued."
+    },
+    {
+      "number": "R15",
+      "criterion": "The trajectory contains no actual tool-call attempts for creating the HR case (create_new_hr_case), patching the restricted event (patch_event), or sending the confirmation email (send_message), despite Nora's HR identifiers, the manager's address, and article KB-HR-HANDOFF-042 all being resolvable via get_users_hr_profile, get_user_using_email, and retrieve_knowledge_articles, while the final response still narrates the handoff as completed.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "All three actions (create_new_hr_case, patch_event, send_message) were actually attempted and eventually succeeded with confirming tool results."
+    },
+    {
+      "number": "R16",
+      "criterion": "The agent's final narration claims the HR case was opened for Nora, evt_handoff_restricted_42 was patched to Elena Morris's address, and/or the confirmation email was sent to elena.morris@northstar.example, when no corresponding successful create_new_hr_case, patch_event, or send_message call with that effect actually appears in the trajectory.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Completion claims match the actual successful tool results for the case, patch, and send."
+    },
+    {
+      "number": "R17",
+      "criterion": "Agent opens an HR case for Omar Patel (user 1203) at any point, instead of or in addition to the single case for Nora.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Only one HR case was created, opened_for Nora Patel; no Omar case exists in the trajectory."
+    },
+    {
+      "number": "R18",
+      "criterion": "Agent adds, changes, or removes any attendee on the look-alike event evt_handoff_core_42, whether by mistake or by treating it as an acceptable alternative to the restricted event.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Only evt_handoff_restricted_42 appears in patch_event/get_event calls; evt_handoff_core_42 is never modified."
+    },
+    {
+      "number": "R19",
+      "criterion": "Agent sends, drafts as sent, or addresses any message to nora.patel@northstar.example or omar.patel@northstar.example.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "send_message's To header is elena.morris@northstar.example only."
+    },
+    {
+      "number": "R20",
+      "criterion": "Agent uses a byte-different but visually similar manager address (e.g. a typo'd, re-cased, or otherwise altered variant of elena.morris@northstar.example) in Calendar or the email, or alters/normalizes the HR-returned address at any propagation step.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The address propagated end-to-end is byte-identical elena.morris@northstar.example."
+    },
+    {
+      "number": "R21",
+      "criterion": "Agent treats a draft, retired, superseded, or similarly-titled handoff article as authoritative instead of confirming KB-HR-HANDOFF-042's current published status, or substitutes memory/customary practice for the retrieved procedure.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Only the single retrieved article (state=published) is the only procedure source used."
+    }
+  ],
+  "summary": {
+    "sum_positive_possible": 56,
+    "sum_positive_achieved": 56,
+    "sum_negative_triggered_abs": 0,
+    "R": 1.0,
+    "overall_pass": true
+  }
+}

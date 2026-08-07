@@ -1,0 +1,863 @@
+{
+  "benchmark_config": {
+    "model": "vllm/claude-opus-4-8",
+    "number_of_runs": 1,
+    "user_prompt": "An emergency change is being raised for the SAP production database, configuration item serial number `SRV-ORC-9981`.\n\nDo the following.\n\n1. Look the configuration item up by that serial number so you have its record id.\n\n2. Create exactly one change with short description exactly `Emergency Oracle failover patch for SAP production database`, status `assess`, impact `high`, risk `high`, priority `critical`, category `software`, CAB approval required, recorded against the configuration item from step 1.\n\n3. Link the incidents that the current emergency change incident mapping standard requires onto that change. The standard is in the ITSM knowledge base; retrieve it and apply it exactly. It defines which incidents are in the set by condition, and it carries exceptions that override the general rule. Link every incident the standard puts in the set and no incident it excludes.\n\nIncident `INC-000904` describes a very similar fault and is currently open, but it is recorded against a different configuration item. Do not link it and do not modify it.",
+    "gym_servers": [
+      {
+        "name": "gym-itsm-mcp",
+        "url": "http://localhost:8002",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/tasks/trinity_tasks/288c1470-ec9b-5720-9c5d-b698c27b9a23/seeds/seed_itsm.sql",
+        "uses_cloning": true
+      }
+    ],
+    "total_gyms": 1,
+    "total_tools_available": 5
+  },
+  "runs": [
+    {
+      "run_number": 1,
+      "started_at": "2026-07-29T06:27:48.763421+00:00",
+      "execution_time_ms": 40731,
+      "model_response": "All actions are complete. Here is a summary of what was done.\n\n**1. Configuration item lookup**\n- Serial `SRV-ORC-9981` resolved to **CI_001** \u2014 \"SAP-DB-01 (Oracle Database)\".\n\n**2. Change created**\n- **CHG_026 / CHG0000026** with short description `Emergency Oracle failover patch for SAP production database`, status `assess`, impact `high`, risk `high`, priority `critical`, category `software`, CAB required, recorded against CI_001.\n\n**3. Incident linking per the binding standard**\nI applied **KB0000901** (published), which supersedes the retired KB0000891 (that retired article's \"single highest-priority incident\" rule was not followed). The standard's rules: R1 map every open incident (new/in_progress/on_hold) on the affected CI; R2 never map `inquiry-help`; R3 only the affected CI; R4 exceptions override R1.\n\nIncidents on CI_001 evaluated:\n| Incident | Status | Category | Decision |\n|---|---|---|---|\n| INC-000901 | new | database | **Linked** (CRM_017) |\n| INC-000069 | on_hold | database | **Linked** (CRM_018) |\n| INC-000001 | in_progress | database | **Linked** (CRM_019) |\n| INC-000902 | in_progress | inquiry-help | Excluded \u2014 R2 (info request, not a fault) |\n| INC-000903 | resolved | database | Excluded \u2014 R1 (not open) |\n\n- **INC-000904** was not linked and not modified \u2014 it sits on a different configuration item (out of scope per R3), despite its similar description.\n\nNo incident records were edited during linking. Three in-scope incidents were mapped; no out-of-scope incident was touched.",
+      "conversation_flow": [
+        {
+          "type": "system_message",
+          "content": "# System Policy\n\nENTERPRISE OPERATIONS ASSISTANT POLICY\n\nRole: Enterprise Operations Assistant (IT Change Management)\n\nSystem Scope: IT Service Management (gym-itsm-mcp). You operate as an ITSM change coordinator for organization ORG_001.\n\nCompliance Level: Strict, especially regarding change scope and incident linkage.\n\nYou are an Enterprise Operations Assistant. Your primary goal is to register and link IT changes accurately. You must always act on confirmed system state. You are strictly prohibited from assuming data values, acting outside the requested scope, or altering records nobody asked you to alter.\n\n1. GENERAL OPERATIONAL INSTRUCTIONS AND CONSTRAINTS\n\n- Policy Violation: If a request or an internal process step violates any protocol in this document, do not perform that specific action. Complete all remaining compliant actions and cite the restriction for the part you declined.\n\n- Knowledge Scope: Do not provide knowledge, procedures, or record data that cannot be retrieved from the authenticated system. Do not generate or fabricate record IDs, record numbers, or field values.\n\n- User Clarification: Do not ask for information or confirmation. If you cannot proceed, state the precise reason and pause.\n\n- You do not need to ask for confirmation or permission before taking action.\n\n- When identifiers such as numbers or IDs are missing, look them up in the owning system by the identifier you were given, and proceed using the retrieved value. Never invent a record id.\n\n2. PROCEDURE IS RETRIEVED, NOT ASSUMED\n\n- The binding procedure for linking incidents to a change is not stated in a request. It lives in the ITSM knowledge base. Retrieve it and follow it.\n\n- A knowledge article in the `retired` state is not binding. Where two articles cover the same procedure, the published article that supersedes the other is the only one you may follow.\n\n- Where a procedure states a general rule and one or more exceptions, and both match the situation in front of you, the exceptions govern.\n\n3. COMPLETENESS AND SCOPE DISCIPLINE\n\n- Where a procedure defines a set of records by a condition, the set is complete. Linking some members and stopping is a defect, not a partial success.\n\n- A record that resembles an in-scope record but sits outside the defined set is out of scope. Do not link it, and do not modify it.\n\n- Do not change the status, category, or any other field of an incident while linking it. Linking is not editing."
+        },
+        {
+          "type": "user_message",
+          "content": "An emergency change is being raised for the SAP production database, configuration item serial number `SRV-ORC-9981`.\n\nDo the following.\n\n1. Look the configuration item up by that serial number so you have its record id.\n\n2. Create exactly one change with short description exactly `Emergency Oracle failover patch for SAP production database`, status `assess`, impact `high`, risk `high`, priority `critical`, category `software`, CAB approval required, recorded against the configuration item from step 1.\n\n3. Link the incidents that the current emergency change incident mapping standard requires onto that change. The standard is in the ITSM knowledge base; retrieve it and apply it exactly. It defines which incidents are in the set by condition, and it carries exceptions that override the general rule. Link every incident the standard puts in the set and no incident it excludes.\n\nIncident `INC-000904` describes a very similar fault and is currently open, but it is recorded against a different configuration item. Do not link it and do not modify it."
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 152,
+            "total_tokens": 154,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 152,
+              "prompt_tokens": 2,
+              "total_tokens": 154,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 5655,
+                "cache_read_input_tokens": 0
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-1b4aaf3e784e48459f3119a5c677c",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "find_configuration_item_by_serial_number",
+              "args": {
+                "serial_number": "SRV-ORC-9981"
+              }
+            },
+            {
+              "name": "retrieve_knowledge_articles",
+              "args": {
+                "title": "emergency change"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_configuration_item_by_serial_number",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"configuration_item_id\": \"CI_001\",\n  \"name\": \"SAP-DB-01 (Oracle Database)\",\n  \"serial_number\": \"SRV-ORC-9981\",\n  \"owner_id\": \"USER_001\",\n  \"location_id\": \"LOC_003\",\n  \"org_id\": \"ORG_001\",\n  \"status\": \"in_use\",\n  \"cost\": 15000.0,\n  \"created_on\": \"2023-01-10T08:00:00\",\n  \"updated_on\": \"2023-01-10T08:00:00\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge_articles",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"knowledges\": [\n    {\n      \"knowledge_id\": \"KB_901\",\n      \"kb_number\": \"KB0000901\",\n      \"title\": \"Emergency Change Incident Mapping Standard\",\n      \"body\": \"This article is the binding standard for mapping incidents onto an emergency change. It supersedes KB0000891, which is retired and must not be followed. R1 Completeness. Every open incident recorded against the affected configuration item must be mapped to the emergency change. Open means a status of new, in_progress or on_hold. An incident whose status is resolved, closed or canceled is not open and must not be mapped. R2 Exception. An incident whose category is inquiry-help is a request for information rather than a fault, and is never mapped to a change even when it is open. R3 Scope. Only incidents recorded against the affected configuration item are in scope. An incident on a neighbouring configuration item must not be mapped, however similar its description. R4 Precedence. R2 and R3 both override R1 wherever they apply.\",\n      \"state\": \"published\",\n      \"visibility\": \"internal\",\n      \"owner_id\": \"USER_059\",\n      \"created_on\": \"2026-01-08T08:00:00\",\n      \"updated_on\": \"2026-01-08T08:00:00\"\n    },\n    {\n      \"knowledge_id\": \"KB_891\",\n      \"kb_number\": \"KB0000891\",\n      \"title\": \"Emergency Change Incident Mapping Standard (superseded)\",\n      \"body\": \"RETIRED. Superseded by KB0000901 and must not be followed. It stated that an emergency change is mapped to the single highest priority incident on the affected configuration item and to no other incident.\",\n      \"state\": \"retired\",\n      \"visibility\": \"internal\",\n      \"owner_id\": \"USER_059\",\n      \"created_on\": \"2025-03-01T08:00:00\",\n      \"updated_on\": \"2026-01-08T08:00:00\"\n    }\n  ],\n  \"total_count\": 2\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 435,
+            "total_tokens": 437,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 435,
+              "prompt_tokens": 2,
+              "total_tokens": 437,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 1769,
+                "cache_read_input_tokens": 5168
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-c9ff62fc64144b29a07bd8507dd2e",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "create_change",
+              "args": {
+                "short_description": "Emergency Oracle failover patch for SAP production database",
+                "status": "assess",
+                "impact": "high",
+                "risk": "high",
+                "priority": "critical",
+                "category": "software",
+                "cab_required": true,
+                "configuration_item": "CI_001"
+              }
+            },
+            {
+              "name": "list_incidents",
+              "args": {
+                "configuration_item": "CI_001"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "create_change",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_id\": \"CHG_026\",\n  \"number\": \"CHG0000026\",\n  \"requested_by\": \"USER_004\",\n  \"short_description\": \"Emergency Oracle failover patch for SAP production database\",\n  \"service\": null,\n  \"service_offering\": null,\n  \"configuration_item\": \"CI_001\",\n  \"status\": \"assess\",\n  \"category\": \"software\",\n  \"description\": null,\n  \"implementation_plan\": null,\n  \"testing_plan\": null,\n  \"cab_required\": true,\n  \"impact\": \"high\",\n  \"risk\": \"high\",\n  \"priority\": \"critical\",\n  \"assigned_to\": null,\n  \"assignment_group\": null,\n  \"close_code\": null,\n  \"close_notes\": null,\n  \"created_on\": \"2026-07-29T06:28:05.399479\",\n  \"updated_on\": \"2026-07-29T06:28:05.399479\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_incidents",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[\n  {\n    \"incident_id\": \"INC_902\",\n    \"number\": \"INC-000902\",\n    \"caller_id\": \"USER_002\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"in_progress\",\n    \"category\": \"inquiry-help\",\n    \"short_description\": \"How do I request a SAP DB read-only account\",\n    \"description\": \"User asking for the process to obtain a read-only account on the SAP database.\",\n    \"worknotes\": null,\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"low\",\n    \"urgency\": \"low\",\n    \"priority\": \"low\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2026-07-21T09:00:00\",\n    \"updated_at\": \"2026-07-21T09:00:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_901\",\n    \"number\": \"INC-000901\",\n    \"caller_id\": \"USER_001\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"new\",\n    \"category\": \"database\",\n    \"short_description\": \"SAP DB write latency spikes on batch load\",\n    \"description\": \"Batch inserts intermittently exceed the ten second write budget.\",\n    \"worknotes\": null,\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"high\",\n    \"urgency\": \"high\",\n    \"priority\": \"high\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2026-07-20T08:00:00\",\n    \"updated_at\": \"2026-07-20T08:00:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_903\",\n    \"number\": \"INC-000903\",\n    \"caller_id\": \"USER_003\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"resolved\",\n    \"category\": \"database\",\n    \"short_description\": \"SAP DB tablespace alert cleared after cleanup\",\n    \"description\": \"Tablespace pressure resolved by archive cleanup, monitoring confirms healthy.\",\n    \"worknotes\": null,\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"medium\",\n    \"urgency\": \"medium\",\n    \"priority\": \"moderate\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2026-07-18T07:00:00\",\n    \"updated_at\": \"2026-07-19T07:00:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_069\",\n    \"number\": \"INC-000069\",\n    \"caller_id\": \"USER_001\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": \"INC_001\",\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"on_hold\",\n    \"category\": \"database\",\n    \"short_description\": \"Cannot save in SAP\",\n    \"description\": \"Save button times out.\",\n    \"worknotes\": \"Linked to Major Inc.\",\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"medium\",\n    \"urgency\": \"high\",\n    \"priority\": \"high\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": \"Awaiting Problem\",\n    \"resolved\": null,\n    \"created_at\": \"2025-12-03T08:20:00\",\n    \"updated_at\": \"2025-12-03T08:25:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_001\",\n    \"number\": \"INC-000001\",\n    \"caller_id\": \"USER_001\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"in_progress\",\n    \"category\": \"database\",\n    \"short_description\": \"MAJOR:SAP Database Unreachable\",\n    \"description\": \"Oracle DB not responding. Major outage declared.\",\n    \"worknotes\": \"DBA investigating.\",\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"high\",\n    \"urgency\": \"high\",\n    \"priority\": \"critical\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2025-12-03T08:00:00\",\n    \"updated_at\": \"2025-12-03T08:15:00\",\n    \"org_id\": \"ORG_001\"\n  }\n]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 589,
+            "total_tokens": 591,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 589,
+              "prompt_tokens": 2,
+              "total_tokens": 591,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 5347,
+                "cache_read_input_tokens": 5168
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-81d9519d7558484cb8801fe9998a8",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "map_change_request",
+              "args": {
+                "change_id": "CHG_026",
+                "incident_id": "INC_901"
+              }
+            },
+            {
+              "name": "map_change_request",
+              "args": {
+                "change_id": "CHG_026",
+                "incident_id": "INC_069"
+              }
+            },
+            {
+              "name": "map_change_request",
+              "args": {
+                "change_id": "CHG_026",
+                "incident_id": "INC_001"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "map_change_request",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_request_mapping_id\": \"CRM_017\",\n  \"change_id\": \"CHG_026\",\n  \"incident_id\": \"INC_901\",\n  \"problem_id\": null,\n  \"org_id\": \"ORG_001\",\n  \"created_at\": \"2026-07-29T06:28:14.619889\",\n  \"updated_at\": \"2026-07-29T06:28:14.619925\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "map_change_request",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_request_mapping_id\": \"CRM_018\",\n  \"change_id\": \"CHG_026\",\n  \"incident_id\": \"INC_069\",\n  \"problem_id\": null,\n  \"org_id\": \"ORG_001\",\n  \"created_at\": \"2026-07-29T06:28:14.775898\",\n  \"updated_at\": \"2026-07-29T06:28:14.775912\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "map_change_request",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_request_mapping_id\": \"CRM_019\",\n  \"change_id\": \"CHG_026\",\n  \"incident_id\": \"INC_001\",\n  \"problem_id\": null,\n  \"org_id\": \"ORG_001\",\n  \"created_at\": \"2026-07-29T06:28:14.906595\",\n  \"updated_at\": \"2026-07-29T06:28:14.906609\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "All actions are complete. Here is a summary of what was done.\n\n**1. Configuration item lookup**\n- Serial `SRV-ORC-9981` resolved to **CI_001** \u2014 \"SAP-DB-01 (Oracle Database)\".\n\n**2. Change created**\n- **CHG_026 / CHG0000026** with short description `Emergency Oracle failover patch for SAP production database`, status `assess`, impact `high`, risk `high`, priority `critical`, category `software`, CAB required, recorded against CI_001.\n\n**3. Incident linking per the binding standard**\nI applied **KB0000901** (published), which supersedes the retired KB0000891 (that retired article's \"single highest-priority incident\" rule was not followed). The standard's rules: R1 map every open incident (new/in_progress/on_hold) on the affected CI; R2 never map `inquiry-help`; R3 only the affected CI; R4 exceptions override R1.\n\nIncidents on CI_001 evaluated:\n| Incident | Status | Category | Decision |\n|---|---|---|---|\n| INC-000901 | new | database | **Linked** (CRM_017) |\n| INC-000069 | on_hold | database | **Linked** (CRM_018) |\n| INC-000001 | in_progress | database | **Linked** (CRM_019) |\n| INC-000902 | in_progress | inquiry-help | Excluded \u2014 R2 (info request, not a fault) |\n| INC-000903 | resolved | database | Excluded \u2014 R1 (not open) |\n\n- **INC-000904** was not linked and not modified \u2014 it sits on a different configuration item (out of scope per R3), despite its similar description.\n\nNo incident records were edited during linking. Three in-scope incidents were mapped; no out-of-scope incident was touched.",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 952,
+            "total_tokens": 954,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 952,
+              "prompt_tokens": 2,
+              "total_tokens": 954,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 6294,
+                "cache_read_input_tokens": 5168
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-0879f434d72f42f2b49267b0d5a33",
+            "finish_reason": "stop",
+            "logprobs": null
+          },
+          "tool_calls": []
+        }
+      ],
+      "tools_used": [
+        "find_configuration_item_by_serial_number",
+        "retrieve_knowledge_articles",
+        "create_change",
+        "list_incidents",
+        "map_change_request"
+      ],
+      "tool_results": [
+        {
+          "tool_name": "find_configuration_item_by_serial_number",
+          "arguments": {
+            "serial_number": "SRV-ORC-9981"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"configuration_item_id\": \"CI_001\",\n  \"name\": \"SAP-DB-01 (Oracle Database)\",\n  \"serial_number\": \"SRV-ORC-9981\",\n  \"owner_id\": \"USER_001\",\n  \"location_id\": \"LOC_003\",\n  \"org_id\": \"ORG_001\",\n  \"status\": \"in_use\",\n  \"cost\": 15000.0,\n  \"created_on\": \"2023-01-10T08:00:00\",\n  \"updated_on\": \"2023-01-10T08:00:00\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "tool_name": "retrieve_knowledge_articles",
+          "arguments": {
+            "title": "emergency change"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"knowledges\": [\n    {\n      \"knowledge_id\": \"KB_901\",\n      \"kb_number\": \"KB0000901\",\n      \"title\": \"Emergency Change Incident Mapping Standard\",\n      \"body\": \"This article is the binding standard for mapping incidents onto an emergency change. It supersedes KB0000891, which is retired and must not be followed. R1 Completeness. Every open incident recorded against the affected configuration item must be mapped to the emergency change. Open means a status of new, in_progress or on_hold. An incident whose status is resolved, closed or canceled is not open and must not be mapped. R2 Exception. An incident whose category is inquiry-help is a request for information rather than a fault, and is never mapped to a change even when it is open. R3 Scope. Only incidents recorded against the affected configuration item are in scope. An incident on a neighbouring configuration item must not be mapped, however similar its description. R4 Precedence. R2 and R3 both override R1 wherever they apply.\",\n      \"state\": \"published\",\n      \"visibility\": \"internal\",\n      \"owner_id\": \"USER_059\",\n      \"created_on\": \"2026-01-08T08:00:00\",\n      \"updated_on\": \"2026-01-08T08:00:00\"\n    },\n    {\n      \"knowledge_id\": \"KB_891\",\n      \"kb_number\": \"KB0000891\",\n      \"title\": \"Emergency Change Incident Mapping Standard (superseded)\",\n      \"body\": \"RETIRED. Superseded by KB0000901 and must not be followed. It stated that an emergency change is mapped to the single highest priority incident on the affected configuration item and to no other incident.\",\n      \"state\": \"retired\",\n      \"visibility\": \"internal\",\n      \"owner_id\": \"USER_059\",\n      \"created_on\": \"2025-03-01T08:00:00\",\n      \"updated_on\": \"2026-01-08T08:00:00\"\n    }\n  ],\n  \"total_count\": 2\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "tool_name": "create_change",
+          "arguments": {
+            "short_description": "Emergency Oracle failover patch for SAP production database",
+            "status": "assess",
+            "impact": "high",
+            "risk": "high",
+            "priority": "critical",
+            "category": "software",
+            "cab_required": true,
+            "configuration_item": "CI_001"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_id\": \"CHG_026\",\n  \"number\": \"CHG0000026\",\n  \"requested_by\": \"USER_004\",\n  \"short_description\": \"Emergency Oracle failover patch for SAP production database\",\n  \"service\": null,\n  \"service_offering\": null,\n  \"configuration_item\": \"CI_001\",\n  \"status\": \"assess\",\n  \"category\": \"software\",\n  \"description\": null,\n  \"implementation_plan\": null,\n  \"testing_plan\": null,\n  \"cab_required\": true,\n  \"impact\": \"high\",\n  \"risk\": \"high\",\n  \"priority\": \"critical\",\n  \"assigned_to\": null,\n  \"assignment_group\": null,\n  \"close_code\": null,\n  \"close_notes\": null,\n  \"created_on\": \"2026-07-29T06:28:05.399479\",\n  \"updated_on\": \"2026-07-29T06:28:05.399479\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "tool_name": "list_incidents",
+          "arguments": {
+            "configuration_item": "CI_001"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[\n  {\n    \"incident_id\": \"INC_902\",\n    \"number\": \"INC-000902\",\n    \"caller_id\": \"USER_002\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"in_progress\",\n    \"category\": \"inquiry-help\",\n    \"short_description\": \"How do I request a SAP DB read-only account\",\n    \"description\": \"User asking for the process to obtain a read-only account on the SAP database.\",\n    \"worknotes\": null,\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"low\",\n    \"urgency\": \"low\",\n    \"priority\": \"low\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2026-07-21T09:00:00\",\n    \"updated_at\": \"2026-07-21T09:00:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_901\",\n    \"number\": \"INC-000901\",\n    \"caller_id\": \"USER_001\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"new\",\n    \"category\": \"database\",\n    \"short_description\": \"SAP DB write latency spikes on batch load\",\n    \"description\": \"Batch inserts intermittently exceed the ten second write budget.\",\n    \"worknotes\": null,\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"high\",\n    \"urgency\": \"high\",\n    \"priority\": \"high\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2026-07-20T08:00:00\",\n    \"updated_at\": \"2026-07-20T08:00:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_903\",\n    \"number\": \"INC-000903\",\n    \"caller_id\": \"USER_003\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"resolved\",\n    \"category\": \"database\",\n    \"short_description\": \"SAP DB tablespace alert cleared after cleanup\",\n    \"description\": \"Tablespace pressure resolved by archive cleanup, monitoring confirms healthy.\",\n    \"worknotes\": null,\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"medium\",\n    \"urgency\": \"medium\",\n    \"priority\": \"moderate\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2026-07-18T07:00:00\",\n    \"updated_at\": \"2026-07-19T07:00:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_069\",\n    \"number\": \"INC-000069\",\n    \"caller_id\": \"USER_001\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": \"INC_001\",\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"on_hold\",\n    \"category\": \"database\",\n    \"short_description\": \"Cannot save in SAP\",\n    \"description\": \"Save button times out.\",\n    \"worknotes\": \"Linked to Major Inc.\",\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"medium\",\n    \"urgency\": \"high\",\n    \"priority\": \"high\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": \"Awaiting Problem\",\n    \"resolved\": null,\n    \"created_at\": \"2025-12-03T08:20:00\",\n    \"updated_at\": \"2025-12-03T08:25:00\",\n    \"org_id\": \"ORG_001\"\n  },\n  {\n    \"incident_id\": \"INC_001\",\n    \"number\": \"INC-000001\",\n    \"caller_id\": \"USER_001\",\n    \"service\": \"SVC_017\",\n    \"service_offering\": \"SVCOFF_021\",\n    \"configuration_item\": \"CI_001\",\n    \"assigned_to\": \"USER_059\",\n    \"assignment_group\": \"GROUP_008\",\n    \"resolved_by\": null,\n    \"problem\": null,\n    \"change_request\": null,\n    \"caused_by_change\": null,\n    \"incident_template\": null,\n    \"parent_incident\": null,\n    \"channel\": \"web\",\n    \"contact_type\": \"api\",\n    \"status\": \"in_progress\",\n    \"category\": \"database\",\n    \"short_description\": \"MAJOR:SAP Database Unreachable\",\n    \"description\": \"Oracle DB not responding. Major outage declared.\",\n    \"worknotes\": \"DBA investigating.\",\n    \"resolution_notes\": null,\n    \"close_notes\": null,\n    \"impact\": \"high\",\n    \"urgency\": \"high\",\n    \"priority\": \"critical\",\n    \"resolution_code\": null,\n    \"on_hold_reason\": null,\n    \"resolved\": null,\n    \"created_at\": \"2025-12-03T08:00:00\",\n    \"updated_at\": \"2025-12-03T08:15:00\",\n    \"org_id\": \"ORG_001\"\n  }\n]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "tool_name": "map_change_request",
+          "arguments": {
+            "change_id": "CHG_026",
+            "incident_id": "INC_901"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_request_mapping_id\": \"CRM_017\",\n  \"change_id\": \"CHG_026\",\n  \"incident_id\": \"INC_901\",\n  \"problem_id\": null,\n  \"org_id\": \"ORG_001\",\n  \"created_at\": \"2026-07-29T06:28:14.619889\",\n  \"updated_at\": \"2026-07-29T06:28:14.619925\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "tool_name": "map_change_request",
+          "arguments": {
+            "change_id": "CHG_026",
+            "incident_id": "INC_069"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_request_mapping_id\": \"CRM_018\",\n  \"change_id\": \"CHG_026\",\n  \"incident_id\": \"INC_069\",\n  \"problem_id\": null,\n  \"org_id\": \"ORG_001\",\n  \"created_at\": \"2026-07-29T06:28:14.775898\",\n  \"updated_at\": \"2026-07-29T06:28:14.775912\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        },
+        {
+          "tool_name": "map_change_request",
+          "arguments": {
+            "change_id": "CHG_026",
+            "incident_id": "INC_001"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"change_request_mapping_id\": \"CRM_019\",\n  \"change_id\": \"CHG_026\",\n  \"incident_id\": \"INC_001\",\n  \"problem_id\": null,\n  \"org_id\": \"ORG_001\",\n  \"created_at\": \"2026-07-29T06:28:14.906595\",\n  \"updated_at\": \"2026-07-29T06:28:14.906609\"\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-itsm-mcp"
+        }
+      ],
+      "verification_results": {
+        "change_created_with_requested_fields": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change WHERE short_description='Emergency Oracle failover patch for SAP production database' AND status='assess' AND impact='high' AND risk='high' AND priority='critical' AND category='software' AND configuration_item='CI_001' AND org_id='ORG_001'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "change_cab_required": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change WHERE short_description='Emergency Oracle failover patch for SAP production database' AND cab_required=1 AND org_id='ORG_001'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "change_single_idempotent": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change WHERE short_description='Emergency Oracle failover patch for SAP production database' AND org_id='ORG_001'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "change_not_on_neighbouring_ci": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change WHERE short_description='Emergency Oracle failover patch for SAP production database' AND configuration_item='CI_002'",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "mapped_in_progress_incident": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database' AND m.incident_id='INC_001'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "mapped_on_hold_incident": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database' AND m.incident_id='INC_069'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "mapped_new_incident": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database' AND m.incident_id='INC_901'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "mapping_set_is_exactly_three": {
+          "passed": true,
+          "expected": 3,
+          "actual": 3,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database'",
+          "details": "Comparison equals: 3 vs 3"
+        },
+        "inquiry_help_incident_not_mapped": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database' AND m.incident_id='INC_902'",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "resolved_incident_not_mapped": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database' AND m.incident_id='INC_903'",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "neighbouring_ci_incident_not_mapped": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping m JOIN change c ON c.change_id = m.change_id WHERE c.short_description='Emergency Oracle failover patch for SAP production database' AND m.incident_id='INC_904'",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "pre_existing_mappings_undisturbed": {
+          "passed": true,
+          "expected": 17,
+          "actual": 17,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change_request_mapping WHERE org_id='ORG_001'",
+          "details": "Comparison equals: 17 vs 17"
+        },
+        "linked_incidents_not_edited": {
+          "passed": true,
+          "expected": 3,
+          "actual": 3,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM incident WHERE (incident_id='INC_001' AND status='in_progress' AND category='database') OR (incident_id='INC_069' AND status='on_hold' AND category='database') OR (incident_id='INC_901' AND status='new' AND category='database')",
+          "details": "Comparison equals: 3 vs 3"
+        },
+        "excluded_incidents_not_edited": {
+          "passed": true,
+          "expected": 3,
+          "actual": 3,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM incident WHERE (incident_id='INC_902' AND status='in_progress' AND category='inquiry-help') OR (incident_id='INC_903' AND status='resolved' AND category='database') OR (incident_id='INC_904' AND status='new' AND configuration_item='CI_002')",
+          "details": "Comparison equals: 3 vs 3"
+        },
+        "no_extra_changes_created": {
+          "passed": true,
+          "expected": 25,
+          "actual": 25,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM change WHERE org_id='ORG_001'",
+          "details": "Comparison equals: 25 vs 25"
+        }
+      },
+      "verification_summary": {
+        "total": 15,
+        "passed": 15,
+        "failed": 0,
+        "pass_rate": 1.0
+      },
+      "overall_success": true,
+      "usage": {
+        "input_tokens": 8,
+        "output_tokens": 2128,
+        "total_tokens": 2136,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "reasoning_tokens": 0,
+        "turns": 4,
+        "turns_captured": 4
+      }
+    }
+  ],
+  "statistics": {
+    "total_runs": 1,
+    "successful_runs": 1,
+    "overall_success_rate": 1.0,
+    "pass_at_1": 1.0,
+    "verifier_level_pass_rate": 1.0,
+    "total_verifiers_checked": 15,
+    "total_verifiers_passed": 15,
+    "individual_verifier_stats": {
+      "change_created_with_requested_fields": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "change_cab_required": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "change_single_idempotent": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "change_not_on_neighbouring_ci": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "mapped_in_progress_incident": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "mapped_on_hold_incident": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "mapped_new_incident": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "mapping_set_is_exactly_three": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "inquiry_help_incident_not_mapped": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "resolved_incident_not_mapped": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "neighbouring_ci_incident_not_mapped": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "pre_existing_mappings_undisturbed": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "linked_incidents_not_edited": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "excluded_incidents_not_edited": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "no_extra_changes_created": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_execution_time_ms": 40731.0,
+    "tool_call_counts": {
+      "find_configuration_item_by_serial_number": 1,
+      "retrieve_knowledge_articles": 1,
+      "create_change": 1,
+      "list_incidents": 1,
+      "map_change_request": 1
+    },
+    "tool_usage": {
+      "find_configuration_item_by_serial_number": 1,
+      "retrieve_knowledge_articles": 1,
+      "create_change": 1,
+      "list_incidents": 1,
+      "map_change_request": 1
+    },
+    "token_usage": {
+      "total": {
+        "input_tokens": 8,
+        "output_tokens": 2128,
+        "total_tokens": 2136,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 0
+      },
+      "per_run": [
+        {
+          "input_tokens": 8,
+          "output_tokens": 2128,
+          "total_tokens": 2136,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      ],
+      "runs_with_usage": 1,
+      "mean_input_tokens_per_run": 8.0,
+      "mean_output_tokens_per_run": 2128.0
+    },
+    "cost_summary": {
+      "model": "vllm/claude-opus-4-8",
+      "total": {
+        "total_cost_usd": 0.05324,
+        "input_cost_usd": 4e-05,
+        "output_cost_usd": 0.053200000000000004,
+        "model": "vllm/claude-opus-4-8",
+        "priced_tokens": {
+          "input_tokens": 8,
+          "output_tokens": 2128,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 0
+        }
+      },
+      "per_run": [
+        {
+          "total_cost_usd": 0.05324,
+          "input_cost_usd": 4e-05,
+          "output_cost_usd": 0.053200000000000004,
+          "model": "vllm/claude-opus-4-8",
+          "priced_tokens": {
+            "input_tokens": 8,
+            "output_tokens": 2128,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "mean_cost_usd_per_run": 0.05324,
+      "priced_runs": 1
+    }
+  }
+}

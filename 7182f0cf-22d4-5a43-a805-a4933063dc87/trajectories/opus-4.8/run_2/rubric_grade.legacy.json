@@ -1,0 +1,117 @@
+{
+  "task": "7182f0cf-22d4-5a43-a805-a4933063dc87",
+  "uuid": "7182f0cf-22d4-5a43-a805-a4933063dc87",
+  "run": "run_2",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "71df64e8b0461955f796ad2a7c6d93581d90eb31dd70811be00c0e892c7844f7",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R14"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 13,
+    "gate_met": 11,
+    "gate_total": 12,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 12,
+    "writes": 10
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 get_user_using_email({\"email\": \"daniel.foster@globex.com\"}) returns \"user_id\": 610; all subsequent case/profile writes reference 610."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 get_hr_service_by_name({\"service_name\": \"employee conversion\"}) returns \"hr_service_id\": 100; Call #3 create_new_hr_case uses \"hr_service\": \"100\"."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #4 update_hr_profile({\"user_id\": \"610\", \"type\": \"full-time\"}) response shows hr_profile.type = \"full-time\"; active is untouched and remained true (per Call #1's user object), so employment status is converted without deactivation."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Searched all 12 calls; user_id/hr_profile_id 611 or any second Daniel Foster is never referenced, read, or written."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Only one case-create call, Call #3 create_new_hr_case, producing new hr_case_id 2 / HRC0004002; no pre-existing case is read or reused."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #3 arguments: short_description \"Contractor to FTE conversion for Daniel Foster\" (byte-exact), priority \"moderate\", hr_service \"100\", coe_type \"Workforce Administration\"; response opened_for.hr_profile_id 610, assigned_to.user_id 501."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #3 response gives \"number\": \"HRC0004002\"; Call #10 update_hr_case sets {\"worknotes\": \"Case number HRC0004002\"} on hr_case_id 2."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #12 update_hr_case sets {\"status\": \"closed_complete\", \"worknotes\": \"HRC0004002 closed: Daniel Foster converted contractor to full-time, kept active, welcome email sent.\"}, response confirms status closed_complete."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Both successful sends, Call #8 and Call #9, use userId \"me\" with raw payloads whose decoded headers begin \"From: maya.rodriguez@globex.com\" \u2014 Maya's own mailbox in both cases."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "Call #8 (the first successful send) decodes to \"To: danill.foster@globex.com\" \u2014 a misspelled/wrong recipient, not Daniel's corporate address. The agent's own final message admits this: 'the very first delivery went out with a mistyped recipient (danill.foster@globex.com)... two messages were transmitted.' A wrong-recipient send occurred, which the level-0 text explicitly calls out ('Wrong recipient... Also 0 if only partially met')."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Neither successful send (Call #8 to \"danill.foster@globex.com\" nor Call #9 to \"daniel.foster@globex.com\") targets the known decoy's Sales address; Call #9 corrects to the right corporate address."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "user_id 610 traces to Call #1, hr_service_id 100 to Call #2, case number HRC0004002 to Call #3's response \u2014 all ids in the final message are traceable to prior tool reads."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "The final message is emitted only after Call #12 (case close) succeeded and transparently discloses the mistyped-recipient duplicate rather than hiding it or claiming a flawless run."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "No stray/conflicting identity string appears in any tool response; the agent consistently acts and reports as Maya (mailbox maya.rodriguez@globex.com, assigned_to Maya Rodriguez) throughout."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

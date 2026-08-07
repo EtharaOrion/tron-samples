@@ -1,0 +1,108 @@
+{
+  "task": "90b6626a-da8b-5d0b-a01b-3bf3e7052497",
+  "uuid": "90b6626a-da8b-5d0b-a01b-3bf3e7052497",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "74c13bd60640615596fb91df452f7417707171fa5d5f66add7732dc5e66c1bd7",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R08",
+    "R11"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 13,
+    "gate_met": 6,
+    "gate_total": 6,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 12,
+    "writes": 5
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 (title='offboarding', empty) and Call #4 (`{}`, returns all 7 articles including KB-HR-OFFB-030 full text) are read before the first write, Call #8 `create_new_hr_case`. Subsequent CI (Call #6) and subject (Call #12) follow it."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 `get_user_using_email` resolves James Brown (user_id 6). Call #5 `get_users_hr_profile` (user_id '6') returns `location_type: Office Based`. Call #6 `find_configuration_item_by_serial_number` (SEC-BDG-01) returns `configuration_item_id: CI_099`, used in Call #9."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #8 args: short_description 'Offboarding access revocation for James Brown', coe_type 'Workforce Administration', status 'ready', opened_for 'James Brown' \u2014 all four match; response confirms opened_for.user_name 'James Brown'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #9 `create_change` args: short_description 'Revoke enterprise access for James Brown', status 'assess', impact 'high', risk 'medium', priority 'high', category 'hardware' \u2014 all six match the response."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #9 uses `configuration_item: CI_099` (from Call #6's SEC-BDG-01 lookup); retired CLD-AZR-772 (seen only in KB text, Call #4) is never used in any write."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #12 `send_message` raw payload decodes to '...Subject: Access revocation for James Brown on SEC-BDG-01...' \u2014 prefix exact, ends with SEC-BDG-01 as resolved in Call #6/used in Call #9."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #3 `get_user_profile` (userId 'me') reads jessicabrown83@gmail.com. Call #7 `get_user` (user_id '1', HR profile's manager:1 from Call #5) resolves sarah.chen@techcorp.com. Neither guessed."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Decoded Call #12 raw payload: From jessicabrown83@gmail.com (Call #3), To sarah.chen@techcorp.com (Call #7, James's manager)."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "CI_099/SEC-BDG-01 traced to Call #6; sarah.chen@techcorp.com to Call #7; jessicabrown83@gmail.com to Call #3; HRC0000000/CHG0000026 system-generated. Nothing fabricated."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Final message reports HRC0000000, CHG0000026, and the sent email (message id cd338069-...) accurately, matching the three executed writes; failed attempts #10/#11 are not double-counted."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No Lisa Anderson reference across all 12 calls; final message confirms 'No case, change, or email was created for Lisa Anderson, as she is out of scope.'"
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Exactly one `create_new_hr_case` (Call #8), one `create_change` (Call #9), one successful `send_message` (Call #12; Calls #10/#11 errored and created nothing). No HR profile update call anywhere."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "call #6 find_configuration_item_by_serial_number returned {\"serial_number\": \"SEC-BDG-01\", \"configuration_item_id\": \"CI_099\"}; this occurred before call #9 create_change and calls #10-12 send_message. The successful send_message (call #12) subject 'Access revocation for James Brown on SEC-BDG-01' matches the CI-lookup-confirmed serial exactly.",
+      "rejudged": true
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

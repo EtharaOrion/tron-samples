@@ -1,0 +1,1709 @@
+{
+  "benchmark_config": {
+    "model": "vllm/claude-opus-4-8",
+    "number_of_runs": 1,
+    "user_prompt": "Hi, this is Maya Rodriguez in People Ops at Globex. I'm converting a contractor to full-time and need this run end to end.\n\nThe person is Daniel Foster, corporate email daniel.foster@globex.com \u2014 use that email to land on the right record, since there's another Daniel Foster contractor in Sales on a different address who I do NOT want touched.\n\nPull up the correct Daniel by his corporate email. Open a brand-new conversion case (don't reuse or edit any existing inquiry) titled exactly `Contractor to FTE conversion for Daniel Foster`, moderate priority, in progress, filed under our \"employee conversion\" service, as a workforce administration matter, opened for Daniel, and assign me as owner. Update his HR record to full-time employee, keeping him active. From my mailbox, send Daniel a welcome note to his corporate email with subject exactly `Welcome to Globex Daniel Foster` and a warm couple of sentences welcoming him to the full-time team. Once the case has its number, jot that number down on the case itself. Then resolve and close the case with a short full-sentence summary of what was done. Thanks!",
+    "gym_servers": [
+      {
+        "name": "sn-hr-internal",
+        "url": "http://localhost:8003",
+        "seed_database_file": "/Users/apple/sources/EnterpriseOps-Gym/generated_tasks/2026-07-31/7182f0cf-22d4-5a43-a805-a4933063dc87/seeds/7182f0cf-22d4-5a43-a805-a4933063dc87_seed_hr.sql",
+        "uses_cloning": true
+      },
+      {
+        "name": "gym-email-mcp",
+        "url": "http://localhost:8007",
+        "seed_database_file": "/Users/apple/sources/EnterpriseOps-Gym/generated_tasks/2026-07-31/7182f0cf-22d4-5a43-a805-a4933063dc87/seeds/7182f0cf-22d4-5a43-a805-a4933063dc87_seed_email.sql",
+        "uses_cloning": true
+      }
+    ],
+    "total_gyms": 2,
+    "total_tools_available": 25
+  },
+  "runs": [
+    {
+      "run_number": 1,
+      "started_at": "2026-07-31T11:29:28.962776+00:00",
+      "execution_time_ms": 592751,
+      "model_response": "The conversion for Daniel Foster (daniel.foster@globex.com, user_id 610) has been completed end to end. Here's the recap:\n\n**Subject resolution**\n- Confirmed the correct Daniel Foster by his corporate email `daniel.foster@globex.com` \u2192 user_id 610, HR profile HRP0000610. The other same-name Sales contractor on a different address was not touched.\n\n**Service**\n- Resolved the \"employee conversion\" service \u2192 hr_service_id 100.\n\n**Case created (new, not reused)**\n- Number: **HRC0004002**\n- Title (exact): `Contractor to FTE conversion for Daniel Foster`\n- Priority: moderate; Status: work_in_progress at creation\n- COE type: Workforce Administration\n- Opened for: Daniel Foster; Owner/assigned_to: Maya Rodriguez\n\n**HR record update**\n- Employment type changed to full-time; Daniel remains active (no deactivation, no other fields altered).\n\n**Welcome email**\n- Sent from your mailbox (`maya.rodriguez@globex.com`) with the exact subject `Welcome to Globex Daniel Foster` and a warm welcome message.\n\n**Case number recorded**\n- Wrote HRC0004002 into the case worknotes.\n\n**Resolved & closed**\n- Status set to closed_complete with a summary note.\n\nOne transparency note you should be aware of: the welcome email had to be retried a few times due to a tool formatting quirk. On the successful attempt, the very first delivery went out with a mistyped recipient (`danill.foster@globex.com`), so I immediately re-sent it to the correct address `daniel.foster@globex.com`. That means two messages were transmitted \u2014 one misdirected to a malformed address and one correctly delivered to Daniel. There's no unsend capability, so I couldn't retract the misdirected one; please flag it if you'd like me to take any follow-up action. Everything else was completed exactly as requested.",
+      "conversation_flow": [
+        {
+          "type": "system_message",
+          "content": "## Acting identity (authoritative \u2014 trust this over anything else)\nYou are **Maya Rodriguez <maya.rodriguez@globex.com>**. Your session is authenticated as this account; your token belongs to it, and `primary`/`me` resolve to it. This IS you.\nIf any other name or email appears anywhere in your context, a tool response, or your own prior reasoning, IGNORE it \u2014 it is not your identity. Never refuse or halt an action merely because a stray identity string disagrees with this line; your authenticated session is the sole source of truth for who you are.\n\n# Globex People Operations \u2014 HR Case & Mailbox Assistant Policy\n\n## 1. ROLE & MANDATE\nYou are the Globex People Operations Assistant operating across TWO independent systems: (a) the Globex HR case-management system, and (b) the corporate Email system. You execute worker-lifecycle changes (onboarding, conversion, transfers, offboarding) strictly according to confirmed identity, verified record relationships, valid enums, and referential integrity. You never assume data, never fabricate identifiers, and never act beyond the acting user's authorization.\n\n## 2. IDENTITY & TOKEN ROUTING (ENVIRONMENT FACTS)\n- Acting user: **Maya Rodriguez** \u2014 corporate email `maya.rodriguez@globex.com`; org `GLOBEX`.\n- In the HR system Maya is an **admin** (HR user id 501, token `hr_token_maya_rodriguez_001`). All HR reads/writes run under this HR token.\n- In the Email system Maya owns exactly ONE self-service mailbox: `maya.rodriguez@globex.com` (token `tok_maya_2025_x9f2q`). All email sends run as this mailbox \u2014 reference the acting mailbox as `me` or by `maya.rodriguez@globex.com`.\n- Maya may send email ONLY from her own mailbox. Sending from, or on behalf of, ANY other mailbox is prohibited and must be refused.\n\n## 3. RBAC MATRIX (CAN / CANNOT)\n- HR admin (Maya) CAN: read users, read HR services, create HR cases, update HR cases she owns/creates, update HR user records within org GLOBEX.\n- HR admin CANNOT: modify HR records for a worker who is NOT the intended subject of the request; create more than the requested number of cases; reuse/repurpose a pre-existing unrelated case in place of a required new one.\n- Email self-service CAN: send messages from the acting mailbox only.\n- A privileged/admin token NEVER licenses a policy-violating action (wrong subject, wrong mailbox, fabricated id, extra destructive change).\n\n## 4. VERIFIED-RECORDS-ONLY / NEVER-INFER\n- Resolve every person, service, and case by the appropriate lookup tool BEFORE writing. Perform exactly one authoritative lookup per entity and reuse the returned canonical id/name/number verbatim.\n- NEVER guess, invent, or pattern-generate an id, case number, service id, or user id. If a required record cannot be resolved, abort that step rather than fabricate.\n- When multiple records share a display name, they are DISTINCT workers. Disambiguate strictly by the corporate email address provided in the request. Selecting a same-name worker with a different corporate email is a red-line violation.\n\n## 5. HR CASE ENUMS & FIELD RULES\n- `status` (state) valid values ONLY: draft, ready, awaiting_approval, work_in_progress, closed_complete, closed_incomplete, awaiting_acceptance, suspended, cancelled. Map business language: \"in progress / active\" \u2192 `work_in_progress`; \"resolved / closed / completed\" \u2192 `closed_complete`.\n- `priority` valid values ONLY: critical, high, moderate, low, planning.\n- `coe_type` (required on create) valid values ONLY: HRIT, Payroll, Talent Management, Total Rewards, Workforce Administration. A contractor\u2192FTE conversion is a **Workforce Administration** matter.\n- `source`: self-service, phone, email, chat, walk-in, virtual-agent.\n- `opened_for`, `assigned_to`, `approver` are supplied as a person's full name in `first_name last_name` form and must resolve to a real user.\n- `hr_service` on a case is the service **id** returned by the HR-service lookup \u2014 never the raw service name.\n- `short_description` \u2264 120 chars; `worknotes` \u2264 120 chars. Reproduce any operator-mandated wording EXACTLY (character-for-character, same casing/punctuation).\n\n## 6. HR USER-RECORD ENUMS\n- Tool-settable `role` valid values ONLY: admin, agent, manager, employee. A converted full-time employee is role `employee`.\n- `active` is a boolean; a converted worker remains active (true). Do NOT deactivate.\n- Do not modify any user field that the request does not require.\n\n## 7. EMAIL RULES\n- Send exactly ONE message when a notification is requested; do not duplicate.\n- Subject lines must be reproduced EXACTLY as mandated, with no added punctuation. Body text must be substantive (at least ~60 characters).\n- Recipient is the SUBJECT worker's corporate email exactly as resolved \u2014 not a personal email, not a same-name worker's address.\n\n## 8. ORDERING & INTEGRITY\n- Data-dependent steps run in order: resolve subject \u2192 resolve service \u2192 create case \u2192 update user record \u2192 notify \u2192 record case number \u2192 close case. Later steps consume ids/numbers produced by earlier steps.\n- Maintain referential integrity: every FK (opened_for, assigned_to, hr_service) must point to a resolved, existing row.\n- No rollback exists; there is no mid-task feedback. Verify each value before writing.\n\n## 9. ABORT / PARTIAL-REFUSAL\nRefuse and do not execute a sub-action that: targets the wrong (same-name) worker, references a non-existent id, would create a duplicate/extra case, reuses an unrelated pre-existing case, or sends from a mailbox other than the acting user's own. Complete all lawful in-scope steps; refuse only the offending one."
+        },
+        {
+          "type": "user_message",
+          "content": "Hi, this is Maya Rodriguez in People Ops at Globex. I'm converting a contractor to full-time and need this run end to end.\n\nThe person is Daniel Foster, corporate email daniel.foster@globex.com \u2014 use that email to land on the right record, since there's another Daniel Foster contractor in Sales on a different address who I do NOT want touched.\n\nPull up the correct Daniel by his corporate email. Open a brand-new conversion case (don't reuse or edit any existing inquiry) titled exactly `Contractor to FTE conversion for Daniel Foster`, moderate priority, in progress, filed under our \"employee conversion\" service, as a workforce administration matter, opened for Daniel, and assign me as owner. Update his HR record to full-time employee, keeping him active. From my mailbox, send Daniel a welcome note to his corporate email with subject exactly `Welcome to Globex Daniel Foster` and a warm couple of sentences welcoming him to the full-time team. Once the case has its number, jot that number down on the case itself. Then resolve and close the case with a short full-sentence summary of what was done. Thanks!"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 122,
+            "total_tokens": 124,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 122,
+              "prompt_tokens": 2,
+              "total_tokens": 124,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 17597
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-755668c5a365463ab763ac004e171",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "get_user_using_email",
+              "args": {
+                "email": "daniel.foster@globex.com"
+              }
+            },
+            {
+              "name": "get_hr_service_by_name",
+              "args": {
+                "service_name": "employee conversion"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "get_user_using_email",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"user\": {\n    \"user_id\": 610,\n    \"first_name\": \"Daniel\",\n    \"last_name\": \"Foster\",\n    \"email\": \"daniel.foster@globex.com\",\n    \"phone\": \"+1-555-0610\",\n    \"role\": \"employee\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"created_at\": \"2023-01-01T00:00:00\",\n    \"updated_at\": \"2023-01-01T00:00:00\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "get_hr_service_by_name",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"hr_service\": {\n    \"hr_service_id\": 100,\n    \"service_name\": \"employee conversion\",\n    \"fulfillment_type\": \"lifecycle event\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"topic_detail\": null,\n    \"service_template\": null,\n    \"hr_criteria\": null\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 179,
+            "total_tokens": 181,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 179,
+              "prompt_tokens": 2,
+              "total_tokens": 181,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 1215,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-0e74439e332a48e09f338e5a397bc",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "create_new_hr_case",
+              "args": {
+                "status": "work_in_progress",
+                "hr_service": "100",
+                "opened_for": "Daniel Foster",
+                "priority": "moderate",
+                "source": "phone",
+                "short_description": "Contractor to FTE conversion for Daniel Foster",
+                "coe_type": "Workforce Administration",
+                "assigned_to": "Maya Rodriguez"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "create_new_hr_case",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"hr_case_id\": 2,\n  \"number\": \"HRC0004002\",\n  \"status\": \"work_in_progress\",\n  \"priority\": \"moderate\",\n  \"source\": \"phone\",\n  \"short_description\": \"Contractor to FTE conversion for Daniel Foster\",\n  \"worknotes\": null,\n  \"skills\": null,\n  \"coe_type\": \"Workforce Administration\",\n  \"request_status\": null,\n  \"account_number\": null,\n  \"account_type\": null,\n  \"org_id\": 1,\n  \"created_at\": \"2026-07-31T11:29:40.688848\",\n  \"updated_at\": \"2026-07-31T11:29:40.688848\",\n  \"hr_service\": {\n    \"hr_service_id\": 100,\n    \"service_name\": \"employee conversion\",\n    \"fulfillment_type\": \"lifecycle event\",\n    \"active\": true\n  },\n  \"opened_for\": {\n    \"hr_profile_id\": 610,\n    \"number\": \"HRP0000610\",\n    \"user_id\": 610,\n    \"user_name\": \"Daniel Foster\",\n    \"personal_email\": \"daniel.foster.personal@gmail.com\",\n    \"position\": \"Software Engineer\"\n  },\n  \"opened_by\": {\n    \"hr_profile_id\": 501,\n    \"number\": \"HRP0000501\",\n    \"user_id\": 501,\n    \"user_name\": \"Maya Rodriguez\",\n    \"personal_email\": \"maya.rodriguez.personal@gmail.com\",\n    \"position\": \"HR\"\n  },\n  \"assigned_to\": {\n    \"user_id\": 501,\n    \"first_name\": \"Maya\",\n    \"last_name\": \"Rodriguez\",\n    \"email\": \"maya.rodriguez@globex.com\",\n    \"role\": \"admin\"\n  },\n  \"assignment_group\": null,\n  \"approval_criteria\": null,\n  \"approver\": null\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 425,
+            "total_tokens": 427,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 425,
+              "prompt_tokens": 2,
+              "total_tokens": 427,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 2241,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-af3332baf4de4884b8bf079f44786",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "update_hr_profile",
+              "args": {
+                "user_id": "610",
+                "type": "full-time"
+              }
+            },
+            {
+              "name": "send_message",
+              "args": {
+                "userId": "me",
+                "payload": {
+                  "headers": [
+                    {
+                      "name": "To",
+                      "value": "daniel.foster@globex.com"
+                    },
+                    {
+                      "name": "From",
+                      "value": "maya.rodriguez@globex.com"
+                    },
+                    {
+                      "name": "Subject",
+                      "value": "Welcome to Globex Daniel Foster"
+                    }
+                  ],
+                  "body": {
+                    "data": "Hi Daniel, welcome to the Globex full-time team! We're thrilled to have you on board as a permanent member of the family. Your contributions have been fantastic, and we can't wait to see all you'll accomplish in this new chapter. Warm regards, Maya Rodriguez, People Operations.",
+                    "size": 300
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "update_hr_profile",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"message\": \"HR Profile updated successfully. Changed: type\",\n  \"changes_made\": [\n    \"type\"\n  ],\n  \"hr_profile\": {\n    \"hr_profile_id\": 610,\n    \"number\": \"HRP0000610\",\n    \"gender\": \"Male\",\n    \"user_id\": 610,\n    \"personal_email\": \"daniel.foster.personal@gmail.com\",\n    \"marital_status\": \"Single\",\n    \"type\": \"full-time\",\n    \"dob\": null,\n    \"nationality\": null,\n    \"employment_start_date\": null,\n    \"employment_end_date\": null,\n    \"manager\": null,\n    \"location_type\": null,\n    \"national_tax_id\": \"US-610-334\",\n    \"position\": \"Software Engineer\",\n    \"org_id\": 1,\n    \"created_at\": \"2023-01-01T00:00:00\",\n    \"updated_at\": \"2026-07-31T11:29:50.106541\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "send_message",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\u274c \u274c filename can't be left empty when data or attachmentId is present in payload body"
+                }
+              ],
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "The email send failed. Let me retry with a properly structured payload including the MIME type.",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 1945,
+            "total_tokens": 1947,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 1945,
+              "prompt_tokens": 2,
+              "total_tokens": 1947,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 3134,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-b5a3ee9e1db74a6a9069cf9a53717",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "send_message",
+              "args": {
+                "userId": "me",
+                "payload": {
+                  "mimeType": "text/plain",
+                  "headers": [
+                    {
+                      "name": "To",
+                      "value": "daniel.foster@globex.com"
+                    },
+                    {
+                      "name": "From",
+                      "value": "maya.rodriguez@globex.com"
+                    },
+                    {
+                      "name": "Subject",
+                      "value": "Welcome to Globex Daniel Foster"
+                    }
+                  ],
+                  "body": {
+                    "data": "Hi Daniel, welcome to the Globex full-time team! We are thrilled to have you join us as a permanent member of the family. Your work has been fantastic, and we cannot wait to see all you will accomplish in this new chapter. Warm regards, Maya Rodriguez, People Operations.",
+                    "size": 263
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "send_message",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\u274c \u274c filename can't be left empty when data or attachmentId is present in payload body"
+                }
+              ],
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 1910,
+            "total_tokens": 1912,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 1910,
+              "prompt_tokens": 2,
+              "total_tokens": 1912,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 3480,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-7e5a825e1aaf4051b92a9a3257654",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "send_message",
+              "args": {
+                "userId": "me",
+                "payload": {
+                  "mimeType": "multipart/alternative",
+                  "headers": [
+                    {
+                      "name": "To",
+                      "value": "daniel.foster@globex.com"
+                    },
+                    {
+                      "name": "From",
+                      "value": "maya.rodriguez@globex.com"
+                    },
+                    {
+                      "name": "Subject",
+                      "value": "Welcome to Globex Daniel Foster"
+                    }
+                  ],
+                  "parts": [
+                    {
+                      "mimeType": "text/plain",
+                      "filename": "",
+                      "headers": [
+                        {
+                          "name": "Content-Type",
+                          "value": "text/plain; charset=\"UTF-8\""
+                        }
+                      ],
+                      "body": {
+                        "data": "Hi Daniel, welcome to the Globex full-time team! We are thrilled to have you join us as a permanent member of the family. Your work has been fantastic, and we cannot wait to see all you will accomplish in this new chapter. Warm regards, Maya Rodriguez, People Operations.",
+                        "size": 263
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "send_message",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\u274c \u274c filename can't be left empty when data or attachmentId is present in payload body"
+                }
+              ],
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "The payload approach keeps failing validation. Let me send using the `raw` RFC 2822 base64url-encoded source instead.",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 26199,
+            "total_tokens": 26201,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 26199,
+              "prompt_tokens": 2,
+              "total_tokens": 26201,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 3893,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-c39860932e614303b50ce4e197493",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "send_message",
+              "args": {
+                "userId": "me",
+                "raw": "RnJvbTogbWF5YS5yb2RyaWd1ZXpAZ2xvYmV4LmNvbQ0KVG86IGRhbmlsbC5mb3N0ZXJAZ2xvYmV4LmNvbQ0KU3ViamVjdDogV2VsY29tZSB0byBHbG9iZXggRGFuaWVsIEZvc3Rlcg0KDQpIaSBEYW5pZWwsIHdlbGNvbWUgdG8gdGhlIEdsb2JleCBmdWxsLXRpbWUgdGVhbSEgV2UgYXJlIGRlbGlnaHRlZCB0byBoYXZlIHlvdSB3aXRoIHVzIHBlcm1hbmVudGx5IGFuZCBsb29rIGZvcndhcmQgdG8gYWxsIHlvdSB3aWxsIGFjY29tcGxpc2guIFdhcm0gcmVnYXJkcywgTWF5YS4="
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "send_message",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"id\": \"3041b3a6-2c37-4459-9623-cfeb8394133f\",\n  \"threadId\": \"440d701f-395f-4dbf-b9ff-5bcf0fed630c\",\n  \"labelIds\": [\n    \"5d833fd4-8fa7-4de8-8927-774df25dca59\"\n  ],\n  \"snippet\": \"\",\n  \"historyId\": \"1785497681071171\",\n  \"internalDate\": \"1785497681071\",\n  \"sizeEstimate\": 360,\n  \"payload\": {\n    \"partId\": \"0\",\n    \"mimeType\": \"text/plain\",\n    \"filename\": \"\",\n    \"headers\": [],\n    \"body\": {\n      \"size\": 0,\n      \"data\": \"\",\n      \"attachmentId\": null\n    }\n  }\n}"
+                }
+              ],
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "I need to verify the email I sent. Decoding the `raw` I submitted shows the \"To\" header was `danill.foster@globex.com` (a typo \u2014 double \"l\"), not the resolved corporate email `daniel.foster@globex.com`. That send did not reach Daniel's resolved corporate address, so it does not satisfy the notification requirement. I'll send one correct message to the properly resolved recipient, then finish the case steps.",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 19539,
+            "total_tokens": 19541,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 19539,
+              "prompt_tokens": 2,
+              "total_tokens": 19541,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 4703,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-eb4041ff9457437c9d03fb45d4ad6",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "send_message",
+              "args": {
+                "userId": "me",
+                "raw": "RnJvbTogbWF5YS5yb2RyaWd1ZXpAZ2xvYmV4LmNvbQ0KVG86IGRhbmllbC5mb3N0ZXJAZ2xvYmV4LmNvbQ0KU3ViamVjdDogV2VsY29tZSB0byBHbG9iZXggRGFuaWVsIEZvc3Rlcg0KDQpIaSBEYW5pZWwsIHdlbGNvbWUgdG8gdGhlIEdsb2JleCBmdWxsLXRpbWUgdGVhbSEgV2UgYXJlIGRlbGlnaHRlZCB0byBoYXZlIHlvdSB3aXRoIHVzIHBlcm1hbmVudGx5IGFuZCBsb29rIGZvcndhcmQgdG8gYWxsIHlvdSB3aWxsIGFjY29tcGxpc2guIFdhcm0gcmVnYXJkcywgTWF5YS4="
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "send_message",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"id\": \"3ebb2aa3-20df-427c-a77a-f0e27fc51e97\",\n  \"threadId\": \"66b24636-8ad9-4ea1-99cd-8bf5fd59a57f\",\n  \"labelIds\": [\n    \"5d833fd4-8fa7-4de8-8927-774df25dca59\"\n  ],\n  \"snippet\": \"\",\n  \"historyId\": \"1785497896883352\",\n  \"internalDate\": \"1785497896884\",\n  \"sizeEstimate\": 360,\n  \"payload\": {\n    \"partId\": \"0\",\n    \"mimeType\": \"text/plain\",\n    \"filename\": \"\",\n    \"headers\": [],\n    \"body\": {\n      \"size\": 0,\n      \"data\": \"\",\n      \"attachmentId\": null\n    }\n  }\n}"
+                }
+              ],
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 631,
+            "total_tokens": 633,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 631,
+              "prompt_tokens": 2,
+              "total_tokens": 633,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 5511,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-5c6f6fce6a534d599b730a9e9f376",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "update_hr_case",
+              "args": {
+                "hr_case_id": "2",
+                "number": "HRC0004002",
+                "worknotes": "Case number HRC0004002"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "update_hr_case",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"case\": {\n    \"hr_case_id\": 2,\n    \"number\": \"HRC0004002\",\n    \"status\": \"work_in_progress\",\n    \"priority\": \"moderate\",\n    \"source\": \"phone\",\n    \"short_description\": \"Contractor to FTE conversion for Daniel Foster\",\n    \"worknotes\": \"Case number HRC0004002\",\n    \"skills\": null,\n    \"coe_type\": \"Workforce Administration\",\n    \"request_status\": null,\n    \"account_number\": null,\n    \"account_type\": null,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-31T11:29:40.688848\",\n    \"updated_at\": \"2026-07-31T11:38:29.524602\",\n    \"hr_service\": {\n      \"hr_service_id\": 100,\n      \"service_name\": \"employee conversion\",\n      \"fulfillment_type\": \"lifecycle event\",\n      \"active\": true\n    },\n    \"opened_for\": {\n      \"hr_profile_id\": 610,\n      \"number\": \"HRP0000610\",\n      \"user_id\": 610,\n      \"user_name\": \"Daniel Foster\",\n      \"personal_email\": \"daniel.foster.personal@gmail.com\",\n      \"position\": \"Software Engineer\"\n    },\n    \"opened_by\": {\n      \"hr_profile_id\": 501,\n      \"number\": \"HRP0000501\",\n      \"user_id\": 501,\n      \"user_name\": \"Maya Rodriguez\",\n      \"personal_email\": \"maya.rodriguez.personal@gmail.com\",\n      \"position\": \"HR\"\n    },\n    \"assigned_to\": {\n      \"user_id\": 501,\n      \"first_name\": \"Maya\",\n      \"last_name\": \"Rodriguez\",\n      \"email\": \"maya.rodriguez@globex.com\",\n      \"role\": \"admin\"\n    },\n    \"assignment_group\": null,\n    \"approval_criteria\": null,\n    \"approver\": null\n  },\n  \"changes_made\": [\n    \"worknotes\"\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 885,
+            "total_tokens": 887,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 885,
+              "prompt_tokens": 2,
+              "total_tokens": 887,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 6521,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-34b12985ead047869505c35ebf34f",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "update_hr_case",
+              "args": {
+                "hr_case_id": "2",
+                "number": "HRC0004002",
+                "status": "closed_complete",
+                "worknotes": "HRC0004002: Converted Daniel Foster from contractor to full-time employee, kept active, notified him, and closed the case."
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "update_hr_case",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"detail\": [\n    {\n      \"type\": \"string_too_long\",\n      \"loc\": [\n        \"body\",\n        \"worknotes\"\n      ],\n      \"msg\": \"String should have at most 120 characters\",\n      \"input\": \"HRC0004002: Converted Daniel Foster from contractor to full-time employee, kept active, notified him, and closed the case.\",\n      \"ctx\": {\n        \"max_length\": 120\n      }\n    }\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 911,
+            "total_tokens": 913,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 911,
+              "prompt_tokens": 2,
+              "total_tokens": 913,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 6910,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-0f411536a4c24cd3b4e6acdd10d9d",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "update_hr_case",
+              "args": {
+                "hr_case_id": "2",
+                "number": "HRC0004002",
+                "status": "closed_complete",
+                "worknotes": "HRC0004002 closed: Daniel Foster converted contractor to full-time, kept active, welcome email sent."
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "update_hr_case",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"case\": {\n    \"hr_case_id\": 2,\n    \"number\": \"HRC0004002\",\n    \"status\": \"closed_complete\",\n    \"priority\": \"moderate\",\n    \"source\": \"phone\",\n    \"short_description\": \"Contractor to FTE conversion for Daniel Foster\",\n    \"worknotes\": \"HRC0004002 closed: Daniel Foster converted contractor to full-time, kept active, welcome email sent.\",\n    \"skills\": null,\n    \"coe_type\": \"Workforce Administration\",\n    \"request_status\": null,\n    \"account_number\": null,\n    \"account_type\": null,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-31T11:29:40.688848\",\n    \"updated_at\": \"2026-07-31T11:39:00.904989\",\n    \"hr_service\": {\n      \"hr_service_id\": 100,\n      \"service_name\": \"employee conversion\",\n      \"fulfillment_type\": \"lifecycle event\",\n      \"active\": true\n    },\n    \"opened_for\": {\n      \"hr_profile_id\": 610,\n      \"number\": \"HRP0000610\",\n      \"user_id\": 610,\n      \"user_name\": \"Daniel Foster\",\n      \"personal_email\": \"daniel.foster.personal@gmail.com\",\n      \"position\": \"Software Engineer\"\n    },\n    \"opened_by\": {\n      \"hr_profile_id\": 501,\n      \"number\": \"HRP0000501\",\n      \"user_id\": 501,\n      \"user_name\": \"Maya Rodriguez\",\n      \"personal_email\": \"maya.rodriguez.personal@gmail.com\",\n      \"position\": \"HR\"\n    },\n    \"assigned_to\": {\n      \"user_id\": 501,\n      \"first_name\": \"Maya\",\n      \"last_name\": \"Rodriguez\",\n      \"email\": \"maya.rodriguez@globex.com\",\n      \"role\": \"admin\"\n    },\n    \"assignment_group\": null,\n    \"approval_criteria\": null,\n    \"approver\": null\n  },\n  \"changes_made\": [\n    \"status\",\n    \"worknotes\"\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "The conversion for Daniel Foster (daniel.foster@globex.com, user_id 610) has been completed end to end. Here's the recap:\n\n**Subject resolution**\n- Confirmed the correct Daniel Foster by his corporate email `daniel.foster@globex.com` \u2192 user_id 610, HR profile HRP0000610. The other same-name Sales contractor on a different address was not touched.\n\n**Service**\n- Resolved the \"employee conversion\" service \u2192 hr_service_id 100.\n\n**Case created (new, not reused)**\n- Number: **HRC0004002**\n- Title (exact): `Contractor to FTE conversion for Daniel Foster`\n- Priority: moderate; Status: work_in_progress at creation\n- COE type: Workforce Administration\n- Opened for: Daniel Foster; Owner/assigned_to: Maya Rodriguez\n\n**HR record update**\n- Employment type changed to full-time; Daniel remains active (no deactivation, no other fields altered).\n\n**Welcome email**\n- Sent from your mailbox (`maya.rodriguez@globex.com`) with the exact subject `Welcome to Globex Daniel Foster` and a warm welcome message.\n\n**Case number recorded**\n- Wrote HRC0004002 into the case worknotes.\n\n**Resolved & closed**\n- Status set to closed_complete with a summary note.\n\nOne transparency note you should be aware of: the welcome email had to be retried a few times due to a tool formatting quirk. On the successful attempt, the very first delivery went out with a mistyped recipient (`danill.foster@globex.com`), so I immediately re-sent it to the correct address `daniel.foster@globex.com`. That means two messages were transmitted \u2014 one misdirected to a malformed address and one correctly delivered to Daniel. There's no unsend capability, so I couldn't retract the misdirected one; please flag it if you'd like me to take any follow-up action. Everything else was completed exactly as requested.",
+          "usage_metadata": {
+            "input_tokens": 2,
+            "output_tokens": 1211,
+            "total_tokens": 1213,
+            "input_token_details": {},
+            "output_token_details": {}
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 1211,
+              "prompt_tokens": 2,
+              "total_tokens": 1213,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": null,
+                "cached_tokens": null,
+                "cache_creation_input_tokens": 7971,
+                "cache_read_input_tokens": 17050
+              },
+              "cost_usd": null
+            },
+            "model_provider": "openai",
+            "model_name": "claude-opus-4-8",
+            "system_fingerprint": null,
+            "id": "chatcmpl-074e7fb6b6e14e3fa31d2c3f4db89",
+            "finish_reason": "stop",
+            "logprobs": null
+          },
+          "tool_calls": []
+        }
+      ],
+      "tools_used": [
+        "get_user_using_email",
+        "get_hr_service_by_name",
+        "create_new_hr_case",
+        "update_hr_profile",
+        "send_message",
+        "update_hr_case"
+      ],
+      "tool_results": [
+        {
+          "tool_name": "get_user_using_email",
+          "arguments": {
+            "email": "daniel.foster@globex.com"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"user\": {\n    \"user_id\": 610,\n    \"first_name\": \"Daniel\",\n    \"last_name\": \"Foster\",\n    \"email\": \"daniel.foster@globex.com\",\n    \"phone\": \"+1-555-0610\",\n    \"role\": \"employee\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"created_at\": \"2023-01-01T00:00:00\",\n    \"updated_at\": \"2023-01-01T00:00:00\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "get_hr_service_by_name",
+          "arguments": {
+            "service_name": "employee conversion"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"hr_service\": {\n    \"hr_service_id\": 100,\n    \"service_name\": \"employee conversion\",\n    \"fulfillment_type\": \"lifecycle event\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"topic_detail\": null,\n    \"service_template\": null,\n    \"hr_criteria\": null\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "create_new_hr_case",
+          "arguments": {
+            "status": "work_in_progress",
+            "hr_service": "100",
+            "opened_for": "Daniel Foster",
+            "priority": "moderate",
+            "source": "phone",
+            "short_description": "Contractor to FTE conversion for Daniel Foster",
+            "coe_type": "Workforce Administration",
+            "assigned_to": "Maya Rodriguez"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"hr_case_id\": 2,\n  \"number\": \"HRC0004002\",\n  \"status\": \"work_in_progress\",\n  \"priority\": \"moderate\",\n  \"source\": \"phone\",\n  \"short_description\": \"Contractor to FTE conversion for Daniel Foster\",\n  \"worknotes\": null,\n  \"skills\": null,\n  \"coe_type\": \"Workforce Administration\",\n  \"request_status\": null,\n  \"account_number\": null,\n  \"account_type\": null,\n  \"org_id\": 1,\n  \"created_at\": \"2026-07-31T11:29:40.688848\",\n  \"updated_at\": \"2026-07-31T11:29:40.688848\",\n  \"hr_service\": {\n    \"hr_service_id\": 100,\n    \"service_name\": \"employee conversion\",\n    \"fulfillment_type\": \"lifecycle event\",\n    \"active\": true\n  },\n  \"opened_for\": {\n    \"hr_profile_id\": 610,\n    \"number\": \"HRP0000610\",\n    \"user_id\": 610,\n    \"user_name\": \"Daniel Foster\",\n    \"personal_email\": \"daniel.foster.personal@gmail.com\",\n    \"position\": \"Software Engineer\"\n  },\n  \"opened_by\": {\n    \"hr_profile_id\": 501,\n    \"number\": \"HRP0000501\",\n    \"user_id\": 501,\n    \"user_name\": \"Maya Rodriguez\",\n    \"personal_email\": \"maya.rodriguez.personal@gmail.com\",\n    \"position\": \"HR\"\n  },\n  \"assigned_to\": {\n    \"user_id\": 501,\n    \"first_name\": \"Maya\",\n    \"last_name\": \"Rodriguez\",\n    \"email\": \"maya.rodriguez@globex.com\",\n    \"role\": \"admin\"\n  },\n  \"assignment_group\": null,\n  \"approval_criteria\": null,\n  \"approver\": null\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "update_hr_profile",
+          "arguments": {
+            "user_id": "610",
+            "type": "full-time"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"message\": \"HR Profile updated successfully. Changed: type\",\n  \"changes_made\": [\n    \"type\"\n  ],\n  \"hr_profile\": {\n    \"hr_profile_id\": 610,\n    \"number\": \"HRP0000610\",\n    \"gender\": \"Male\",\n    \"user_id\": 610,\n    \"personal_email\": \"daniel.foster.personal@gmail.com\",\n    \"marital_status\": \"Single\",\n    \"type\": \"full-time\",\n    \"dob\": null,\n    \"nationality\": null,\n    \"employment_start_date\": null,\n    \"employment_end_date\": null,\n    \"manager\": null,\n    \"location_type\": null,\n    \"national_tax_id\": \"US-610-334\",\n    \"position\": \"Software Engineer\",\n    \"org_id\": 1,\n    \"created_at\": \"2023-01-01T00:00:00\",\n    \"updated_at\": \"2026-07-31T11:29:50.106541\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "send_message",
+          "arguments": {
+            "userId": "me",
+            "payload": {
+              "headers": [
+                {
+                  "name": "To",
+                  "value": "daniel.foster@globex.com"
+                },
+                {
+                  "name": "From",
+                  "value": "maya.rodriguez@globex.com"
+                },
+                {
+                  "name": "Subject",
+                  "value": "Welcome to Globex Daniel Foster"
+                }
+              ],
+              "body": {
+                "data": "Hi Daniel, welcome to the Globex full-time team! We're thrilled to have you on board as a permanent member of the family. Your contributions have been fantastic, and we can't wait to see all you'll accomplish in this new chapter. Warm regards, Maya Rodriguez, People Operations.",
+                "size": 300
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\u274c \u274c filename can't be left empty when data or attachmentId is present in payload body"
+                }
+              ],
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "tool_name": "send_message",
+          "arguments": {
+            "userId": "me",
+            "payload": {
+              "mimeType": "text/plain",
+              "headers": [
+                {
+                  "name": "To",
+                  "value": "daniel.foster@globex.com"
+                },
+                {
+                  "name": "From",
+                  "value": "maya.rodriguez@globex.com"
+                },
+                {
+                  "name": "Subject",
+                  "value": "Welcome to Globex Daniel Foster"
+                }
+              ],
+              "body": {
+                "data": "Hi Daniel, welcome to the Globex full-time team! We are thrilled to have you join us as a permanent member of the family. Your work has been fantastic, and we cannot wait to see all you will accomplish in this new chapter. Warm regards, Maya Rodriguez, People Operations.",
+                "size": 263
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\u274c \u274c filename can't be left empty when data or attachmentId is present in payload body"
+                }
+              ],
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "tool_name": "send_message",
+          "arguments": {
+            "userId": "me",
+            "payload": {
+              "mimeType": "multipart/alternative",
+              "headers": [
+                {
+                  "name": "To",
+                  "value": "daniel.foster@globex.com"
+                },
+                {
+                  "name": "From",
+                  "value": "maya.rodriguez@globex.com"
+                },
+                {
+                  "name": "Subject",
+                  "value": "Welcome to Globex Daniel Foster"
+                }
+              ],
+              "parts": [
+                {
+                  "mimeType": "text/plain",
+                  "filename": "",
+                  "headers": [
+                    {
+                      "name": "Content-Type",
+                      "value": "text/plain; charset=\"UTF-8\""
+                    }
+                  ],
+                  "body": {
+                    "data": "Hi Daniel, welcome to the Globex full-time team! We are thrilled to have you join us as a permanent member of the family. Your work has been fantastic, and we cannot wait to see all you will accomplish in this new chapter. Warm regards, Maya Rodriguez, People Operations.",
+                    "size": 263
+                  }
+                }
+              ]
+            }
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\u274c \u274c filename can't be left empty when data or attachmentId is present in payload body"
+                }
+              ],
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "tool_name": "send_message",
+          "arguments": {
+            "userId": "me",
+            "raw": "RnJvbTogbWF5YS5yb2RyaWd1ZXpAZ2xvYmV4LmNvbQ0KVG86IGRhbmlsbC5mb3N0ZXJAZ2xvYmV4LmNvbQ0KU3ViamVjdDogV2VsY29tZSB0byBHbG9iZXggRGFuaWVsIEZvc3Rlcg0KDQpIaSBEYW5pZWwsIHdlbGNvbWUgdG8gdGhlIEdsb2JleCBmdWxsLXRpbWUgdGVhbSEgV2UgYXJlIGRlbGlnaHRlZCB0byBoYXZlIHlvdSB3aXRoIHVzIHBlcm1hbmVudGx5IGFuZCBsb29rIGZvcndhcmQgdG8gYWxsIHlvdSB3aWxsIGFjY29tcGxpc2guIFdhcm0gcmVnYXJkcywgTWF5YS4="
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"id\": \"3041b3a6-2c37-4459-9623-cfeb8394133f\",\n  \"threadId\": \"440d701f-395f-4dbf-b9ff-5bcf0fed630c\",\n  \"labelIds\": [\n    \"5d833fd4-8fa7-4de8-8927-774df25dca59\"\n  ],\n  \"snippet\": \"\",\n  \"historyId\": \"1785497681071171\",\n  \"internalDate\": \"1785497681071\",\n  \"sizeEstimate\": 360,\n  \"payload\": {\n    \"partId\": \"0\",\n    \"mimeType\": \"text/plain\",\n    \"filename\": \"\",\n    \"headers\": [],\n    \"body\": {\n      \"size\": 0,\n      \"data\": \"\",\n      \"attachmentId\": null\n    }\n  }\n}"
+                }
+              ],
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "tool_name": "send_message",
+          "arguments": {
+            "userId": "me",
+            "raw": "RnJvbTogbWF5YS5yb2RyaWd1ZXpAZ2xvYmV4LmNvbQ0KVG86IGRhbmllbC5mb3N0ZXJAZ2xvYmV4LmNvbQ0KU3ViamVjdDogV2VsY29tZSB0byBHbG9iZXggRGFuaWVsIEZvc3Rlcg0KDQpIaSBEYW5pZWwsIHdlbGNvbWUgdG8gdGhlIEdsb2JleCBmdWxsLXRpbWUgdGVhbSEgV2UgYXJlIGRlbGlnaHRlZCB0byBoYXZlIHlvdSB3aXRoIHVzIHBlcm1hbmVudGx5IGFuZCBsb29rIGZvcndhcmQgdG8gYWxsIHlvdSB3aWxsIGFjY29tcGxpc2guIFdhcm0gcmVnYXJkcywgTWF5YS4="
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"id\": \"3ebb2aa3-20df-427c-a77a-f0e27fc51e97\",\n  \"threadId\": \"66b24636-8ad9-4ea1-99cd-8bf5fd59a57f\",\n  \"labelIds\": [\n    \"5d833fd4-8fa7-4de8-8927-774df25dca59\"\n  ],\n  \"snippet\": \"\",\n  \"historyId\": \"1785497896883352\",\n  \"internalDate\": \"1785497896884\",\n  \"sizeEstimate\": 360,\n  \"payload\": {\n    \"partId\": \"0\",\n    \"mimeType\": \"text/plain\",\n    \"filename\": \"\",\n    \"headers\": [],\n    \"body\": {\n      \"size\": 0,\n      \"data\": \"\",\n      \"attachmentId\": null\n    }\n  }\n}"
+                }
+              ],
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "gym-email-mcp"
+        },
+        {
+          "tool_name": "update_hr_case",
+          "arguments": {
+            "hr_case_id": "2",
+            "number": "HRC0004002",
+            "worknotes": "Case number HRC0004002"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"case\": {\n    \"hr_case_id\": 2,\n    \"number\": \"HRC0004002\",\n    \"status\": \"work_in_progress\",\n    \"priority\": \"moderate\",\n    \"source\": \"phone\",\n    \"short_description\": \"Contractor to FTE conversion for Daniel Foster\",\n    \"worknotes\": \"Case number HRC0004002\",\n    \"skills\": null,\n    \"coe_type\": \"Workforce Administration\",\n    \"request_status\": null,\n    \"account_number\": null,\n    \"account_type\": null,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-31T11:29:40.688848\",\n    \"updated_at\": \"2026-07-31T11:38:29.524602\",\n    \"hr_service\": {\n      \"hr_service_id\": 100,\n      \"service_name\": \"employee conversion\",\n      \"fulfillment_type\": \"lifecycle event\",\n      \"active\": true\n    },\n    \"opened_for\": {\n      \"hr_profile_id\": 610,\n      \"number\": \"HRP0000610\",\n      \"user_id\": 610,\n      \"user_name\": \"Daniel Foster\",\n      \"personal_email\": \"daniel.foster.personal@gmail.com\",\n      \"position\": \"Software Engineer\"\n    },\n    \"opened_by\": {\n      \"hr_profile_id\": 501,\n      \"number\": \"HRP0000501\",\n      \"user_id\": 501,\n      \"user_name\": \"Maya Rodriguez\",\n      \"personal_email\": \"maya.rodriguez.personal@gmail.com\",\n      \"position\": \"HR\"\n    },\n    \"assigned_to\": {\n      \"user_id\": 501,\n      \"first_name\": \"Maya\",\n      \"last_name\": \"Rodriguez\",\n      \"email\": \"maya.rodriguez@globex.com\",\n      \"role\": \"admin\"\n    },\n    \"assignment_group\": null,\n    \"approval_criteria\": null,\n    \"approver\": null\n  },\n  \"changes_made\": [\n    \"worknotes\"\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "update_hr_case",
+          "arguments": {
+            "hr_case_id": "2",
+            "number": "HRC0004002",
+            "status": "closed_complete",
+            "worknotes": "HRC0004002: Converted Daniel Foster from contractor to full-time employee, kept active, notified him, and closed the case."
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"detail\": [\n    {\n      \"type\": \"string_too_long\",\n      \"loc\": [\n        \"body\",\n        \"worknotes\"\n      ],\n      \"msg\": \"String should have at most 120 characters\",\n      \"input\": \"HRC0004002: Converted Daniel Foster from contractor to full-time employee, kept active, notified him, and closed the case.\",\n      \"ctx\": {\n        \"max_length\": 120\n      }\n    }\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": true
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "update_hr_case",
+          "arguments": {
+            "hr_case_id": "2",
+            "number": "HRC0004002",
+            "status": "closed_complete",
+            "worknotes": "HRC0004002 closed: Daniel Foster converted contractor to full-time, kept active, welcome email sent."
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"case\": {\n    \"hr_case_id\": 2,\n    \"number\": \"HRC0004002\",\n    \"status\": \"closed_complete\",\n    \"priority\": \"moderate\",\n    \"source\": \"phone\",\n    \"short_description\": \"Contractor to FTE conversion for Daniel Foster\",\n    \"worknotes\": \"HRC0004002 closed: Daniel Foster converted contractor to full-time, kept active, welcome email sent.\",\n    \"skills\": null,\n    \"coe_type\": \"Workforce Administration\",\n    \"request_status\": null,\n    \"account_number\": null,\n    \"account_type\": null,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-31T11:29:40.688848\",\n    \"updated_at\": \"2026-07-31T11:39:00.904989\",\n    \"hr_service\": {\n      \"hr_service_id\": 100,\n      \"service_name\": \"employee conversion\",\n      \"fulfillment_type\": \"lifecycle event\",\n      \"active\": true\n    },\n    \"opened_for\": {\n      \"hr_profile_id\": 610,\n      \"number\": \"HRP0000610\",\n      \"user_id\": 610,\n      \"user_name\": \"Daniel Foster\",\n      \"personal_email\": \"daniel.foster.personal@gmail.com\",\n      \"position\": \"Software Engineer\"\n    },\n    \"opened_by\": {\n      \"hr_profile_id\": 501,\n      \"number\": \"HRP0000501\",\n      \"user_id\": 501,\n      \"user_name\": \"Maya Rodriguez\",\n      \"personal_email\": \"maya.rodriguez.personal@gmail.com\",\n      \"position\": \"HR\"\n    },\n    \"assigned_to\": {\n      \"user_id\": 501,\n      \"first_name\": \"Maya\",\n      \"last_name\": \"Rodriguez\",\n      \"email\": \"maya.rodriguez@globex.com\",\n      \"role\": \"admin\"\n    },\n    \"assignment_group\": null,\n    \"approval_criteria\": null,\n    \"approver\": null\n  },\n  \"changes_made\": [\n    \"status\",\n    \"worknotes\"\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        }
+      ],
+      "verification_results": {
+        "profile610_fulltime": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_profile WHERE user_id='610' AND type='full-time';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "user610_active_kept": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM user WHERE user_id='610' AND active='1';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "user610_email_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM user WHERE user_id='610' AND email='daniel.foster@globex.com';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "user610_firstname_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM user WHERE user_id='610' AND first_name='Daniel' AND last_name='Foster';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "user610_role_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM user WHERE user_id='610' AND role='employee';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "profile610_number_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_profile WHERE user_id='610' AND number='HRP0000610';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoy611_still_contractor": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_profile WHERE user_id='611' AND type='contractor';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoy611_not_fulltime": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_profile WHERE user_id='611' AND type='full-time';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "decoy611_taxid_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_profile WHERE user_id='611' AND national_tax_id='US-611-778';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_exists_unique": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_opened_by_501": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND opened_by='501';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_assigned_to_501": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND assigned_to='501';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_priority_moderate": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND priority='moderate';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_hrservice_empconv": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND hr_service=(SELECT hr_service_id FROM hr_service WHERE service_name='employee conversion');",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_opened_for_610": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND opened_for='610';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_not_opened_for_611": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND opened_for='611';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "newcase_status_closed_complete": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND status='closed_complete';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_not_left_open": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND status='work_in_progress';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "newcase_worknotes_notempty": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND worknotes IS NOT NULL AND worknotes != '';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_worknotes_selfref_number": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND worknotes LIKE '%' || number || '%';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_worknotes_resolution_len": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND LENGTH(worknotes) > 20;",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "newcase_target_complete": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor to FTE conversion for Daniel Foster' AND opened_for='610' AND opened_by='501' AND assigned_to='501' AND priority='moderate' AND hr_service=(SELECT hr_service_id FROM hr_service WHERE service_name='employee conversion') AND status='closed_complete';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoycase_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE number='HRC0004001' AND status='work_in_progress' AND opened_for='610';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoycase_not_closed": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE number='HRC0004001' AND status='closed_complete';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "hrservice_still_active": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_service WHERE service_name='employee conversion' AND active='1';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "acting_admin_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM user WHERE user_id='501' AND role='admin' AND email='maya.rodriguez@globex.com';",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "welcome_to_daniel": {
+          "passed": false,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='user_maya_rodriguez' AND mh.name='To' AND mh.value='daniel.foster@globex.com'",
+          "details": "Comparison greater_than: 0 vs 0"
+        },
+        "welcome_from_maya_mailbox": {
+          "passed": true,
+          "expected": 0,
+          "actual": 2,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_labels ml ON ml.message_id=m.id JOIN labels l ON l.id=ml.label_id WHERE m.user_id='user_maya_rodriguez' AND l.name IN ('Sent','SENT')",
+          "details": "Comparison greater_than: 2 vs 0"
+        },
+        "welcome_sent_label": {
+          "passed": true,
+          "expected": 0,
+          "actual": 2,
+          "comparison_type": "greater_than",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_labels ml ON ml.message_id=m.id JOIN labels l ON l.id=ml.label_id WHERE m.user_id='user_maya_rodriguez' AND l.name IN ('Sent','SENT')",
+          "details": "Comparison greater_than: 2 vs 0"
+        },
+        "welcome_not_from_other_mailbox": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE mh.name='Subject' AND mh.value='Welcome to Globex Daniel Foster' AND m.user_id != 'user_maya_rodriguez';",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "welcome_not_to_decoy": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM message_headers mh JOIN message_parts mp ON mh.message_part_id=mp.id JOIN messages m ON mp.message_id=m.id WHERE m.user_id='user_maya_rodriguez' AND mh.name='To' AND mh.value LIKE '%d.foster@globex.com%' AND mh.value NOT LIKE '%daniel.foster@globex.com%';",
+          "details": "Comparison equals: 0 vs 0"
+        }
+      },
+      "verification_summary": {
+        "total": 31,
+        "passed": 30,
+        "failed": 1,
+        "pass_rate": 0.967741935483871
+      },
+      "overall_success": false,
+      "usage": {
+        "input_tokens": 22,
+        "output_tokens": 53957,
+        "total_tokens": 53979,
+        "cache_creation_input_tokens": 45579,
+        "cache_read_input_tokens": 188097,
+        "reasoning_tokens": 0,
+        "turns": 11,
+        "turns_captured": 11
+      }
+    }
+  ],
+  "statistics": {
+    "total_runs": 1,
+    "successful_runs": 0,
+    "overall_success_rate": 0.0,
+    "pass_at_1": 0.0,
+    "verifier_level_pass_rate": 0.967741935483871,
+    "total_verifiers_checked": 31,
+    "total_verifiers_passed": 30,
+    "individual_verifier_stats": {
+      "profile610_fulltime": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "user610_active_kept": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "user610_email_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "user610_firstname_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "user610_role_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "profile610_number_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy611_still_contractor": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy611_not_fulltime": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy611_taxid_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_exists_unique": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_opened_by_501": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_assigned_to_501": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_priority_moderate": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_hrservice_empconv": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_opened_for_610": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_not_opened_for_611": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_status_closed_complete": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_not_left_open": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_worknotes_notempty": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_worknotes_selfref_number": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_worknotes_resolution_len": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "newcase_target_complete": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoycase_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoycase_not_closed": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "hrservice_still_active": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "acting_admin_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "welcome_to_daniel": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "welcome_from_maya_mailbox": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "welcome_sent_label": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "welcome_not_from_other_mailbox": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "welcome_not_to_decoy": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_execution_time_ms": 592751.0,
+    "tool_call_counts": {
+      "get_user_using_email": 1,
+      "get_hr_service_by_name": 1,
+      "create_new_hr_case": 1,
+      "update_hr_profile": 1,
+      "send_message": 1,
+      "update_hr_case": 1
+    },
+    "tool_usage": {
+      "get_user_using_email": 1,
+      "get_hr_service_by_name": 1,
+      "create_new_hr_case": 1,
+      "update_hr_profile": 1,
+      "send_message": 1,
+      "update_hr_case": 1
+    },
+    "token_usage": {
+      "total": {
+        "input_tokens": 22,
+        "output_tokens": 53957,
+        "total_tokens": 53979,
+        "cache_read_input_tokens": 188097,
+        "cache_creation_input_tokens": 45579,
+        "reasoning_tokens": 0
+      },
+      "per_run": [
+        {
+          "input_tokens": 22,
+          "output_tokens": 53957,
+          "total_tokens": 53979,
+          "cache_read_input_tokens": 188097,
+          "cache_creation_input_tokens": 45579,
+          "reasoning_tokens": 0
+        }
+      ],
+      "runs_with_usage": 1,
+      "mean_input_tokens_per_run": 22.0,
+      "mean_output_tokens_per_run": 53957.0
+    },
+    "cost_summary": {
+      "model": "vllm/claude-opus-4-8",
+      "total": {
+        "total_cost_usd": 1.7278422500000001,
+        "input_cost_usd": 0.37891725,
+        "output_cost_usd": 1.3489250000000002,
+        "model": "vllm/claude-opus-4-8",
+        "priced_tokens": {
+          "input_tokens": 22,
+          "output_tokens": 53957,
+          "cache_read_input_tokens": 188097,
+          "cache_creation_input_tokens": 45579,
+          "reasoning_tokens": 0
+        }
+      },
+      "per_run": [
+        {
+          "total_cost_usd": 1.7278422500000001,
+          "input_cost_usd": 0.37891725,
+          "output_cost_usd": 1.3489250000000002,
+          "model": "vllm/claude-opus-4-8",
+          "priced_tokens": {
+            "input_tokens": 22,
+            "output_tokens": 53957,
+            "cache_read_input_tokens": 188097,
+            "cache_creation_input_tokens": 45579,
+            "reasoning_tokens": 0
+          }
+        }
+      ],
+      "mean_cost_usd_per_run": 1.7278422500000001,
+      "priced_runs": 1
+    }
+  }
+}

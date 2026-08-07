@@ -1,0 +1,89 @@
+version = "1.0"
+
+[task]
+name = "default/996a64af-e210-5bc5-a984-0d2f94c92fc8"
+description = "# Aurora entitlement exception"
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "csm",
+    "itsm",
+    "drive",
+]
+gyms = [
+    "sn-csm-server",
+    "gym-itsm-mcp",
+    "gym-google-drive-mcp",
+]
+source_task_id = "996a64af-e210-5bc5-a984-0d2f94c92fc8"
+selected_tools = [
+    "retrieve_knowledge",
+    "find_account",
+    "find_entitlements",
+    "retrieve_installed_products",
+    "search_cases",
+    "update_case",
+    "find_configuration_item_by_serial_number",
+    "update_configuration_item",
+    "create_file",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.sn-csm-server]
+x-user-email = "maya.chen@northstar.example"
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "itsm_v12_entitlement_token"
+
+[metadata.gym_contexts.gym-google-drive-mcp]
+x-auth-token = "drive_v12_entitlement_token"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "gym-itsm",
+    "gym-drive",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-csm-server"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-csm-server"
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-google-drive-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-google-drive-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "gym-itsm",
+    "gym-drive",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

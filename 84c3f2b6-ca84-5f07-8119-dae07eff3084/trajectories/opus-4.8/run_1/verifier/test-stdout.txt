@@ -1,0 +1,27 @@
++ /tests/test.sh
++ mkdir -p /logs/verifier
++ python -m runner (claude-opus-4-8)
+
+[p1_csm_active_contract_price_reduced_to_the_correctly_rounded_credited_value] PASS
+[p1_csm_truncated_and_double_applied_prices_never_landed_on_the_account] PASS
+[p1_csm_customer_s_asked_for_figure_and_wide_window_figure_never_posted] PASS
+[p1_csm_subsidiary_and_expired_contracts_left_untouched] PASS
+[p1_csm_contract_status_and_term_preserved_through_the_price_change] PASS
+[p2_csm_case_short_description_carries_the_byte_exact_audit_line] PASS
+[p2_csm_escalation_flag_and_reason_left_exactly_as_found] PASS
+[p2_csm_decoy_case_not_annotated_or_credited] PASS
+[p2_csm_no_new_case_or_interaction_created] PASS
+[p2_csm_no_interaction_registered_for_the_account] PASS
+[p3_email_credit_announcement_sent_carrying_the_derived_amount] FAIL
+[p3_email_announcement_subject_header_exact] PASS
+[p3_email_delegate_is_the_recipient_of_the_announcement] PASS
+[p3_email_absent_billing_contact_never_addressed_or_copied] PASS
+[p3_email_asked_for_figure_never_repeated_outbound_and_subsidiary_never_addressed] PASS
+[p3_email_delegate_config_and_vacation_responder_read_but_not_modified] PASS
+[p3_email_no_drafts_created_and_no_seeded_message_modified] PASS
+[p4_csm_delegate_address_written_back_as_case_notification] PASS
+[p4_csm_notification_not_addressed_to_the_absent_contact] PASS
+[p4_csm_final_re_read_invariant_exactly_one_active_contract_at_the_credited_value] PASS
+
+Model rollout: 19/20 verifiers PASS
+reward=0.95

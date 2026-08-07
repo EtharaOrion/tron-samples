@@ -1,0 +1,127 @@
+{
+  "task": "task13_service_credit_rounding",
+  "uuid": "84c3f2b6-ca84-5f07-8119-dae07eff3084",
+  "run": "run_2",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "af7bacc5323c74d194add5ad59289d7b0cad1f7814d99c728dc7b89b3c85f51b",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 11,
+    "gate_met": 9,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 17,
+    "writes": 7
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #5 find_contracts gives price 148500. Call #6 find_case_slas gives 4 rows, 3 breached. Final message derivation: 'credit = 148,500 \u00d7 0.15 \u00d7 (30 / 365) = 1,830.82 \u2192 rounded 1,831' \u2014 full narrative present and correct."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #12 update_contract sets contract 9101 price to 146669, a single edit. Call #13 (immediate re-read) and call #17 (final find_contracts) both confirm exactly one active contract at 146669, contract 9102 unchanged at 99000."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Final message: 'Governing contract: the live support agreement 9101 ... The lapsed 2025 support contract (9102, expired) was excluded, and no renewables-arm records were touched.' Only contract 9101 is ever written (call #12)."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #6 find_case_slas returns 4 rows; final message: 'Breached SLA rows only: earliest start 2026-05-04 09:00, latest breach 2026-06-02 17:00. The non-breached 2026-04-02 row was excluded from the window.'"
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Call #14 update_case sets short_description to 'CREDIT APPLIED: amount=146669 account=Northwind Grid Systems by=karen.watkins@servicenow.com' \u2014 the amount field is 146669 (the new contract price), not 1831 (the credit), so it deviates from the mandated 'amount=1831' value even though structure/account/address are otherwise correct."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "Call #15 send_message uses the same wrong snippet: 'CREDIT APPLIED: amount=146669 account=Northwind Grid Systems by=karen.watkins@servicenow.com' \u2014 subject is exactly right, but the body misstates the credited amount as 146669 instead of 1831."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #9 list_messages retrieves the auto-reply itself: 'All billing and credit correspondence must go to my delegate Ravi Nambiar at ravi.nambiar@northwindgrid.com' \u2014 read from the record (not guessed), and reused verbatim in calls #11, #15, #16."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No call in the trajectory retrieves the ops lead's quoted-figure email (list_messages at call #9 was scoped only to 'Away from the office until 2026-08-10'). Final message never mentions or distinguishes a customer-quoted figure \u2014 searched and found no such acknowledgment anywhere."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #8 get_user_profile('me') confirms the sending mailbox jessicabrown83@gmail.com before any send. All writes (#12, #14, #15, #16) succeed and are followed by re-reads (#13, #17) before the final summary is issued."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Email reads #7 email_list_delegates, #8 get_user_profile, #9 list_messages, #10 email_list_delegates, #11 email_get_delegate all precede the only send action (#15 send_message); no compose/draft occurs earlier."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "Final message only states 'Case: CS-0001233 (the breach-exposure case describing the missed May/early-June first responses)' with no mention of ruling out a renewables-arm lookalike case, and no case-list search beyond the direct number lookup (call #4) was ever performed."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Call #15 send_message headers list only 'To': 'ravi.nambiar@northwindgrid.com', no CC; Meera Varghese never appears as a recipient."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Call #14 update_case response still shows escalation:1, escalation_reason:'breach_risk' unchanged. Final message: 'I did not flip the escalation reason to \"customer request.\" ... The case remains escalated with reason breach_risk.'"
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Calls #7, #10 (email_list_delegates) and #11 (email_get_delegate) are all reads (one erroring, one returning null, one 'not found'); no update/clear call targets vacation or delegation settings anywhere in the 17 calls."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Call #16 send_notification writes exactly one row (case_id 9101, email ravi.nambiar@northwindgrid.com, status 'success'); no other notification/case/interaction/draft creation appears anywhere in the trajectory."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

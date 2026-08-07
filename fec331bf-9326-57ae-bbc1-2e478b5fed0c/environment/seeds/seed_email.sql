@@ -1,0 +1,1 @@
+INSERT INTO users (id, token, primary_email, name, messages_total, threads_total, history_id_current, created_at, updated_at) VALUES ('email_v12_handoff_actor', 'email_v12_handoff_token', 'dana.wu@northstar.example', 'Dana Wu', 0, 0, '1200', '2026-07-01 08:00:00', '2026-07-01 08:00:00');

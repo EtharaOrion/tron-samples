@@ -1,0 +1,106 @@
+{
+  "task": "dbb1a73e-e2c5-55fb-84d3-1d6179c0f5c9",
+  "uuid": "dbb1a73e-e2c5-55fb-84d3-1d6179c0f5c9",
+  "run": "run_3",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "49cda3d4239f27dc7b81de8b50ee8c7da66812a66ae7c6a9fe38c55fc61b83cf",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R12"
+  ],
+  "result": {
+    "scored": 12,
+    "met": 12,
+    "gate_met": 11,
+    "gate_total": 11,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 3,
+    "writes": 1
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 get_pop_settings returned \"accessWindow\": \"disabled\". Call #2 update_pop_settings set \"accessWindow\": \"allMail\", enabling POP because the prior read showed it off."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 arguments: {\"userId\": \"me\", \"accessWindow\": \"allMail\", \"disposition\": \"archive\"}; final message: 'POP access: On for all mail\u2014existing and future (allMail)', explicitly citing the byte-exact enum."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #2 arguments set \"disposition\": \"archive\"; final message: 'Downloaded messages: Archived so they don't remain in the inbox (archive)'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #3 read-back response: {\"accessWindow\": \"allMail\", \"disposition\": \"archive\"} \u2014 both correct, from a single write in Call #2."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #1 (read) precedes Call #2 (write)."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Final message explicitly states: 'POP was previously off.', consistent with the write that followed the read."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Exactly one pre-write read (Call #1); Call #3 is the required post-write confirmation read, not a redundant duplicate."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "All three calls (#1, #2, #3) use {\"userId\": \"me\"}."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Searched all 3 calls; no IMAP tool call appears anywhere. Final message: 'No other settings were changed.'"
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Searched all 3 calls; no forwarding/vacation/language tool calls appear. Final message: 'No other settings were changed.'"
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Final message quotes exact enum values: 'On for all mail...(allMail)' and 'Archived...(archive)', matching Call #3's confirmed values exactly."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Call #2 returned success with the new values, confirmed again by Call #3, both preceding the final completion message."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+ "task": "0f2eed96-43f9-5b2b-a48c-af6a7b58b912",
+ "run": "claude-code_run_1",
+ "calls": 6,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 13,
+  "total": 14,
+  "gate_met": 9,
+  "gate_total": 9,
+  "pass": true,
+  "exceeds_gold": 4,
+  "criteria": [
+   {"id": "R01", "score": 1, "gate": false, "evidence": "call_1 get_user_using_email(email='victor.hale@contractor.techcorp.com') resolves the contractor by exact corporate email; final response explicitly states 'The other (permanent-employee) Victor Hale was never referenced; I worked strictly off the contractor's resolved email/user id.' -- an explicit acknowledgment and exclusion of the employee decoy."},
+   {"id": "R02", "score": 1, "gate": true, "evidence": "list_incidents(assigned_to='u_hale_victor_ctr') returns exactly 3 incidents (2 open: inc_open_001/002, 1 closed: inc_closed_003); update_incident is called exactly twice, on inc_open_001 and inc_open_002 only -- matching the two open incidents from the listing."},
+   {"id": "R03", "score": 1, "gate": true, "evidence": "Both update_incident calls set only assignment_group and worknotes args; tool results confirm status ('in_progress'/'new') and assigned_to ('u_hale_victor_ctr') unchanged on both."},
+   {"id": "R04", "score": 1, "gate": true, "evidence": "find_group_by_name(name='Security On-Call') is called (returning group_id='grp_sec_oncall') before the two update_incident calls, which then use assignment_group='grp_sec_oncall'."},
+   {"id": "R05", "score": 0, "gate": false, "evidence": "Correct group grp_sec_oncall is used on both incidents, but 'Security Review Board' is never mentioned, queried, or contrasted anywhere in the tool calls or final response -- no explicit disambiguation narrated. Matches gold's golden-defect pattern."},
+   {"id": "R06", "score": 1, "gate": true, "evidence": "Both update_incident worknotes read: 'Reassigned to Security On-Call as part of Victor Hale's security offboarding; contractor internal user id u_hale_victor_ctr for audit trail.' -- states offboarding and cites the id."},
+   {"id": "R07", "score": 1, "gate": true, "evidence": "call_1's result returns user_id='u_hale_victor_ctr'; both worknotes cite 'u_hale_victor_ctr' verbatim, matching the earlier lookup exactly (not the employee's u_hale_victor_emp)."},
+   {"id": "R08", "score": 1, "gate": false, "evidence": "inc_closed_003 is never referenced by any update call, and the final response explicitly states 'INC0012003 -- closed ticket, out of scope, byte-for-byte unchanged', narrating the exclusion explicitly (exceeds gold's unnarrated equivalent)."},
+   {"id": "R09", "score": 1, "gate": false, "evidence": "The employee's incident (inc_other_004) is never referenced by any tool call, and the final response explicitly states 'The other (permanent-employee) Victor Hale was never referenced; I worked strictly off the contractor's resolved email/user id' -- an explicit exclusion narrative."},
+   {"id": "R10", "score": 1, "gate": true, "evidence": "send_message(userId='me', raw=<base64>) decodes to a header block containing 'From: dana.whitfield@techcorp.com'; this is the only send call in the trajectory."},
+   {"id": "R11", "score": 1, "gate": false, "evidence": "Base64-decoding the send_message 'raw' argument yields 'To: security-oncall@techcorp.com' and 'Subject: Contractor Security Offboarding Notice - Victor Hale' -- an exact character-for-character match to the instruction's required subject, unlike gold's truncated subject. Recipient also correct."},
+   {"id": "R12", "score": 1, "gate": true, "evidence": "Decoded email body reads in part: '...reassigned tickets are INC0012001 (Contractor VPN access anomaly review) and INC0012002 (Contractor endpoint credential rotation)' -- both actually-reassigned ticket numbers named accurately, no fabricated claims."},
+   {"id": "R13", "score": 1, "gate": true, "evidence": "The full tool call list is get_user_using_email, list_incidents, find_group_by_name, update_incident x2, send_message -- no delete/cancel/close call of any kind."},
+   {"id": "R14", "score": 1, "gate": true, "evidence": "The final 'Security offboarding ... is complete' assistant message is the last message in the trajectory, issued only after both update_incident calls and the send_message call all returned success=true."}
+  ]
+ }
+}

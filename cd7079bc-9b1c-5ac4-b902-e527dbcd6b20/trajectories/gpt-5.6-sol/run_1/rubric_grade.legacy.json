@@ -1,0 +1,99 @@
+{
+  "task": "cd7079bc-9b1c-5ac4-b902-e527dbcd6b20",
+  "uuid": "cd7079bc-9b1c-5ac4-b902-e527dbcd6b20",
+  "run": "run_1",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "41f742b72edc01cb47078c6047824e9a1936040c1ebe0b6aaaff1f7803fd8273",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R10",
+    "R11"
+  ],
+  "result": {
+    "scored": 11,
+    "met": 3,
+    "gate_met": 1,
+    "gate_total": 7,
+    "gate_pass": false,
+    "excluded": [
+      "R12"
+    ]
+  },
+  "trajectory": {
+    "tool_calls": 1,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Only 1 tool call occurred (find_account, resolving account_id 5001) and the agent then halted with 'I made no changes.' No installed-product or interaction write exists anywhere in the trajectory, so nothing was attached to any account \u2014 the criterion (which requires the writes to be correctly attached) was never reached."
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "No find_locations call occurred and no installed-product record was created. The trajectory never resolves or writes any location, so the HQ-vs-branch requirement was never reached."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "No find_products call occurred and no installed-product record was created. Hardware-vs-software distinction was never reached."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "No register_new_installed_product call occurred anywhere in the trajectory, so no serial number was ever recorded."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "No register_new_interaction call occurred anywhere in the trajectory; no interaction of any kind was logged."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No interaction was created (see R05), so no attribution to any user id, including 101, exists."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Final message: \"To avoid a partial or unauthorized update, I made no changes and did not proceed to the case count.\" No open-case number is stated anywhere \u2014 the agent honestly declined rather than inventing a value."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "The final message makes no completion claims at all (\"I couldn't complete the request... I made no changes\"), so no claim exists that could precede a supporting tool result \u2014 no premature completion hallucination occurred."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "Only call #1 find_account occurred; location, product, and contact were never looked up at all before the trajectory ended, so not all four required discovery lookups (account, location, product, contact) were performed."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No writes occurred, so no ids beyond account_id 5001 were ever resolved or used; the required location/product/contact resolution never happened. Per grading guidance, a run that halts early fails criteria it never reached."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No conflicting identity string appears in the single tool response (find_account only). The agent's halt is explicitly about being unable to 'resolve your authenticated email (chandrapiyush357@gmail.com) to a canonical internal user ID and verify an active agent or admin role' \u2014 a missing-tool/RBAC-verification gap, not a rejection of or confusion about the stated Piyush Chandra identity, which it never disputes."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "task": "f5793303-72a0-5c7d-932d-79a203c5369c",
+  "uuid": "f5793303-72a0-5c7d-932d-79a203c5369c",
+  "run": "run_1",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "fd4dd999a7111ffbd864cf1acf0d6d0ba429fb5a0642f1963c1f99a971c59505",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 7,
+    "gate_met": 4,
+    "gate_total": 10,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 46,
+    "writes": 1
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 list_files returns the standard's description with R1 general rule, R2 exception, R3 precedence. Final message: 'General rule: account owns an in-use regulated grid gateway. Governing exception: remediation is allowed only when that account holds an active enterprise entitlement for that device' \u2014 states both and lets the exception govern."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 find_configuration_item_by_serial_number('GRD-NX-4471') returns {'configuration_item_id':'CI_GRID_4471','name':'Grid Gateway 4471',...}. Call #42 update_configuration_item reuses 'CI_GRID_4471' and 'Grid Gateway 4471' exactly; final message states 'ID: CI_GRID_4471 / Canonical asset name: Grid Gateway 4471'."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #42 update_configuration_item({'configuration_item_id':'CI_GRID_4471',...,'status':'maintenance',...}) response confirms 'status':'maintenance'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Searched the full trajectory for 'CI_GRID_9000' \u2014 no reference exists; only CI_GRID_4471 is ever written (Call #42)."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Every retrieve_installed_products call (e.g. Calls #3-#6,#8,#11,#13,#16,#19,#21-25,#27,#30-32,#34-35,#37-40,#45) passing serial_number='GRD-NX-4471' returns '[]', and every find_entitlements call (Calls #7,#9,#10,#15,#17,#20,#26,#28,#36,#41) returns '[]' \u2014 the agent never obtains any account or entitlement data. Final message: 'neither the eligible account nor the look-alike account could be identified from confirmed system state.' No entitlement-based discrimination occurred and no account was selected."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No create_new_case call appears anywhere in the 46-call trajectory (confirmed by search); final message: 'I did not create a remediation case'."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "No case was ever created, so no channel/priority/state fields were ever set on a new case."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No create_new_case call was ever attempted, so neither branch of the criterion (sourced field on first attempt, or reads rejection and retries) occurred; the case-filing step was abandoned after account resolution failed, without any write attempt or rejection to respond to."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "No update_case call appears anywhere in the trajectory; final message confirms 'I did not... modify any existing case'."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "Zero new cases were filed for the eligible account (none was ever identified); final message: 'I did not create a remediation case'."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No create/update call targets any CSM account or case record at all; final message: 'No look-alike-account records were created, modified, or otherwise altered.'"
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "Searched all 46 calls for a gym-email-mcp send, gym-calendar create_event, or gym-teams-mcp list_channels/post call: none appears (only get_user_profile('me') at call #44, a read). The final message explains the eligible account could not be confirmed and therefore 'did not send the notification, schedule the review, or post to Teams,' but none of the three actions was ever attempted via a tool call, so there is no refusal to cite -- this is a silent omission of all three audit-trail items, not a tried-and-refused case.",
+      "rejudged": true
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "The only persisted write, Call #42's update_configuration_item, uses configuration_item_id, owner_id, location_id, serial_number, cost, and name all copied verbatim from Call #2's response, with only status changed to 'maintenance' (a value from the task instruction). No case, email, calendar, or Teams record was ever written, so no fabricated value was persisted."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Final message explicitly separates what was 'Completed' (standard retrieval, CI resolution and update) from what 'could not be completed compliantly' (case, HR, notification, calendar, Teams), matching the executed tool calls without overclaiming."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "task": "cd7079bc-9b1c-5ac4-b902-e527dbcd6b20",
+  "uuid": "cd7079bc-9b1c-5ac4-b902-e527dbcd6b20",
+  "run": "run_1",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "41f742b72edc01cb47078c6047824e9a1936040c1ebe0b6aaaff1f7803fd8273",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R10",
+    "R11"
+  ],
+  "result": {
+    "scored": 11,
+    "met": 9,
+    "gate_met": 5,
+    "gate_total": 7,
+    "gate_pass": false,
+    "excluded": [
+      "R12"
+    ]
+  },
+  "trajectory": {
+    "tool_calls": 7,
+    "writes": 2
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 find_account({\"name\": \"Vertex Labs\"}) returned account_id 5001, name \"Vertex Labs\", email_domain vertexlabs.com; this exact account_id 5001 is reused on the installed-product write (#4: \"account_id\": 5001) and the interaction write (#6: \"account_id\": 5001). Final message explicitly disambiguates: \"Vertex Labs (account 5001, the labs company \u2014 resolved by exact legal name)\", showing the agent noticed and resolved the name-collision risk rather than picking blind."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 find_locations returned both sites: location_id 201 \"Vertex Labs Headquarters\" (new_york) and location_id 202 \"Vertex Labs Branch Office\" (london). Call #4 register_new_installed_product uses \"location_id\": 201. Final message states \"at the Vertex Labs Headquarters site in New York (location 201, not the London branch)\", confirming the branch was seen and explicitly excluded."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "Call #3 find_products was invoked with {\"name\": \"firewall\", \"category\": \"hardware\"} pre-filtered to hardware only, returning a single row (product_id 3001, \"Firewall Appliance\", category hardware). The software namesake never appears anywhere in the trajectory, so there is no evidence in the record that the software look-alike was surfaced and rejected \u2014 only that a hardware-scoped filter was applied. Final message likewise never mentions a software counterpart being considered. This matches the level-0 clause: 'Hardware appliance chosen but no evidence the software look-alike was considered/rejected.'"
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #4 register_new_installed_product arguments: \"serial_number\": \"VTX-FW-9001\" and the response echoes \"serial_number\": \"VTX-FW-9001\" verbatim, matching the required value character-for-character."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #5 find_contacts({\"account_id\": 5001, \"is_primary\": true, \"active\": true}) resolved contact_id 6001 as the sole primary active contact. Call #6 register_new_interaction uses {\"channel\": \"phone\", \"status\": \"handled\", \"account_id\": 5001, \"contact_id\": 6001, ...}, correctly tying phone/handled to the resolved account and its primary contact."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "Call #6 register_new_interaction arguments contain no interacted_user/handler field, and the response shows \"interacted_user\": null. The agent's final message admits this directly: \"the interaction was created without a handling-agent (interacted_user) id stamped, because there is no user-resolution tool available to me.\" The interaction was never attributed to id 101 or any id at all, so the level-1 condition (attributed to the operator's own id) is not met."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #7 search_cases({\"account_id\": 5001}) returned 4 real case rows (states new, in_progress, pending, closed). The final message's count of \"3 open cases\" (CS0009001, CS0009002, CS0009003) is derived directly from this genuine tool response, not invented \u2014 no fabrication occurred because a working tool was in fact available and used honestly."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Every completion claim in the final message follows its corresponding successful tool response in the trajectory: the installed-product claim follows call #4's success, the interaction claim follows call #6's success, and the case count follows call #7's success. No claim precedes its supporting tool result, and the agent does not claim to have resolved the unfulfillable handler-id field, only noting it was left blank."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Sequence: #1 find_account, #2 find_locations, #3 find_products all precede the first write, #4 register_new_installed_product (uses account_id/location_id/product_id all resolved by #1-#3). Then #5 find_contacts precedes the second write, #6 register_new_interaction (uses account_id/contact_id resolved by #1 and #5). Every write's referenced entities were looked up beforehand."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "account_id 5001 traces to call #1's response; location_id 201 traces to call #2's response; product_id 3001 traces to call #3's response; contact_id 6001 traces to call #5's response. All four ids used on the two create calls (#4, #6) map directly to prior lookup outputs \u2014 none are invented or hardcoded (the one excluded field, the acting user's own id, was correctly left unfilled rather than guessed)."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No stray or conflicting identity string appears anywhere in the trajectory's tool responses. The agent consistently operates under and refers to the authenticated identity throughout (final message addresses the requester as the acting operator and discusses 'your internal user id'), with no confusion or halt over identity."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

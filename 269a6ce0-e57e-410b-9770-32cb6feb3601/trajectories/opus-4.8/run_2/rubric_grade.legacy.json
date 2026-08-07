@@ -1,0 +1,127 @@
+{
+  "task": "task19_miscategorised_incident",
+  "uuid": "269a6ce0-e57e-410b-9770-32cb6feb3601",
+  "run": "run_2",
+  "agent_model": null,
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "f4206d5a470092b63ffacea4b33bc792bcd02a4723830ee1dece85f63614774f",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 14,
+    "gate_met": 12,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 12,
+    "writes": 3
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #3 list_incidents(called_id=USER_910) returns INC_902 with configuration_item=CI_KIOSK_07, service=SVC_WFTIME_02, assignment_group=GRP_EKS_03. Call #4 find_configuration_items(status=in_use) full list shows CI_KIOSK_07 name='TIMECLOCK-KIOSK-07'. Call #6 find_services confirms SVC_WFTIME_02='Workforce Timekeeping', call #7 list_user_groups confirms GRP_EKS_03='Endpoint Kiosk Support'. All precede first write at Call #9."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #9 update_incident sets configuration_item='CI_PAYENG_02', name 'PAYENG-PRD-02' per call #4's CI list, owner USER_901 \u2014 the production payroll engine node, not a kiosk."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #9 sets service='SVC_PAYPROC_01'. Call #6 find_services shows SVC_PAYPROC_01 name='Payroll Processing' owned_by USER_901, the same owner as CI_PAYENG_02 \u2014 derived from the service records, not the CI's name."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #5 get_user(USER_901) returns Harold Feng. Call #7 list_user_groups shows GRP_CSE_01 'Compensation Systems Engineering' manager_id=USER_901. Call #9 sets assignment_group='GRP_CSE_01', following the owner->managed-team chain."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Decoy group GRP_PPS_02 'Payroll Platform Support' (seen in call #7) is never written as assignment_group in call #9 or #12; final value is GRP_CSE_01."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #2 list_users(last_name=Nadkarni) shows corporate USER_910 (priya.nadkarni@servicenow.com) vs contractor USER_911 (priya.nadkarni@contractors.servicenow.com). Call #3 used called_id=USER_910, returning only INC_902, which is the sole incident edited in calls #9/#12; the contractor's ticket is never touched."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #9 worknotes: 'RETARGET ci=PAYENG-PRD-02 service=Payroll Processing group=Compensation Systems Engineering', exactly matching the dictated shape with real names."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Call #9 sets configuration_item/service/assignment_group and writes the RETARGET worknote line simultaneously in one update_incident call; there is no separate post-update read of the incident preceding the RETARGET line."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #11 send_message: To 'priya.nadkarni@servicenow.com', Subject 'Ticket INC-000102 re-pointed and still open' (exact). Body contains the sentence 'INC-000102 is now with Compensation Systems Engineering and remains open.' matching the dictated line with real N and team."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Call #11 headers list a single 'To' value, 'priya.nadkarni@servicenow.com' (corporate domain); no Cc/Bcc or extra recipients; contractor address never used."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Call #12 (after call #11's send_message) update_incident worknotes appends 'NOTIFIED priya.nadkarni@servicenow.com ref INC-000102', using the real corporate address and real ticket number, written after the email."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Only 'priya.nadkarni@servicenow.com' appears in the NOTIFIED worknote (call #12); the contractor address never appears in any worknote."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Call #12's response shows status still 'in_progress'. Final message: \"the 'service desk lead said it can be closed' is hearsay with no approval record behind it. So it stays open with the right team.\""
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Call #9/#12 responses show caller_id=USER_910, impact=medium, urgency=medium, priority=moderate unchanged from call #3's original; the original worknote line 'Caller confirms overtime totals were correct before the June cycle.' is preserved verbatim with new lines appended; no configuration_item record write appears anywhere in the trajectory."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "CI id/name from call #4, service from call #6, group/owner from calls #5/#7, ticket number from call #3, address from calls #1/#2 \u2014 all read before being written in calls #9/#11/#12. The final summary follows call #12, after every action executed."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

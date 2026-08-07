@@ -1,0 +1,9 @@
+-- MCP Server: sn-csm-server
+INSERT INTO location (location_id, name, city, country, active) VALUES (1, 'HQ London', 'london', 'uk', 1);
+INSERT INTO user (user_id, first_name, last_name, email, phone, role, location_id, active) VALUES (501, 'Marcus', 'Reed', 'marcus.reed@acme.com', '+44-20-555-0501', 'admin', 1, 1);
+INSERT INTO user (user_id, first_name, last_name, email, phone, role, location_id, active) VALUES (701, 'Jordan', 'Blake', 'jordan.blake@northwind.com', '+44-20-555-0701', 'customer', 1, 1);
+INSERT INTO account (account_id, name, account_type, email_domain, active) VALUES (8001, 'Northwind Traders', 'customer', 'northwind.com', 1);
+INSERT INTO contact (contact_id, account_id, portal_user_id, active, is_primary) VALUES (6001, 8001, 701, 1, 1);
+INSERT INTO customer_case (case_id, number, account_id, contact_id, product_id, installed_product_id, channel, priority, state, short_description, assignment_group_id, assigned_to, escalation, escalation_reason, reopen_count) VALUES (9001, 'CS0009001', 8001, 6001, NULL, NULL, 'email', 'high', 'new', 'Recurring production outage causing repeated downtime, customer requests a permanent fix.', NULL, 501, 0, NULL, 0);
+INSERT INTO customer_case (case_id, number, account_id, contact_id, product_id, installed_product_id, channel, priority, state, short_description, assignment_group_id, assigned_to, escalation, escalation_reason, reopen_count, closed_on) VALUES (9002, 'CS0009002', 8001, 6001, NULL, NULL, 'email', 'low', 'closed', 'Historical billing query', NULL, NULL, 0, NULL, 0, '2025-01-15 10:00:00');
+INSERT INTO customer_case (case_id, number, account_id, contact_id, product_id, installed_product_id, channel, priority, state, short_description, assignment_group_id, assigned_to, escalation, escalation_reason, reopen_count) VALUES (9003, 'CS0009003', 8001, 6001, NULL, NULL, 'web', 'low', 'resolved', 'Historical password reset', NULL, NULL, 0, NULL, 0);

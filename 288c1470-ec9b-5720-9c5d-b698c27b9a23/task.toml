@@ -1,0 +1,61 @@
+version = "1.0"
+
+[task]
+name = "default/288c1470-ec9b-5720-9c5d-b698c27b9a23"
+description = "An emergency change is being raised for the SAP production database, configuration item serial number `SRV-ORC-9981`."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "itsm",
+]
+gyms = [
+    "gym-itsm-mcp",
+]
+source_task_id = "288c1470-ec9b-5720-9c5d-b698c27b9a23"
+selected_tools = [
+    "find_configuration_item_by_serial_number",
+    "retrieve_knowledge_articles",
+    "list_incidents",
+    "create_change",
+    "map_change_request",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVU0VSXzAwNCIsImlzcyI6Iml0c20ifQ.kL3_dflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_123"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

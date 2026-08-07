@@ -1,0 +1,27 @@
+{
+ "task": "9b2558a5-dd02-53f3-8354-5cf5b133eb39",
+ "run": "claude-code_run_2",
+ "calls": 4,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 11,
+  "total": 11,
+  "gate_met": 11,
+  "gate_total": 11,
+  "pass": true,
+  "exceeds_gold": 0,
+  "criteria": [
+   {"id": "R01", "score": 1, "gate": true, "evidence": "list_files called with exact-name query; final response: 'Exactly one exact-name match in the Northwind Analytics Shared drive (`0AKz9qF3RstUv-shared-drive`) ... The archived and prior-quarter copies were not matched and left untouched', explicitly naming and excluding the decoys; folder id 1FoLdErNwA_Q3_Planning_TeamFolder_ID used in both update_permission and delete_permission."},
+   {"id": "R02", "score": 1, "gate": true, "evidence": "Final response: 'Marcus's existing reader permission — `perm_marcus_reader_qa_folder_002` (email verified character-for-character against `marcus.oyelaran@northwind-analytics.example.com`, not the look-alike account)', explicit exact-match disambiguation before the update_permission write."},
+   {"id": "R03", "score": 1, "gate": true, "evidence": "update_permission targets perm_marcus_reader_qa_folder_002 (Marcus's existing reader row) with role='owner', transferOwnership=true -- in-place promotion. verification_summary: total_verifiers_passed=11/11, including folder_active_permission_count_is_three."},
+   {"id": "R04", "score": 1, "gate": true, "evidence": "update_permission (Marcus->owner) executes and succeeds before delete_permission (Priya removal). Final response: 'Step D — Ownership granted first ... Succeeded — Marcus is now the owner. Step E — Your access removed after ... At no point was the folder ownerless.'"},
+   {"id": "R05", "score": 1, "gate": true, "evidence": "Folder id from list_files result; permissionId perm_marcus_reader_qa_folder_002 and perm_priya_owner_qa_folder_001 both sourced verbatim from the preceding list_permission tool_result."},
+   {"id": "R06", "score": 1, "gate": true, "evidence": "Writes only touch perm_marcus_reader_qa_folder_002 and perm_priya_owner_qa_folder_001; final response explicitly states 'The Analytics Team group share and the company-wide domain access were left byte-identical.'"},
+   {"id": "R07", "score": 1, "gate": true, "evidence": "All writes reference only the target folder id; final response: 'no permissions on any other folder were modified.'"},
+   {"id": "R08", "score": 1, "gate": true, "evidence": "delete_permission targets perm_priya_owner_qa_folder_001, Priya's read-sourced owner row, with supportsAllDrives=true; tool_result success."},
+   {"id": "R09", "score": 1, "gate": true, "evidence": "Final completion-claiming ai_message ('The ownership handoff ... is complete') follows both successful update_permission and delete_permission tool_results in conversation_flow order."},
+   {"id": "R10", "score": 1, "gate": true, "evidence": "All ids/emails in the final response (four permission ids, folder id, Marcus's email) match list_files/list_permission tool_result fields verbatim."},
+   {"id": "R11", "score": 1, "gate": true, "evidence": "list_files and list_permission each returned unambiguous single-row matches for every targeted principal; no blocker arose, agent proceeded cleanly via reads."}
+  ]
+ }
+}

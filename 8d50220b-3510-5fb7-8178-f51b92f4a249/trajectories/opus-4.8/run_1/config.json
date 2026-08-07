@@ -1,0 +1,83 @@
+{
+  "task": {
+    "path": "dataset/8d50220b-3510-5fb7-8178-f51b92f4a249",
+    "git_url": null,
+    "git_commit_id": null,
+    "name": null,
+    "ref": null,
+    "overwrite": false,
+    "download_dir": null,
+    "source": null
+  },
+  "trial_name": "8d50220b-3510-5fb7-8178-f51b92f4a249__claude-opus-4-8__run1",
+  "trials_dir": "harbor/8d50220b-3510-5fb7-8178-f51b92f4a249",
+  "timeout_multiplier": 1.0,
+  "agent_timeout_multiplier": null,
+  "verifier_timeout_multiplier": null,
+  "agent_setup_timeout_multiplier": null,
+  "environment_build_timeout_multiplier": null,
+  "agent": {
+    "name": "claude-opus-4-8",
+    "import_path": null,
+    "model_name": "vllm/claude-opus-4-8",
+    "skills": [],
+    "override_timeout_sec": null,
+    "override_setup_timeout_sec": null,
+    "max_timeout_sec": null,
+    "extra_allowed_hosts": [],
+    "kwargs": {
+      "number_of_runs": 1
+    },
+    "env": {},
+    "mcp_servers": [
+      {
+        "name": "email_v4",
+        "transport": "sse",
+        "url": "http://localhost:8007",
+        "command": null,
+        "args": []
+      },
+      {
+        "name": "gdrive-v5",
+        "transport": "sse",
+        "url": "http://localhost:8009",
+        "command": null,
+        "args": []
+      },
+      {
+        "name": "calendar_v4",
+        "transport": "sse",
+        "url": "http://localhost:8008",
+        "command": null,
+        "args": []
+      }
+    ]
+  },
+  "environment": {
+    "type": "docker",
+    "import_path": null,
+    "force_build": false,
+    "delete": true,
+    "cpu_enforcement_policy": "auto",
+    "memory_enforcement_policy": "auto",
+    "override_cpus": null,
+    "override_memory_mb": null,
+    "override_storage_mb": null,
+    "override_gpus": null,
+    "override_tpu": null,
+    "mounts": null,
+    "extra_docker_compose": [],
+    "env": {},
+    "kwargs": {},
+    "extra_allowed_hosts": []
+  },
+  "verifier": {
+    "override_timeout_sec": 300.0,
+    "max_timeout_sec": 300.0,
+    "env": {},
+    "disable": false
+  },
+  "artifacts": [],
+  "extra_instruction_paths": [],
+  "job_id": "47bcb0d2-616b-509f-8550-09de02808646"
+}

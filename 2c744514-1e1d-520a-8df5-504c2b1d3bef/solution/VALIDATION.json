@@ -1,0 +1,37 @@
+{
+ "task_uuid": "2c744514-1e1d-520a-8df5-504c2b1d3bef",
+ "task_slug": "task_2c744514",
+ "validated_on": "2026-08-01",
+ "sft_eligible": true,
+ "solve_sh_sha256": "e304a0a91357991ec578fda387d5259a70696472a0d10a57ad13bfe8ee63145a",
+ "golden_json_sha256": "692ac1430ef7acebfbb7d792c7a747b3355a350840ccb11de4816c495e541ab8",
+ "plan_only": {
+  "what": "tool-calls-only golden from taskgen groundtruth replayed against a fresh seed.",
+  "mcp_calls": 80,
+  "mcp_calls_failed": 0,
+  "log_complete": false,
+  "reward": 1.0,
+  "verifiers_passed": 45,
+  "verifiers_total": 45,
+  "verdict": "SOLVABLE BY TOOL CALLS ALONE"
+ },
+ "discovery_gate": {
+  "what": "identifier-shaped args trace to prompt/earlier response/computation.",
+  "steps": 80,
+  "verdict": "D01 PASS",
+  "note": "taskgen oracle steps carry save/expect provenance per id"
+ },
+ "golden_replay": {
+  "what": "golden.json tool calls reproduce the task by tool calls alone.",
+  "mcp_calls": 80,
+  "mcp_calls_failed": 0,
+  "reward": 1.0,
+  "verifiers_passed": 45,
+  "verifiers_total": 45,
+  "verdict": "GOLDEN REPRODUCES THE TASK"
+ },
+ "caveats": [
+  "taskgen-hybrid task; golden.json assembled from the taskgen groundtruth trajectory (args_sent + captured response).",
+  "Reward is the ORACLE's path — proves solvable, not easy."
+ ]
+}

@@ -1,0 +1,102 @@
+version = "1.0"
+
+[task]
+name = "default/269a6ce0-e57e-410b-9770-32cb6feb3601"
+description = "Morning - can you pick this one up for me, I'm on the bridge call for the storage incident until at least lunchtime and this has been sitting for two days."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "itsm",
+    "email",
+]
+gyms = [
+    "gym-itsm-mcp",
+    "gym-email-mcp",
+]
+source_task_id = "269a6ce0-e57e-410b-9770-32cb6feb3601"
+selected_tools = [
+    "find_incident_by_number",
+    "find_incident_by_id",
+    "list_incidents",
+    "get_incidents_assigned_to",
+    "update_incident",
+    "find_configuration_items",
+    "find_configuration_item_by_serial_number",
+    "find_services",
+    "find_service_by_name",
+    "find_service_offerings",
+    "find_service_offering_by_name",
+    "list_user_groups",
+    "find_group_by_name",
+    "list_group_members",
+    "get_user",
+    "get_user_using_email",
+    "get_user_using_name",
+    "list_users",
+    "list_incident_affected_cis",
+    "get_user_profile",
+    "send_message",
+    "list_messages",
+    "get_message",
+    "list_threads",
+    "get_thread",
+    "list_labels",
+    "get_label",
+    "list_drafts",
+    "get_draft",
+]
+restricted_tools = [
+    "update_configuration_item",
+    "modify_message",
+    "create_draft",
+    "send_draft",
+]
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVU0VSXzAzOSIsImlzcyI6Iml0c20ifQ.Ab6_dflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_yz1"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "Kx5XwZK6imPxgyAE88USnS4lF3np3br81Tf9FZr4Vno"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "gym-email",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "gym-email",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

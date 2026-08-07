@@ -1,0 +1,86 @@
+version = "1.0"
+
+[task]
+name = "default/07b2292d-4b61-59c5-b329-f73c09c00317"
+description = "# Regulated edge escalation"
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "drive",
+    "itsm",
+    "teams",
+]
+gyms = [
+    "gym-google-drive-mcp",
+    "gym-itsm-mcp",
+    "gym-teams-mcp",
+]
+source_task_id = "07b2292d-4b61-59c5-b329-f73c09c00317"
+selected_tools = [
+    "list_files",
+    "find_configuration_item_by_serial_number",
+    "list_incidents",
+    "create_change",
+    "update_incident",
+    "send_channel_message",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.gym-google-drive-mcp]
+x-auth-token = "drive_v12_escalation_token"
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "itsm_v12_escalation_token"
+
+[metadata.gym_contexts.gym-teams-mcp]
+x-teams-access-token = "teams_v12_escalation_token"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-drive",
+    "gym-itsm",
+    "gym-teams",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "gym-google-drive-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-google-drive-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-teams-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-teams-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-drive",
+    "gym-itsm",
+    "gym-teams",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

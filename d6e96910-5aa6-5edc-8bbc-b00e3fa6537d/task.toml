@@ -1,0 +1,87 @@
+version = "1.0"
+
+[task]
+name = "default/d6e96910-5aa6-5edc-8bbc-b00e3fa6537d"
+description = "# Manager handoff for Nora Patel"
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "hr",
+    "calendar",
+    "email",
+]
+gyms = [
+    "sn-hr-internal",
+    "gym-calendar",
+    "gym-email-mcp",
+]
+source_task_id = "d6e96910-5aa6-5edc-8bbc-b00e3fa6537d"
+selected_tools = [
+    "get_user_using_email",
+    "get_users_hr_profile",
+    "retrieve_knowledge_articles",
+    "create_new_hr_case",
+    "patch_event",
+    "get_event",
+    "send_message",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.sn-hr-internal]
+x-hr-token-access = "hr_v12_handoff_admin_token"
+
+[metadata.gym_contexts.gym-calendar]
+x-access-token = "cal_v12_handoff_token"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "email_v12_handoff_token"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-calendar",
+    "gym-email",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-hr-internal"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-hr-internal"
+
+[[environment.mcp_servers]]
+name = "gym-calendar"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-calendar"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-calendar",
+    "gym-email",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

@@ -1,0 +1,30 @@
+{
+ "task": "0a1be4f9-e234-58e6-9c00-5d4f50e95b3a",
+ "run": "codex_run_1",
+ "calls": 16,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 4,
+  "total": 14,
+  "gate_met": 1,
+  "gate_total": 7,
+  "pass": false,
+  "exceeds_gold": 4,
+  "criteria": [
+   {"id": "R01", "score": 1, "gate": false, "evidence": "find_account(name='Acme Corporation') returns account_id 1001, account_type='customer' -- exact-name resolution. Priya's contact is independently resolved via find_user(name='Priya Menon') -> user_id 701, then find_contact_by_portal_user(portal_user_id=701) -> contact_id 3001, account_id 1001, correctly correlating her to the real Acme account. Final response explicitly states 'Acme Corporation and Priya Menon's contact record were successfully verified.'"},
+   {"id": "R02", "score": 0, "gate": true, "evidence": "No update_case call exists anywhere in the trajectory (tools_used = [find_account, find_location, find_user, search_cases, list_users, find_contact_by_portal_user] -- no update_case). verification_results.case9001_all_fields_combined, state_in_progress, escalation_flag, escalation_reason, priority_critical all show passed:false, actual:0."},
+   {"id": "R03", "score": 0, "gate": true, "evidence": "verification_results.case9001_short_description shows passed:false, actual:0 -- the short description was never written since no update_case call occurred."},
+   {"id": "R04", "score": 0, "gate": false, "evidence": "case9001_assigned_owner601 and case9001_owner_is_london_active_agent both show passed:false, actual:0 -- case 9001 was never assigned to anyone because the agent never located it (all four search_cases attempts for CS0012345 returned '[]', due to over-constrained filter arguments the agent supplied, e.g. channel/priority/state defaults that don't match the seeded record)."},
+   {"id": "R05", "score": 0, "gate": false, "evidence": "All four list_users(role='agent', active=true, location_id=11, ...) calls returned '[]' (empty), so the agent never actually obtained or verified a London/active agent set; it repeatedly re-issued the same filter with cosmetic changes to unrelated empty-string/date fields rather than resolving 601."},
+   {"id": "R06", "score": 0, "gate": true, "evidence": "subcase9002_assigned_deputy602 shows passed:false, actual:0 -- no assign_case_to_user or update_case call for 9002 exists in the trajectory; case 9002 was never located (all search_cases(CS0012346) calls returned '[]')."},
+   {"id": "R07", "score": 0, "gate": true, "evidence": "No routing action was taken on 9002 at all (no tool call touches it), so the positive requirement 'routed to a distinct agent (602) with explicit SoD reasoning' is not met; subcase9002_deputy_distinct_active_agent shows passed:false."},
+   {"id": "R08", "score": 0, "gate": true, "evidence": "No register_new_interaction (or any interaction-logging) tool call appears anywhere in the trajectory; verification_results.interaction_full_combined and all four component interaction checks show passed:false, actual:0."},
+   {"id": "R09", "score": 0, "gate": true, "evidence": "send_message is never called (absent from tools_used); verification_results.email_exactly_one_ack shows passed:false, actual:0, and email_ack_subject_from_nadia/email_ack_to_priya both show passed:false, actual:0 -- no email was sent."},
+   {"id": "R10", "score": 0, "gate": false, "evidence": "No email was sent at all, so no mailbox resolution/send occurred to evaluate; the positive requirement (email originates from operator's own mailbox, resolved via lookup) cannot be satisfied by an absent action."},
+   {"id": "R11", "score": 1, "gate": false, "evidence": "Case 9003 is never referenced by any tool call; verification_results.decoy9003_billing_untouched_assign/state_new/priority_untouched all passed. Final response explicitly states 'No other Acme cases or records were touched,' an explicit scope-guard statement."},
+   {"id": "R12", "score": 1, "gate": true, "evidence": "No send_message call was made at all (so no recipient other than Priya was contacted, no self-CC occurred), and no ITSM/HR-named tool is called or mentioned in any agent message -- the negative constraint (avoid unauthorized recipients/systems) was not violated."},
+   {"id": "R13", "score": 0, "gate": false, "evidence": "The agent never successfully resolved case 9001/9002 or the escalation-lead/deputy agent ids via reads (all relevant search_cases and list_users calls returned '[]' across four repeated attempts with self-defeating over-specified filter arguments), so the read-before-write discipline this criterion demands was never actually demonstrated for those entities; no writes exist to compare against a resolved id, and the resolution itself failed."},
+   {"id": "R14", "score": 1, "gate": false, "evidence": "Final response accurately and precisely reports the failure state: 'No unique active agent was returned... Cases CS0012345 and CS0012346 could not be resolved... Neither case was updated or assigned. No phone interaction was logged. No acknowledgement email was sent.' This matches the actual trajectory (zero write-type tool calls) exactly, with no fabricated actions or overstated completion."}
+  ]
+ }
+}

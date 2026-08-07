@@ -1,0 +1,134 @@
+{
+  "task": "adopted_227fb08f",
+  "uuid": "227fb08f-ad85-5ec6-a030-c4c71f623001",
+  "run": "run_2",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "1ac30cad327199af36ae5deaeb6ac141c7b9f65aa1d6443fa8fd6518766ad1a4",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 1,
+    "gate_met": 1,
+    "gate_total": 15,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 76,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Searched all 76 calls: every retrieve_knowledge_articles attempt (#1, #3-#40, #51, #59, #62-#66, #68, #70-#76) returns either a VALIDATION_ERROR or {\"knowledges\": [], \"total_count\": 0}. KB-BREACH-RESP is never successfully retrieved anywhere in the trajectory, so its rules could not have driven any subsequent action."
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "Searched all 76 calls (and grepped the full packet) for 'Data Warehouse Service'; the string appears only in the criteria text at the bottom of the file, never in the trajectory. The agent instead guesses at unrelated group names ('Analytics', 'DWH Analytics', 'Data Warehouse Analytics', 'Analytics Shared Credential Users', 'Compromised Credential Group', 'Security Operations' at calls #52-#58) and its list_group_members attempts (#43-#45, #60, #67, #69) use empty or wrong group_id filters and return 0 members. The correct group is never enumerated."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #41 get_user{\"user_id\":\"USR_SVC\"} explicitly returns \"user_name\": \"dwh.monitor\", confirming the reporter's identity as the service/monitoring account. USR_SVC is never targeted by any deactivate/notify call anywhere in the 76-call trajectory (no writes occur at all)."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "Searched all 76 calls; 'Data Warehouse Support' is never queried by name. The agent's group-name guesses (calls #52-#58) never include it, so the Support group is never inspected or ruled out."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Searched all 76 calls; no create_problem call appears anywhere. No ITSM Problem was ever created."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No Problem was created at all (see R05), so there is no create call to credit as single-and-checked."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Searched all 76 calls; no update_incident or escalation/link call appears. The incident is never escalated or linked to a Problem."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all 76 calls; no send_notification call appears. No containment notification was ever sent."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "Searched all 76 calls; no update_user_details, remove_group_membership, or Teams update_user call appears anywhere. None of the affected members were ever contained."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No account is modified anywhere in this 76-call trajectory, and despite identifying USR_SVC (call #41) and USER_059 (call #42), the agent never demonstrates completed containment against which a scope boundary could be confirmed -- the run never reaches that state."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "Calls #46-#48 only read the mailbox (list_forwarding_addresses, list_filters, list_send_as_aliases); searched all 76 calls for delete_forwarding_address, delete_filter, delete_send_as_alias, or email_create_delegate -- none appears. All four required mailbox writes are missing."
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "The mailbox was only read (calls #46-#48), never written to, so no removal-versus-preservation of forwarding entries was ever actually performed to confirm compliance."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "Although the mailbox was read (list_forwarding_addresses at #46 shows dwh.exfil@gmail.com, collector@evil.example, dwh-ops@techcorp.com), the agent never executes any forwarding/delegate mutation at all, so compliant handling of the new-forwarding risk was never actually exercised."
+    },
+    {
+      "id": "R14",
+      "score": 0,
+      "evidence": "Call #49 list_files reads the Drive but is truncated before showing the evidence files' full detail; searched all 76 calls for create_comments -- none appears. No evidence-hold comments were ever added."
+    },
+    {
+      "id": "R15",
+      "score": 0,
+      "evidence": "Searched all 76 calls; no update_problem call appears (no Problem was even created, see R05). No worknote or fix note was ever set."
+    },
+    {
+      "id": "R16",
+      "score": 0,
+      "evidence": "Call #50 and #61 list_teams (filtered by 'Security' and 'War Room') both return zero results; searched all 76 calls for send_channel_message -- none appears. The final message is just the raw JSON of the last failed KB lookup, not a war-room post; containment was never completed."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

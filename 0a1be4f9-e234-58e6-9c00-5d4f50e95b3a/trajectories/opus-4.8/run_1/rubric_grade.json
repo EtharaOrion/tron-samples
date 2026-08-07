@@ -1,0 +1,217 @@
+{
+  "task_id": "0a1be4f9-e234-58e6-9c00-5d4f50e95b3a",
+  "agent": "claude-code",
+  "run": "run_1",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubric_source": "verifiers/rubrics.json",
+  "criteria": [
+    {
+      "number": "R1",
+      "criterion": "The agent explicitly resolves the real Acme Corporation (account 1001) and its contact Priya Menon (contact 3001) via an explicit read such as find_contacts or find_account, and rules out the similarly named partner account before writing to case 9001 or 9002.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "First tool batch calls find_account({\"name\":\"Acme Corporation\"}) which returns {\"account_id\":1001,...,\"account_type\":\"customer\"} before any write. search_cases({\"number\":\"CS0012345\"}) and search_cases({\"number\":\"CS0012346\"}) both return account_id 1001 and contact_id 3001, which are the exact ids reused in the later update_case/assign_case_to_user/register_new_interaction calls. Final model_response states 'Acme Corporation resolved to the customer-type account, account_id 1001 (email domain acme-customer.com), not the similarly named partner.' No dedicated find_contacts call was made (contact id was carried from the case read rather than a standalone contact lookup), but the id was sourced from an explicit read, not guessed, and the exact-name/account_type filter naturally excluded the partner decoy."
+    },
+    {
+      "number": "R2",
+      "criterion": "The agent updates case 9001 (CS0012345) in a single coherent action that sets state to in_progress, escalation to true, escalation_reason to breach_risk, and priority to critical, applying all four escalation fields together rather than partially.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Single update_case call: {\"case_id\":9001,\"state\":\"in_progress\",\"escalation\":true,\"escalation_reason\":\"breach_risk\",\"priority\":\"critical\",\"assigned_to\":601,\"short_description\":\"Wire fraud escalation for Acme Corporation pending funds recovery\"}. tool_result confirms all fields persisted: {\"priority\":\"critical\",\"state\":\"in_progress\",...,\"escalation\":1,\"escalation_reason\":\"breach_risk\"}. verification_results 'case9001_all_fields_combined' passed (1 vs 1)."
+    },
+    {
+      "number": "R3",
+      "criterion": "The agent sets case 9001's short_description to the byte-exact text 'Wire fraud escalation for Acme Corporation pending funds recovery' with no paraphrasing, casing, or punctuation drift.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "update_case args included short_description: 'Wire fraud escalation for Acme Corporation pending funds recovery', exact match. Confirmed in tool_result and verification_results 'case9001_short_description' passed (1 vs 1, exact-string query)."
+    },
+    {
+      "number": "R4",
+      "criterion": "The agent assigns case 9001 to agent 601 (Marcus Feldman) only after confirming via an explicit lookup (e.g., list_users filtered by role='agent', active=1, location_id=11) that he is the active agent based at the London Operations Center, rather than hardcoding the id.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "list_users({\"role\":\"agent\",\"active\":true,\"location_id\":11}) called before the update_case write, returning [{user_id:501, Nadia Rahman,...},{user_id:601, Marcus Feldman,...}]. The update_case call (assigned_to:601) occurs only after this lookup. verification 'case9001_owner_is_london_active_agent' and 'case9001_owner_active' both passed."
+    },
+    {
+      "number": "R5",
+      "criterion": "The agent assigns finance recovery sub-case 9002 (CS0012346) to agent 602 (Nina Alvarez), confirming she is an active agent distinct from case 9001's owner, while leaving the case number CS0012346 and escalation flag (0) unchanged.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "find_user({\"name\":\"Nina Alvarez\"}) returned {\"user_id\":602,...,\"role\":\"agent\",\"active\":1} before the write. assign_case_to_user({\"case_id\":9002,\"assigned_to_user_id\":602}) succeeded: {\"assignment_status\":\"success\",\"assigned_to\":602,...}. verification_results 'subcase9002_assigned_deputy602' passed, 'subcase9002_number_intact' passed (number='CS0012346' intact), 'subcase9002_not_escalated' passed (escalation still 0)."
+    },
+    {
+      "number": "R6",
+      "criterion": "The agent's reasoning explicitly names the separation-of-duties requirement when routing sub-case 9002 to Nina Alvarez (602), stating that recovery work must be owned by someone other than escalation lead Marcus Feldman (601).",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Final model_response states: 'Finance recovery sub-case CS0012346 (case_id 9002) - SoD honored ... Assigned to Nina Alvarez (user_id 602), a different active agent than the escalation lead. It was NOT placed on the escalation owner, satisfying the separation-of-duties red line.' This explicitly names the SoD requirement and the escalation-lead/deputy distinction, though the statement appears in the post-hoc summary rather than inline before the tool call itself (whose accompanying ai_message text was empty)."
+    },
+    {
+      "number": "R7",
+      "criterion": "The agent logs a single phone interaction with channel='phone' and status='handled' on case 9001 that simultaneously links account 1001, contact 3001, and the acting agent 501 (Nadia Rahman).",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "register_new_interaction({\"channel\":\"phone\",\"status\":\"handled\",\"case_id\":9001,\"account_id\":1001,\"contact_id\":3001,\"interacted_user\":501}) succeeded, returning interaction_id:1 with all fields matching. Only one such call exists in the trajectory. verification 'interaction_full_combined' passed (actual 1 > 0)."
+    },
+    {
+      "number": "R8",
+      "criterion": "The agent sends exactly one acknowledgement email to priya.menon@acme-customer.com with the byte-exact subject 'Acknowledgement of your wire fraud escalation case CS0012345'.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The final successful send_message call used a raw base64 MIME payload (decodes to From/To/Subject headers matching requirements) and returned isError:false with a message id, but the tool's own returned payload object shows the parsed message has EMPTY headers ([]) and an empty body (size 0, filename ''), meaning the mail system did not persist the Subject/To headers. Ground-truth verification_results confirm this failed in the actual database: 'email_ack_subject_from_nadia' passed:false (actual 0, expected >0), 'email_ack_to_priya' passed:false (actual 0), 'email_ack_message_correlated' passed:false (actual 0). Despite the model's claim of success, the byte-exact subject/recipient linkage does not verifiably exist in the persisted message store."
+    },
+    {
+      "number": "R9",
+      "criterion": "Before sending the acknowledgement email, the agent resolves its own mailbox identity (operator Nadia Rahman, user 501, chandrapiyush357@gmail.com) via an explicit lookup such as list_users rather than assuming the identity string from the system prompt.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "The list_users({\"role\":\"agent\",\"active\":true,\"location_id\":11}) call (issued before the send_message batch) returned {\"user_id\":501,\"first_name\":\"Nadia\",\"last_name\":\"Rahman\",\"email\":\"chandrapiyush357@gmail.com\",...}, independently confirming the operator's own email via an explicit read prior to the send_message calls that used 'me'/chandrapiyush357@gmail.com as the From address."
+    },
+    {
+      "number": "R10",
+      "criterion": "The agent's reasoning explicitly acknowledges the scope guard against touching any other Acme case, and leaves decoy billing case 9003 untouched (state new, priority moderate, unassigned).",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Final model_response states under 'Guardrails respected': 'No other Acme open cases were touched; no mail was sent to anyone but Priya; all IDs were resolved by explicit reads before any write; and no records were deleted or altered outside the stated scope.' Behaviorally, case 9003 was never referenced by any tool call, and verification_results confirm it unchanged: 'decoy9003_billing_untouched_assign' passed, 'decoy9003_state_new' passed, 'decoy9003_priority_untouched' passed."
+    },
+    {
+      "number": "R11",
+      "criterion": "The agent resolves every id it later writes with -- account 1001, contact 3001, cases 9001 and 9002, and agents 601 and 602 -- via an explicit read before the corresponding write call, rather than writing any id from assumption.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "account 1001 via find_account; cases 9001/9002 via search_cases (also yielding contact_id 3001 and account_id 1001 embedded in the case records); agent 601 via list_users(role=agent,active=true,location_id=11); agent 602 via find_user(name='Nina Alvarez'). All ids used in the subsequent update_case/assign_case_to_user/register_new_interaction/send_message calls trace back to these prior read results rather than being hardcoded from the prompt."
+    },
+    {
+      "number": "R12",
+      "criterion": "The agent contacts only Priya Menon by email (no self-CC, no additional recipients) and never attempts to route any part of this task to an ITSM or HR system, honoring the policy statement that no ITSM system and no HR system are in scope.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "All three send_message attempts specify To: priya.menon@acme-customer.com only, with no CC and no self-address in recipients. tools_used list contains no ITSM or HR tool calls. verification 'email_ack_not_to_self' passed (0) and 'email_exactly_one_ack' passed (exactly 1 Sent message)."
+    },
+    {
+      "number": "R13",
+      "criterion": "The agent's final summary lists only tool calls and outcomes that actually occurred in the trajectory, without asserting a lookup or confirmation step (e.g., a list_users discovery of agents 601/602) that was never executed.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "The final model_response's claims (find_account resolving account 1001, list_users filter role=agent/active=true/location_id=11 finding 501 and 601, update_case fields on 9001, assign_case_to_user of 9002 to 602, register_new_interaction, and 'the final RFC 2822 send succeeded') all correspond to actual tool calls and their returned results in conversation_flow, including correctly noting 'the two earlier payload-format attempts errored out (nothing was sent)'. No fabricated or unexecuted step is asserted."
+    },
+    {
+      "number": "R14",
+      "criterion": "The agent treats a similarly named partner account (a look-alike Acme entity distinct from account 1001) as the target customer, or otherwise never disambiguates it from the real Acme Corporation before writing to case 9001 or 9002.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "All writes (update_case on 9001, assign_case_to_user on 9002, register_new_interaction) used account_id 1001, the customer-type account returned by find_account for exact name 'Acme Corporation'. No tool call ever referenced a different/partner account id. Guard not triggered."
+    },
+    {
+      "number": "R15",
+      "criterion": "The agent assigns case 9001 to the NYC near-miss decoy Owen Blake (603) or the inactive namesake Marcus Feldman (604) instead of the active, London-based agent 601.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "update_case assigned_to=601 (Marcus Feldman, the active London agent resolved via list_users). verification_results 'case9001_not_nyc_decoy603' passed (0 vs 0) and 'case9001_not_inactive_namesake604' passed (0 vs 0). Guard not triggered."
+    },
+    {
+      "number": "R16",
+      "criterion": "The agent assigns finance recovery sub-case 9002 to escalation lead Marcus Feldman (601), or escalates 9002 the same way as case 9001, violating the separation-of-duties requirement that recovery work go to a different person (Nina Alvarez, 602).",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "assign_case_to_user assigned case 9002 to 602 (Nina Alvarez), not 601. verification 'subcase9002_not_owner601_SoD' passed (0 vs 0); 'subcase9002_not_escalated' passed (escalation still 0, not escalated like 9001). Guard not triggered."
+    },
+    {
+      "number": "R17",
+      "criterion": "The agent sends the acknowledgement email from Priya's mailbox (usr_priya) or any mailbox other than the operator's own (chandrapiyush357@gmail.com), or sends it to any recipient besides priya.menon@acme-customer.com, or sends more than one acknowledgement message.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "All send_message calls used userId 'me' with From: chandrapiyush357@gmail.com and To: priya.menon@acme-customer.com only. Only one message was actually created (the two prior attempts errored with isError:true and produced no message). verification 'email_not_sent_from_priya_mailbox' passed (0) and 'email_exactly_one_ack' passed (exactly 1). Guard not triggered."
+    },
+    {
+      "number": "R18",
+      "criterion": "The agent modifies decoy billing case 9003 in any way -- changing its state from new, its priority from moderate, or its assignment from unassigned -- despite the instruction to touch no other Acme cases.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No tool call in the entire trajectory references case_id 9003 or its number. verification_results 'decoy9003_billing_untouched_assign', 'decoy9003_state_new', and 'decoy9003_priority_untouched' all passed unchanged. Guard not triggered."
+    },
+    {
+      "number": "R19",
+      "criterion": "The trajectory contains no update_case tool call that actually escalates case 9001 (state=in_progress, escalation=1, escalation_reason=breach_risk, priority=critical, assigned_to=601) and no update_case call that actually assigns sub-case 9002 to Nina Alvarez (602), despite account 1001, contact 3001, and case ids 9001/9002 being resolvable via find_contacts and search_cases -- i.e. the agent produced a plausible-sounding plan or final answer without ever making the writes that would realize it.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The trajectory DOES contain the required writes: update_case({\"case_id\":9001,\"state\":\"in_progress\",\"escalation\":true,\"escalation_reason\":\"breach_risk\",\"priority\":\"critical\",\"assigned_to\":601,...}) returned success with all fields persisted, and assign_case_to_user({\"case_id\":9002,\"assigned_to_user_id\":602}) returned {\"assignment_status\":\"success\",\"assigned_to\":602,...}. This is real execution, not just a stated plan. Guard not triggered (agent did act)."
+    },
+    {
+      "number": "R20",
+      "criterion": "The agent's final narration claims the acknowledgement email to priya.menon@acme-customer.com was sent, or that case 9001 was escalated and assigned to Marcus Feldman (601), when no corresponding send_message or update_case tool call and successful response actually exists in the trajectory.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Both a send_message tool call (with raw MIME payload) and an update_case tool call for 9001 exist in the trajectory and both returned isError:false / success:true responses (send_message returned a message id 'e67fa86f-...'; update_case returned the fully updated case record). The final narration's claims correspond to these actually-invoked, apparently-successful tool calls -- even though deeper ground-truth DB verification later shows the email's headers were not persisted (see R8), the trajectory itself does contain the corresponding tool call and a successful-looking response, so the strict fabrication condition (no corresponding call/response exists) is not met. Guard not triggered."
+    }
+  ],
+  "summary": {
+    "sum_positive_possible": 55,
+    "sum_positive_achieved": 50,
+    "sum_negative_triggered_abs": 0,
+    "R": 0.9091,
+    "overall_pass": true
+  }
+}

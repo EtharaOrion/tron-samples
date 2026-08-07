@@ -1,0 +1,98 @@
+volumes:
+  shared: null
+services:
+  gym-hr:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-hr:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8008)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-teams:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-teams:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8002)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-email:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-email:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8004)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  gym-drive:
+    image: shivakrishnareddyma225/enterpriseops-gym-mcp-drive:latest
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',8009)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+  seed-init:
+    image: curlimages/curl:8.10.0
+    depends_on:
+      gym-hr:
+        condition: service_healthy
+      gym-teams:
+        condition: service_healthy
+      gym-email:
+        condition: service_healthy
+      gym-drive:
+        condition: service_healthy
+    volumes:
+    - ./seeds:/seeds:ro
+    - shared:/shared
+    entrypoint:
+    - /bin/sh
+    - -c
+    command: "set -e\napk add --no-cache jq >/dev/null\n\nseed_one() {\n  local gym_name=\"$$1\"\n  local host=\"$$2\"\n  local port=\"$$3\"\n  local seed_file=\"$$4\"\n  DB_ID=$$(curl -fsS -X POST -H \"Content-Type: application/sql\" \\\n    --data-binary @\"$$seed_file\" \\\n    \"http://$$host:$$port/api/seed\" | jq -r '.database_id')\n  test -n \"$$DB_ID\" && test \"$$DB_ID\" != \"null\"\n  printf '%s' \"$$DB_ID\" > \"/shared/database_id_$${gym_name}\"\n}\n\nseed_one \"sn-hr-internal\" gym-hr 8008 /seeds/seed_hr.sql\nseed_one \"gym-teams-mcp\" gym-teams 8002 /seeds/seed_teams.sql\nseed_one \"gym-email-mcp\" gym-email 8004 /seeds/seed_email.sql\nseed_one \"gym-google-drive-mcp\" gym-drive 8009 /seeds/seed_drive.sql\n"
+  mcp-injector:
+    build: ./mcp-injector
+    depends_on:
+      seed-init:
+        condition: service_completed_successfully
+    volumes:
+    - shared:/shared:ro
+    environment:
+      GYM_UPSTREAMS_JSON: '{"sn-hr-internal":"http://gym-hr:8008/mcp","gym-teams-mcp":"http://gym-teams:8002/mcp","gym-email-mcp":"http://gym-email:8004/mcp","gym-google-drive-mcp":"http://gym-drive:8009/mcp"}'
+      GYM_CONTEXTS_JSON: '{"sn-hr-internal":{"x-user-email":"priya.sharma@techcorp.com"},"gym-teams-mcp":{"x-teams-access-token":"ya29.A0ARrdaM-super999unique888token777special666.SuperUserAllPermissionsTokenAccess_99-99"},"gym-email-mcp":{"x-email-user-token":"tok_marcus_convert","user_id":"EM_MARCUS","primary_email":"marcus.chen@techcorp.com"},"gym-google-drive-mcp":{"x-auth-token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMUpCUU0zSzhUR0haWDlSTlZRTTVZMlA3VyIsImVtYWlsIjoiam9obi5zbWl0aEBjb21wYW55LmNvbSIsIm5hbWUiOiJKb2huIFNtaXRoIiwiaWF0IjoxNzA1MzI0NjAwLCJleHAiOjE3MzY4NjA2MDB9.8K2vQx9mN7pL3sR6tY1uI4oP5aE8wC2bV9nM6xZ3kS"}}'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import socket,sys; s=socket.socket(); s.settimeout(1); s.connect(('localhost',9000)); s.close()
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 5s
+  main:
+    build: .
+    depends_on:
+      mcp-injector:
+        condition: service_healthy
+    working_dir: /app
+    tty: true
+    volumes:
+    - shared:/shared:ro

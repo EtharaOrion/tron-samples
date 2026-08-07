@@ -1,0 +1,708 @@
+{
+  "benchmark_config": {
+    "model": "vllm/gpt-5.6-sol",
+    "number_of_runs": 1,
+    "user_prompt": "Hi, this is Priya from Northwind Analytics \u2014 heading out on extended leave and need to hand off our planning folder in the Northwind Analytics Shared drive before I go.\n\nThe folder is exactly `Q3 Planning - Analytics Team` (there's an archived copy and a prior-quarter copy in the same shared drive \u2014 do NOT touch those). Transfer ownership to Marcus Oyelaran at marcus.oyelaran@northwind-analytics.example.com (careful with the spelling \u2014 there's a similarly-named employee who is NOT him). He already has read access on it.\n\nMake Marcus the owner first, then remove my personal access from the folder. Order matters \u2014 I don't want it to be ownerless even briefly. Leave every other share on the folder as-is (Analytics Team group share, company-wide domain access), and don't change Marcus's access on any other folder. Thanks!",
+    "gym_servers": [
+      {
+        "name": "gym-google-drive-mcp",
+        "url": "http://localhost:8019",
+        "seed_database_file": "/Users/apple/sources/EnterpriseOps-Gym/generated_tasks/2026-07-22/task_62/seeds/task_62_seed.sql",
+        "uses_cloning": true
+      }
+    ],
+    "total_gyms": 1,
+    "total_tools_available": 10
+  },
+  "runs": [
+    {
+      "run_number": 1,
+      "started_at": "2026-08-05T06:04:12.860552+00:00",
+      "execution_time_ms": 39944,
+      "model_response": "Ownership transfer completed for **`Q3 Planning - Analytics Team`**:\n\n- **Marcus Oyelaran** (`marcus.oyelaran@northwind-analytics.example.com`) is now the owner.\n- Marcus was promoted from his existing reader permission; no new permission was created.\n- **Priya Ramaswamy\u2019s** personal permission was removed only after the ownership transfer succeeded.\n- All other permissions, including the Analytics Team group and company-wide domain access, were left unchanged.\n- No other folders were modified.",
+      "conversation_flow": [
+        {
+          "type": "system_message",
+          "content": "# **Drive Operations Assistant \u2014 Ownership & Sharing Governance Policy (v4.7)**\n\n## 1. Role & Mandate\nYou are the **Drive Ownership & Sharing Governance Assistant** for Northwind Analytics. You execute sharing, ownership, and permission-lifecycle operations against the Drive control-plane on behalf of authenticated employees. Every action you take is final, DB-persisted, and auditable. You have exactly **one** attempt per request \u2014 there is no retry, no dry-run, no mid-flight feedback. Only the residual database state is graded. Silent errors (wrong id, wrong role, wrong file) will not be surfaced to you; you must prevent them by rigorous lookup discipline.\n\n## 2. Actor & RBAC Matrix\n| Role | Read perms | Create perm | Update perm | Delete perm | Transfer ownership |\n|---|---|---|---|---|---|\n| Viewer | Y | N | N | N | N |\n| Contributor | Y | Y | N | N | N |\n| Content Manager | Y | Y | Y (non-owner) | Y (non-owner) | N |\n| **Folder Owner** | Y | Y | **Y (incl. owner)** | **Y** | **Y** |\n| Shared-Drive Organizer | Y | Y | Y | Y | Y (within drive) |\n| Domain Admin | Y | Y | Y | Y | Y |\n\nThe acting user for this session is the current **Folder Owner** of the target artifact. All privileged writes proceed under their token.\n\n## 3. Never-Infer / Verified-Records-Only\n1. **Never guess an identifier.** Every id used in a write MUST have been returned by a prior read call in this same session.\n2. **Exactly one canonical lookup per entity.** Resolve each human reference (folder name, person's email) via the appropriate list/search endpoint. Do not re-resolve, do not fabricate, do not paraphrase the resolved values.\n3. **Exact-string equality** is required when filtering by name. Substring, case-insensitive, or punctuation-normalized matches are FORBIDDEN \u2014 you must select the row whose name equals the requested string character-for-character (including spaces, hyphens, and casing).\n4. If a name-search returns >1 row, you MUST narrow to the row with the exact name match. If it still returns >1, HALT.\n5. If an email-search returns a look-alike (e.g. differing by one character), you MUST select the row whose email equals the requested address character-for-character. Similar-spelling accounts are decoys and MUST NOT be used.\n6. Permission ids are NEVER to be constructed or assumed. Always enumerate permissions on the resolved file id and pick the row whose (file_id, user email) tuple matches the intent.\n\n## 4. Enum & Field Vocabulary\n- Allowed permission roles: `owner`, `organizer`, `fileOrganizer`, `writer`, `commenter`, `reader`.\n- Allowed permission types: `user`, `group`, `domain`, `anyone`.\n- MIME for folders: `application/vnd.google-apps.folder` (exact).\n- Shared-drive operations REQUIRE `supportsAllDrives=true` on every applicable call. Omitting it is a policy violation.\n- Ownership transfers of shared-drive content: use `update_permission` on the successor's existing permission row with `role='owner'` and `transferOwnership=true`.\n\n## 5. Ownership-Transfer State Machine (MANDATORY ORDERING)\nOwnership transfers MUST follow this exact ordered sequence. Skipping, reordering, or interleaving is a violation.\n\n**Step A \u2014 Resolve target folder.** List folders filtered by the exact folder name AND folder mime type in the appropriate shared-drive corpus. Confirm exactly one match; capture its file id.\n\n**Step B \u2014 Resolve successor.** List users filtered by the successor's exact email. Confirm exactly one match; capture the user id.\n\n**Step C \u2014 Enumerate current permissions.** List permissions on the resolved folder id. From that list you MUST identify (a) the successor's existing permission row by matching email, and (b) the outgoing owner's permission row by matching the acting user's email and role='owner'.\n\n**Step D \u2014 Grant ownership to successor (BEFORE removing prior owner).** Update the successor's existing permission row to `role='owner'` with `transferOwnership=true` and `supportsAllDrives=true`. NEVER attempt to create a new permission for the successor \u2014 they already hold a permission row, and create would collide (HTTP 409). Upgrade the existing row in place.\n\n**Step E \u2014 Remove the outgoing owner's permission (ONLY AFTER Step D succeeds).** Delete the outgoing owner's permission row by its permission id, with `supportsAllDrives=true`. If Step D fails or is skipped, Step E is FORBIDDEN.\n\n**Ordering constraint:** Step E MUST NOT be executed before Step D. Executing them in the wrong order leaves the folder ownerless \u2014 a policy-breach state.\n\n## 6. Collateral-Damage Rules\n- Do NOT modify, upgrade, downgrade, or delete any permission on the target folder that does not belong to either the successor or the outgoing owner.\n- Do NOT touch any permission on any other file, including permissions the successor may hold on unrelated folders.\n- Group permissions, domain permissions, and inherited permissions on the target folder MUST remain byte-identical.\n\n## 7. Prohibited Behaviors\n- Guessing or synthesizing permission ids, file ids, or user ids.\n- Using near-synonym emails or near-synonym folder names (e.g. archived / prior-quarter variants).\n- Creating a new permission for a principal that already holds one on the same file.\n- Executing writes without first completing the required reads.\n- Omitting `supportsAllDrives=true` on shared-drive writes.\n- Downgrading or removing unrelated group/domain permissions.\n\n## 8. Audit & Idempotency\nAll writes are logged with actor id, target file id, target permission id, before/after role, and timestamp. Repeat calls with identical arguments are treated as new writes; do not re-run a successful step.\n\n## 9. Failure Handling\nOn any ambiguity \u2014 multiple exact matches, zero matches, near-synonym collisions \u2014 you MUST halt and report rather than proceed on a best-guess row.\n\n## 10. Final-State Grading Notice\nOnly the final residual DB state is scored. There is no partial credit. Wrong-row edits will not raise an error to you during the session; they will only manifest as a failed verifier at grading time. Precision on entity resolution is the single most important behavior for this session."
+        },
+        {
+          "type": "user_message",
+          "content": "Hi, this is Priya from Northwind Analytics \u2014 heading out on extended leave and need to hand off our planning folder in the Northwind Analytics Shared drive before I go.\n\nThe folder is exactly `Q3 Planning - Analytics Team` (there's an archived copy and a prior-quarter copy in the same shared drive \u2014 do NOT touch those). Transfer ownership to Marcus Oyelaran at marcus.oyelaran@northwind-analytics.example.com (careful with the spelling \u2014 there's a similarly-named employee who is NOT him). He already has read access on it.\n\nMake Marcus the owner first, then remove my personal access from the folder. Order matters \u2014 I don't want it to be ownerless even briefly. Leave every other share on the folder as-is (Analytics Team group share, company-wide domain access), and don't change Marcus's access on any other folder. Thanks!"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 5755,
+            "output_tokens": 260,
+            "total_tokens": 6015,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 166
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 260,
+              "prompt_tokens": 5755,
+              "total_tokens": 6015,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 166,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0302c7fb43c0e895016a72d25e9c948191a05a59e21319604b",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "list_files",
+              "args": {
+                "corpora": "allDrives",
+                "driveId": "",
+                "includeItemsFromAllDrives": true,
+                "orderBy": "name",
+                "pageSize": 100,
+                "pageToken": "",
+                "q": "name = 'Q3 Planning - Analytics Team' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+                "spaces": "drive",
+                "supportsAllDrives": true,
+                "trashed": false
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_files",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"files\": [\n    {\n      \"id\": \"1FoLdErNwA_Q3_Planning_TeamFolder_ID\",\n      \"name\": \"Q3 Planning - Analytics Team\",\n      \"mimeType\": \"application/vnd.google-apps.folder\",\n      \"description\": null,\n      \"fileExtension\": null,\n      \"fullFileExtension\": null,\n      \"originalFilename\": null,\n      \"size\": \"0\",\n      \"md5Checksum\": null,\n      \"sha1Checksum\": null,\n      \"sha256Checksum\": null,\n      \"createdTime\": \"2026-06-01T10:00:00+00:00Z\",\n      \"modifiedTime\": \"2026-07-10T14:30:00+00:00Z\",\n      \"modifiedByMeTime\": null,\n      \"viewedByMeTime\": \"2026-07-10T14:30:00+00:00Z\",\n      \"sharedWithMeTime\": null,\n      \"trashedTime\": null,\n      \"starred\": false,\n      \"trashed\": false,\n      \"explicitlyTrashed\": false,\n      \"viewedByMe\": true,\n      \"modifiedByMe\": true,\n      \"ownedByMe\": true,\n      \"shared\": false,\n      \"copyRequiresWriterPermission\": false,\n      \"writersCanShare\": true,\n      \"hasThumbnail\": false,\n      \"thumbnailVersion\": null,\n      \"thumbnailLink\": null,\n      \"iconLink\": null,\n      \"webViewLink\": null,\n      \"webContentLink\": null,\n      \"folderColorRgb\": null,\n      \"contentRestricted\": false,\n      \"contentRestrictionReason\": null,\n      \"contentRestrictionTime\": null,\n      \"ownerRestricted\": false,\n      \"systemRestricted\": false,\n      \"downloadRestrictedForReaders\": false,\n      \"downloadRestrictedForWriters\": false,\n      \"resourceKey\": null,\n      \"securityUpdateEligible\": false,\n      \"securityUpdateEnabled\": false,\n      \"inheritedPermissionsDisabled\": false,\n      \"hasAugmentedPermissions\": false,\n      \"version\": \"1\",\n      \"headRevisionId\": null,\n      \"quotaBytesUsed\": null,\n      \"imageMediaMetadata\": null,\n      \"videoMediaMetadata\": null,\n      \"properties\": null,\n      \"appProperties\": null,\n      \"shortcutTargetId\": null,\n      \"shortcutTargetMimeType\": null,\n      \"shortcutTargetResourceKey\": null,\n      \"kind\": \"drive#file\",\n      \"owners\": [\n        {\n          \"kind\": \"drive#user\",\n          \"displayName\": \"Priya Ramaswamy\",\n          \"photoLink\": null,\n          \"me\": true,\n          \"permissionId\": \"01HXAKZ3P9F2M8QW5V7R4TSC1A\",\n          \"emailAddress\": \"priya.ramaswamy@northwind-analytics.example.com\"\n        }\n      ],\n      \"lastModifyingUser\": {\n        \"kind\": \"drive#user\",\n        \"displayName\": \"Priya Ramaswamy\",\n        \"photoLink\": null,\n        \"me\": true,\n        \"permissionId\": \"01HXAKZ3P9F2M8QW5V7R4TSC1A\",\n        \"emailAddress\": \"priya.ramaswamy@northwind-analytics.example.com\"\n      },\n      \"driveId\": \"0AKz9qF3RstUv-shared-drive\",\n      \"sharingUser\": null,\n      \"trashingUser\": null,\n      \"parents\": [],\n      \"permissions\": null,\n      \"labelInfo\": null,\n      \"exportLinks\": null,\n      \"spaces\": [\n        \"drive\"\n      ],\n      \"permissionIds\": null,\n      \"contentRestrictions\": null,\n      \"contentHints\": null,\n      \"viewersCanCopyContent\": null,\n      \"isAppAuthorized\": null,\n      \"teamDriveId\": null,\n      \"capabilities\": null,\n      \"linkShareMetadata\": null,\n      \"shortcutDetails\": null,\n      \"downloadRestrictions\": null\n    }\n  ],\n  \"kind\": \"drive#fileList\",\n  \"nextPageToken\": null,\n  \"incompleteSearch\": true\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 6869,
+            "output_tokens": 126,
+            "total_tokens": 6995,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 62
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 126,
+              "prompt_tokens": 6869,
+              "total_tokens": 6995,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 62,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0135a62b2a99c238016a72d267c90c8191bbf54e8fdc4cc0c1",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "list_permission",
+              "args": {
+                "includePermissionsForView": "published",
+                "fileId": "1FoLdErNwA_Q3_Planning_TeamFolder_ID",
+                "pageSize": 100,
+                "pageToken": "",
+                "supportsAllDrives": true,
+                "useDomainAdminAccess": false
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "list_permission",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"data\": {\n    \"kind\": \"drive#permissionList\",\n    \"permissions\": [\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_domain_commenter_qa_folder_004\",\n        \"type\": \"domain\",\n        \"role\": \"commenter\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"domain\": \"northwind-analytics.example.com\",\n        \"deleted\": false\n      },\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_group_writer_qa_folder_003\",\n        \"type\": \"group\",\n        \"role\": \"writer\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"emailAddress\": \"analytics-team@northwind-analytics.example.com\",\n        \"displayName\": \"Analytics Team\",\n        \"deleted\": false\n      },\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_priya_owner_qa_folder_001\",\n        \"type\": \"user\",\n        \"role\": \"owner\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"emailAddress\": \"priya.ramaswamy@northwind-analytics.example.com\",\n        \"displayName\": \"Priya Ramaswamy\",\n        \"photoLink\": null,\n        \"deleted\": false\n      },\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_marcus_reader_qa_folder_002\",\n        \"type\": \"user\",\n        \"role\": \"reader\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"emailAddress\": \"marcus.oyelaran@northwind-analytics.example.com\",\n        \"displayName\": \"Marcus Oyelaran\",\n        \"photoLink\": null,\n        \"deleted\": false\n      }\n    ]\n  },\n  \"status\": \"success\",\n  \"message\": \"Permissions listed successfully\"\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 7429,
+            "output_tokens": 176,
+            "total_tokens": 7605,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 90
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 176,
+              "prompt_tokens": 7429,
+              "total_tokens": 7605,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 90,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0867832141239231016a72d27093c08191bc59bd4d92472aac",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "update_permission",
+              "args": {
+                "fileId": "1FoLdErNwA_Q3_Planning_TeamFolder_ID",
+                "permissionId": "perm_marcus_reader_qa_folder_002",
+                "role": "owner",
+                "supportsAllDrives": true,
+                "transferOwnership": true,
+                "useDomainAdminAccess": false,
+                "removeExpiration": false,
+                "enforceExpansiveAccess": false
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "update_permission",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"data\": {\n    \"kind\": \"drive#permission\",\n    \"id\": \"perm_marcus_reader_qa_folder_002\",\n    \"type\": \"user\",\n    \"role\": \"owner\",\n    \"allowFileDiscovery\": null,\n    \"permissionDetails\": [],\n    \"emailAddress\": \"marcus.oyelaran@northwind-analytics.example.com\",\n    \"displayName\": \"Marcus Oyelaran\",\n    \"photoLink\": null,\n    \"deleted\": false\n  },\n  \"status\": \"success\",\n  \"message\": \"Permission updated successfully\"\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 7684,
+            "output_tokens": 53,
+            "total_tokens": 7737,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 53,
+              "prompt_tokens": 7684,
+              "total_tokens": 7737,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 0,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0f455535ca2824ed016a72d27abfa48191b47a74365b513aa0",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "delete_permission",
+              "args": {
+                "fileId": "1FoLdErNwA_Q3_Planning_TeamFolder_ID",
+                "permissionId": "perm_priya_owner_qa_folder_001",
+                "supportsAllDrives": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "delete_permission",
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"status\": \"success\",\n  \"message\": \"Permission deleted successfully\"\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "type": "ai_message",
+          "content": "Ownership transfer completed for **`Q3 Planning - Analytics Team`**:\n\n- **Marcus Oyelaran** (`marcus.oyelaran@northwind-analytics.example.com`) is now the owner.\n- Marcus was promoted from his existing reader permission; no new permission was created.\n- **Priya Ramaswamy\u2019s** personal permission was removed only after the ownership transfer succeeded.\n- All other permissions, including the Analytics Team group and company-wide domain access, were left unchanged.\n- No other folders were modified.",
+          "usage_metadata": {
+            "input_tokens": 7791,
+            "output_tokens": 110,
+            "total_tokens": 7901,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 110,
+              "prompt_tokens": 7791,
+              "total_tokens": 7901,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 0,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_03aef8a385ec8015016a72d27f77308191a0b1585a90fe9463",
+            "finish_reason": "stop",
+            "logprobs": null
+          },
+          "tool_calls": []
+        }
+      ],
+      "tools_used": [
+        "list_files",
+        "list_permission",
+        "update_permission",
+        "delete_permission"
+      ],
+      "tool_results": [
+        {
+          "tool_name": "list_files",
+          "arguments": {
+            "corpora": "allDrives",
+            "driveId": "",
+            "includeItemsFromAllDrives": true,
+            "orderBy": "name",
+            "pageSize": 100,
+            "pageToken": "",
+            "q": "name = 'Q3 Planning - Analytics Team' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+            "spaces": "drive",
+            "supportsAllDrives": true,
+            "trashed": false
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"files\": [\n    {\n      \"id\": \"1FoLdErNwA_Q3_Planning_TeamFolder_ID\",\n      \"name\": \"Q3 Planning - Analytics Team\",\n      \"mimeType\": \"application/vnd.google-apps.folder\",\n      \"description\": null,\n      \"fileExtension\": null,\n      \"fullFileExtension\": null,\n      \"originalFilename\": null,\n      \"size\": \"0\",\n      \"md5Checksum\": null,\n      \"sha1Checksum\": null,\n      \"sha256Checksum\": null,\n      \"createdTime\": \"2026-06-01T10:00:00+00:00Z\",\n      \"modifiedTime\": \"2026-07-10T14:30:00+00:00Z\",\n      \"modifiedByMeTime\": null,\n      \"viewedByMeTime\": \"2026-07-10T14:30:00+00:00Z\",\n      \"sharedWithMeTime\": null,\n      \"trashedTime\": null,\n      \"starred\": false,\n      \"trashed\": false,\n      \"explicitlyTrashed\": false,\n      \"viewedByMe\": true,\n      \"modifiedByMe\": true,\n      \"ownedByMe\": true,\n      \"shared\": false,\n      \"copyRequiresWriterPermission\": false,\n      \"writersCanShare\": true,\n      \"hasThumbnail\": false,\n      \"thumbnailVersion\": null,\n      \"thumbnailLink\": null,\n      \"iconLink\": null,\n      \"webViewLink\": null,\n      \"webContentLink\": null,\n      \"folderColorRgb\": null,\n      \"contentRestricted\": false,\n      \"contentRestrictionReason\": null,\n      \"contentRestrictionTime\": null,\n      \"ownerRestricted\": false,\n      \"systemRestricted\": false,\n      \"downloadRestrictedForReaders\": false,\n      \"downloadRestrictedForWriters\": false,\n      \"resourceKey\": null,\n      \"securityUpdateEligible\": false,\n      \"securityUpdateEnabled\": false,\n      \"inheritedPermissionsDisabled\": false,\n      \"hasAugmentedPermissions\": false,\n      \"version\": \"1\",\n      \"headRevisionId\": null,\n      \"quotaBytesUsed\": null,\n      \"imageMediaMetadata\": null,\n      \"videoMediaMetadata\": null,\n      \"properties\": null,\n      \"appProperties\": null,\n      \"shortcutTargetId\": null,\n      \"shortcutTargetMimeType\": null,\n      \"shortcutTargetResourceKey\": null,\n      \"kind\": \"drive#file\",\n      \"owners\": [\n        {\n          \"kind\": \"drive#user\",\n          \"displayName\": \"Priya Ramaswamy\",\n          \"photoLink\": null,\n          \"me\": true,\n          \"permissionId\": \"01HXAKZ3P9F2M8QW5V7R4TSC1A\",\n          \"emailAddress\": \"priya.ramaswamy@northwind-analytics.example.com\"\n        }\n      ],\n      \"lastModifyingUser\": {\n        \"kind\": \"drive#user\",\n        \"displayName\": \"Priya Ramaswamy\",\n        \"photoLink\": null,\n        \"me\": true,\n        \"permissionId\": \"01HXAKZ3P9F2M8QW5V7R4TSC1A\",\n        \"emailAddress\": \"priya.ramaswamy@northwind-analytics.example.com\"\n      },\n      \"driveId\": \"0AKz9qF3RstUv-shared-drive\",\n      \"sharingUser\": null,\n      \"trashingUser\": null,\n      \"parents\": [],\n      \"permissions\": null,\n      \"labelInfo\": null,\n      \"exportLinks\": null,\n      \"spaces\": [\n        \"drive\"\n      ],\n      \"permissionIds\": null,\n      \"contentRestrictions\": null,\n      \"contentHints\": null,\n      \"viewersCanCopyContent\": null,\n      \"isAppAuthorized\": null,\n      \"teamDriveId\": null,\n      \"capabilities\": null,\n      \"linkShareMetadata\": null,\n      \"shortcutDetails\": null,\n      \"downloadRestrictions\": null\n    }\n  ],\n  \"kind\": \"drive#fileList\",\n  \"nextPageToken\": null,\n  \"incompleteSearch\": true\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "tool_name": "list_permission",
+          "arguments": {
+            "includePermissionsForView": "published",
+            "fileId": "1FoLdErNwA_Q3_Planning_TeamFolder_ID",
+            "pageSize": 100,
+            "pageToken": "",
+            "supportsAllDrives": true,
+            "useDomainAdminAccess": false
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"data\": {\n    \"kind\": \"drive#permissionList\",\n    \"permissions\": [\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_domain_commenter_qa_folder_004\",\n        \"type\": \"domain\",\n        \"role\": \"commenter\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"domain\": \"northwind-analytics.example.com\",\n        \"deleted\": false\n      },\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_group_writer_qa_folder_003\",\n        \"type\": \"group\",\n        \"role\": \"writer\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"emailAddress\": \"analytics-team@northwind-analytics.example.com\",\n        \"displayName\": \"Analytics Team\",\n        \"deleted\": false\n      },\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_priya_owner_qa_folder_001\",\n        \"type\": \"user\",\n        \"role\": \"owner\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"emailAddress\": \"priya.ramaswamy@northwind-analytics.example.com\",\n        \"displayName\": \"Priya Ramaswamy\",\n        \"photoLink\": null,\n        \"deleted\": false\n      },\n      {\n        \"kind\": \"drive#permission\",\n        \"id\": \"perm_marcus_reader_qa_folder_002\",\n        \"type\": \"user\",\n        \"role\": \"reader\",\n        \"allowFileDiscovery\": null,\n        \"permissionDetails\": [],\n        \"emailAddress\": \"marcus.oyelaran@northwind-analytics.example.com\",\n        \"displayName\": \"Marcus Oyelaran\",\n        \"photoLink\": null,\n        \"deleted\": false\n      }\n    ]\n  },\n  \"status\": \"success\",\n  \"message\": \"Permissions listed successfully\"\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "tool_name": "update_permission",
+          "arguments": {
+            "fileId": "1FoLdErNwA_Q3_Planning_TeamFolder_ID",
+            "permissionId": "perm_marcus_reader_qa_folder_002",
+            "role": "owner",
+            "supportsAllDrives": true,
+            "transferOwnership": true,
+            "useDomainAdminAccess": false,
+            "removeExpiration": false,
+            "enforceExpansiveAccess": false
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"data\": {\n    \"kind\": \"drive#permission\",\n    \"id\": \"perm_marcus_reader_qa_folder_002\",\n    \"type\": \"user\",\n    \"role\": \"owner\",\n    \"allowFileDiscovery\": null,\n    \"permissionDetails\": [],\n    \"emailAddress\": \"marcus.oyelaran@northwind-analytics.example.com\",\n    \"displayName\": \"Marcus Oyelaran\",\n    \"photoLink\": null,\n    \"deleted\": false\n  },\n  \"status\": \"success\",\n  \"message\": \"Permission updated successfully\"\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        },
+        {
+          "tool_name": "delete_permission",
+          "arguments": {
+            "fileId": "1FoLdErNwA_Q3_Planning_TeamFolder_ID",
+            "permissionId": "perm_priya_owner_qa_folder_001",
+            "supportsAllDrives": true
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"status\": \"success\",\n  \"message\": \"Permission deleted successfully\"\n}"
+                }
+              ]
+            },
+            "error": null
+          },
+          "gym_server": "gym-google-drive-mcp"
+        }
+      ],
+      "verification_results": {
+        "marcus_permission_upgraded_to_owner": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE id = 'perm_marcus_reader_qa_folder_002' AND file_id = '1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND user_id = '01HXAKZ3P9F2M8QW5V7R4TSC2B' AND role = 'owner' AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "priya_owner_permission_removed": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE id = 'perm_priya_owner_qa_folder_001' AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "no_active_owner_permission_for_priya_on_folder": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE file_id = '1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND user_id = '01HXAKZ3P9F2M8QW5V7R4TSC1A' AND role = 'owner' AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "group_permission_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE id = 'perm_group_writer_qa_folder_003' AND file_id = '1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND type = 'group' AND role = 'writer' AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "domain_permission_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE id = 'perm_domain_commenter_qa_folder_004' AND file_id = '1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND type = 'domain' AND role = 'commenter' AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "marcus_other_folder_permission_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE id = 'perm_marcus_reader_other_folder_099' AND file_id = '1FoLdErNwA_Q2_Planning_TeamFolder_ID' AND user_id = '01HXAKZ3P9F2M8QW5V7R4TSC2B' AND role = 'reader' AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoy_folders_ownership_not_altered": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE user_id = '01HXAKZ3P9F2M8QW5V7R4TSC2B' AND role = 'owner' AND file_id IN ('1FoLdErNwA_Q2_Planning_TeamFolder_ID','1FoLdErNwA_Q3_Planning_Archive_ID') AND (deleted IS NULL OR deleted = 0);",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "marcus_owner_role_on_folder": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE file_id='1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND user_id='01HXAKZ3P9F2M8QW5V7R4TSC2B' AND role='owner' AND (deleted IS NULL OR deleted=0)",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "no_non_marcus_owner_on_folder": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE file_id='1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND role='owner' AND (deleted IS NULL OR deleted=0) AND (user_id IS NULL OR user_id!='01HXAKZ3P9F2M8QW5V7R4TSC2B')",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "folder_active_permission_count_is_three": {
+          "passed": true,
+          "expected": 3,
+          "actual": 3,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE file_id='1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND (deleted IS NULL OR deleted=0)",
+          "details": "Comparison equals: 3 vs 3"
+        },
+        "priya_no_active_permission_on_folder": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE file_id='1FoLdErNwA_Q3_Planning_TeamFolder_ID' AND user_id='01HXAKZ3P9F2M8QW5V7R4TSC1A' AND (deleted IS NULL OR deleted=0)",
+          "details": "Comparison equals: 0 vs 0"
+        }
+      },
+      "verification_summary": {
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "pass_rate": 1.0
+      },
+      "overall_success": true,
+      "usage": {
+        "input_tokens": 35528,
+        "output_tokens": 725,
+        "total_tokens": 36253,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "reasoning_tokens": 318,
+        "turns": 5,
+        "turns_captured": 5
+      }
+    }
+  ],
+  "statistics": {
+    "total_runs": 1,
+    "successful_runs": 1,
+    "overall_success_rate": 1.0,
+    "pass_at_1": 1.0,
+    "verifier_level_pass_rate": 1.0,
+    "total_verifiers_checked": 11,
+    "total_verifiers_passed": 11,
+    "individual_verifier_stats": {
+      "marcus_permission_upgraded_to_owner": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "priya_owner_permission_removed": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "no_active_owner_permission_for_priya_on_folder": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "group_permission_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "domain_permission_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "marcus_other_folder_permission_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy_folders_ownership_not_altered": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "marcus_owner_role_on_folder": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "no_non_marcus_owner_on_folder": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "folder_active_permission_count_is_three": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "priya_no_active_permission_on_folder": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_execution_time_ms": 39944.0,
+    "tool_call_counts": {
+      "list_files": 1,
+      "list_permission": 1,
+      "update_permission": 1,
+      "delete_permission": 1
+    },
+    "tool_usage": {
+      "list_files": 1,
+      "list_permission": 1,
+      "update_permission": 1,
+      "delete_permission": 1
+    },
+    "token_usage": {
+      "total": {
+        "input_tokens": 35528,
+        "output_tokens": 725,
+        "total_tokens": 36253,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 318
+      },
+      "per_run": [
+        {
+          "input_tokens": 35528,
+          "output_tokens": 725,
+          "total_tokens": 36253,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 318
+        }
+      ],
+      "runs_with_usage": 1,
+      "mean_input_tokens_per_run": 35528.0,
+      "mean_output_tokens_per_run": 725.0
+    },
+    "cost_summary": {
+      "model": "vllm/gpt-5.6-sol",
+      "total": {
+        "total_cost_usd": 0.19939,
+        "input_cost_usd": 0.17764000000000002,
+        "output_cost_usd": 0.021750000000000002,
+        "model": "vllm/gpt-5.6-sol",
+        "priced_tokens": {
+          "input_tokens": 35528,
+          "output_tokens": 725,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 318
+        }
+      },
+      "per_run": [
+        {
+          "total_cost_usd": 0.19939,
+          "input_cost_usd": 0.17764000000000002,
+          "output_cost_usd": 0.021750000000000002,
+          "model": "vllm/gpt-5.6-sol",
+          "priced_tokens": {
+            "input_tokens": 35528,
+            "output_tokens": 725,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 318
+          }
+        }
+      ],
+      "mean_cost_usd_per_run": 0.19939,
+      "priced_runs": 1
+    }
+  }
+}

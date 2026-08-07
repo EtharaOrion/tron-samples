@@ -1,0 +1,122 @@
+{
+  "task": "8ef1e34c-9c97-58fe-947a-72477cc4d183",
+  "uuid": "8ef1e34c-9c97-58fe-947a-72477cc4d183",
+  "run": "run_2",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "8e32b645b18dd0ee8d487c18656429466a2fac21d2b48013c877172aea42dc7d",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 7,
+    "gate_met": 6,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 17,
+    "writes": 1
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #11 update_problem fix_notes = 'Recurring outage RCA complete; root cause isolated to cache memory leak and permanent fix v2.3 deployed.' \u2014 exact canonical match, status resolved.",
+      "rejudged": true
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "No update_case call in the 17-call trajectory; all search_cases attempts (calls #5,7,9,10,12,15,17) returned []. Final message: 'Could not safely complete the remaining steps because the authenticated searches did not return... the open Northwind case.'",
+      "rejudged": true
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "No update_incident call anywhere; all list_incidents queries (calls #4,6,8,13,14,16) returned []. Final message confirms child incidents were never found/updated.",
+      "rejudged": true
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "No send_message call in the trajectory. Final message: 'I did not send the customer reply, since it was required only after all records were updated.'",
+      "rejudged": true
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Only ids written: PRB0040001 (confirmed via Call #2) and its resolution text. Account 8001 (Call #3 find_account) and jordan.blake@northwind.com (Call #1 list_threads) were read, not invented. No case or incident id was fabricated; the agent left them unmodified rather than guess."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #1 list_threads returned From: \"jordan.blake@northwind.com\" on the inbound message; final message states \"Sender confirmed as jordan.blake@northwind.com on the original thread.\""
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Final message accurately reports only the problem resolution as completed and explicitly states the case, worknotes, and reply were not completed due to failed lookups \u2014 matching the actual 17-call trajectory with no overclaim."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all list_incidents calls (#4,6,8,13,14,16), each filtered by problem=\"PRB0040001\" or otherwise; every one returned \"[]\". Neither the master nor either child incident was ever enumerated."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "The case was never resolved (see R02), so there is no case-resolve event to order against the problem-resolve at Call #11 \u2014 the ordering rule was never exercised."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "Call #3 find_account uniquely resolved account_id 8001, but every search_cases attempt (#5,7,9,10,12,15,17) returned \"[]\"; the single open case was never isolated."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "No update_incident call appears anywhere in the 17-call trajectory, so the worknote-while-preserving-status behavior was never exercised on either child incident."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "The only write in the trajectory is Call #11 update_problem on the verified id PRB0040001; no case or incident write occurs, so the decoy problem, CS0009002/CS0009003, and any escalation/account-link field remain untouched by construction."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "No send_message call appears in the 17 calls; the only email tool call is Call #1's read-only list_threads with userId \"me\" \u2014 no other mailbox or thread is engaged."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "All calls route through gym-itsm-mcp, sn-csm-server, and gym-email-mcp per Marcus's authenticated capabilities; no conflicting identity string is referenced or acted on, and the abstention is attributed to failed record verification, not identity confusion."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

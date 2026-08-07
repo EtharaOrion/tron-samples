@@ -1,0 +1,2660 @@
+{
+  "benchmark_config": {
+    "model": "vllm/gpt-5.6-sol",
+    "number_of_runs": 1,
+    "user_prompt": "# Aurora entitlement exception\n\nHandle the **V12 entitlement exception review for Aurora Transit**. Retrieve the\npublished CSM article **KB-CSM-ENT-077** and compose its general rule, exception,\nand precedence rule. Use the article's exact case-update values, CI-update\nvalue, and Drive evidence-file description.\n\nResolve the named account, its qualifying entitlement, the entitled installed\nproduct, and the matching active or pending case through CSM reads. Save the\ninstalled-product serial returned by CSM and resolve it through ITSM. Update\nonly the entitled CSM case and only the matching ITSM configuration item.\n\nCreate exactly one Drive evidence file. Its entire file name must be the\nbyte-exact serial returned by the ITSM configuration-item lookup, not the value\ncopied directly from CSM.\n\nPreserve the look-alike case for the non-entitled account, the neighbouring\ninstalled product and ITSM configuration item, and every pre-existing Drive\npermission. Do not create or alter entitlements. Do not use or retrieve an ITSM\nknowledge article.",
+    "gym_servers": [
+      {
+        "name": "sn-csm-server",
+        "url": "http://localhost:8001",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/tasks/trinity_new/996a64af-e210-5bc5-a984-0d2f94c92fc8/seeds/seed_csm.sql",
+        "uses_cloning": true
+      },
+      {
+        "name": "gym-itsm-mcp",
+        "url": "http://localhost:8002",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/tasks/trinity_new/996a64af-e210-5bc5-a984-0d2f94c92fc8/seeds/seed_itsm.sql",
+        "uses_cloning": true
+      },
+      {
+        "name": "gym-google-drive-mcp",
+        "url": "http://localhost:8009",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/tasks/trinity_new/996a64af-e210-5bc5-a984-0d2f94c92fc8/seeds/seed_drive.sql",
+        "uses_cloning": true
+      }
+    ],
+    "total_gyms": 3,
+    "total_tools_available": 9
+  },
+  "runs": [
+    {
+      "run_number": 1,
+      "started_at": "2026-07-29T10:24:36.620541+00:00",
+      "execution_time_ms": 99329,
+      "model_response": "Unable to complete the Aurora V12 entitlement exception review safely.\n\n- **Account resolved:** Aurora Transit, account ID **1300**\n- **Blocking issue:** The CSM knowledge source returned no current published article for **KB-CSM-ENT-077**, including searches by article number and relevant text.\n- Therefore, I could not verify or compose the binding:\n  - general rule,\n  - exception,\n  - precedence rule,\n  - exact case-update values,\n  - CI-update value, or\n  - Drive evidence-file description.\n\nPer policy, I stopped rather than infer these values or select plausible records. **No case, configuration item, entitlement, installed product, Drive file, or permissions were created or modified.** No ITSM knowledge article was retrieved.",
+      "conversation_flow": [
+        {
+          "type": "system_message",
+          "content": "# System Policy\n\nENTERPRISE CUSTOMER ENTITLEMENT OPERATIONS POLICY\n\nRole: Customer Entitlement Operations Specialist\n\nSystem Scope: Customer service management, IT service management, and corporate Drive evidence records.\n\nCompliance Level: Strict, especially for entitlement boundaries, authoritative procedure use, asset identity, and evidence preservation.\n\nYou administer customer entitlement exceptions across CSM, ITSM, and Drive. Act only on records supported by confirmed entitlement and system state. Never invent account data, entitlement status, identifiers, serial values, procedure clauses, or completed effects.\n\n1. GENERAL OPERATIONAL INSTRUCTIONS AND CONSTRAINTS\n\n- Retrieve every required account, entitlement, installed product, case, configuration item, and evidence destination through authenticated reads in the owning system.\n\n- Preserve byte-sensitive values exactly when transferring them between systems. Do not normalize or reconstruct an identifier that an authoritative lookup returned.\n\n- Do not claim that an update or creation succeeded until the responsible system confirms it.\n\n- Do not ask for confirmation before performing compliant actions. If a required relationship or unique target cannot be verified, stop instead of choosing a plausible match.\n\n- If a requested action violates this policy, omit that action while completing any remaining actions that are independently compliant.\n\n2. PROCEDURE IS RETRIEVED, NOT ASSUMED\n\n- Retrieve the binding customer-service procedure from the designated CSM knowledge source. Do not substitute memory, standard practice, or an ITSM knowledge artifact.\n\n- Only a current published procedure is binding. Draft, retired, superseded, or similarly titled content cannot authorize changes.\n\n- Compose the applicable procedure clauses before acting. When verified facts satisfy an exception, that exception overrides the general rule. Follow the stated precedence rule wherever clauses conflict.\n\n3. SCOPE AND RECORD DISCIPLINE\n\n- Entitlement establishes scope. A similar account, related product, neighbouring asset, or look-alike case is not eligible unless the authoritative relationships and procedure select it.\n\n- Resolve each cross-system target using the full chain of verified relationships and identifiers. A matching name or serial fragment alone is insufficient.\n\n- Create exactly one instance of each requested evidence record. Apply each requested update only once to the uniquely resolved target, and verify state before retrying any uncertain operation.\n\n- Modify only fields explicitly authorized by the binding procedure or request. Preserve all excluded records, unrelated relationships, existing permissions, and unmentioned fields.\n\n4. CSM, ITSM, AND DRIVE OPERATIONS\n\n- CSM is authoritative for accounts, entitlements, installed-product relationships, customer cases, and the binding customer-service knowledge procedure.\n\n- ITSM is authoritative for configuration-item identity, canonical serial values, and persisted configuration state. Resolve a CSM-derived asset reference through ITSM before using ITSM-owned values elsewhere.\n\n- Drive is authoritative for evidence-file identity, content metadata, permissions, and creation results. Creating an evidence artifact must not alter or replace pre-existing permissions or unrelated files.\n\n- Agreement between systems is evidence for the resolved chain, not permission to modify adjacent records. Every write target must independently remain within the authorized scope."
+        },
+        {
+          "type": "user_message",
+          "content": "# Aurora entitlement exception\n\nHandle the **V12 entitlement exception review for Aurora Transit**. Retrieve the\npublished CSM article **KB-CSM-ENT-077** and compose its general rule, exception,\nand precedence rule. Use the article's exact case-update values, CI-update\nvalue, and Drive evidence-file description.\n\nResolve the named account, its qualifying entitlement, the entitled installed\nproduct, and the matching active or pending case through CSM reads. Save the\ninstalled-product serial returned by CSM and resolve it through ITSM. Update\nonly the entitled CSM case and only the matching ITSM configuration item.\n\nCreate exactly one Drive evidence file. Its entire file name must be the\nbyte-exact serial returned by the ITSM configuration-item lookup, not the value\ncopied directly from CSM.\n\nPreserve the look-alike case for the non-entitled account, the neighbouring\ninstalled product and ITSM configuration item, and every pre-existing Drive\npermission. Do not create or alter entitlements. Do not use or retrieve an ITSM\nknowledge article."
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 3523,
+            "output_tokens": 127,
+            "total_tokens": 3650,
+            "input_token_details": {
+              "cache_read": 2560,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 21
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 127,
+              "prompt_tokens": 3523,
+              "total_tokens": 3650,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 21,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 2560
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0c90ed75ecc7a18e016a69d4e711c48191b409223909b4bed4",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "find_account",
+              "args": {
+                "name": "Aurora Transit"
+              }
+            },
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "KB-CSM-ENT-077",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_account",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"account_id\": 1300, \"name\": \"Aurora Transit\", \"account_type\": \"customer\", \"email_domain\": \"aurora-transit.example\", \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 3769,
+            "output_tokens": 92,
+            "total_tokens": 3861,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 19
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 92,
+              "prompt_tokens": 3769,
+              "total_tokens": 3861,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 19,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0adf7d0138bf429f016a69d4ed07608191af8068773f77aa50",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "entitlement exception V12 Aurora",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "external",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 3894,
+            "output_tokens": 107,
+            "total_tokens": 4001,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 41
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 107,
+              "prompt_tokens": 3894,
+              "total_tokens": 4001,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 41,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0e31796af4ac8d06016a69d4f006ac8191b71c99fc7879f56a",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "KB-CSM-ENT-077",
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 50
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 4012,
+            "output_tokens": 404,
+            "total_tokens": 4416,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 30
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 404,
+              "prompt_tokens": 4012,
+              "total_tokens": 4416,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 30,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_09cedcd326665abc016a69d4f3cc5c8191a97cbfd7a54eacce",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "0001-01-01 00:00:00",
+                "limit": 100
+              }
+            },
+            {
+              "name": "find_entitlements",
+              "args": {
+                "entitlement_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "contract_id": 0,
+                "support_level": "standard",
+                "coverage_hours": "h8x5",
+                "max_cases_per_month": 0,
+                "active": true,
+                "created_before": "9999-12-31",
+                "created_after": "0001-01-01"
+              }
+            },
+            {
+              "name": "retrieve_installed_products",
+              "args": {
+                "installed_product_id": 0,
+                "location_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "serial_number": "",
+                "status": "in_use",
+                "warranty_end": "",
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "0001-01-01 00:00:00"
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "",
+                "account_id": 1300,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "web",
+                "priority": "moderate",
+                "state": "in_progress",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "urgency",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "0001-01-01 00:00:00"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_entitlements",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_installed_products",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 4594,
+            "output_tokens": 337,
+            "total_tokens": 4931,
+            "input_token_details": {
+              "cache_read": 3584,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 44
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 337,
+              "prompt_tokens": 4594,
+              "total_tokens": 4931,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 44,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 3584
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0bbc0844b7deb5ef016a69d4fe2668819187013ae377abde6d",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "KB-CSM-ENT-077",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 100
+              }
+            },
+            {
+              "name": "find_entitlements",
+              "args": {
+                "entitlement_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "contract_id": 0,
+                "support_level": "enterprise",
+                "coverage_hours": "h24x7",
+                "max_cases_per_month": 0,
+                "active": true,
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "retrieve_installed_products",
+              "args": {
+                "installed_product_id": 0,
+                "location_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "serial_number": "",
+                "status": "in_stock",
+                "warranty_end": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "",
+                "account_id": 1300,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "email",
+                "priority": "high",
+                "state": "pending",
+                "short_description": "",
+                "escalation": false,
+                "escalation_reason": "impact",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_entitlements",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_installed_products",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 5095,
+            "output_tokens": 423,
+            "total_tokens": 5518,
+            "input_token_details": {
+              "cache_read": 3584,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 136
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 423,
+              "prompt_tokens": 5095,
+              "total_tokens": 5518,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 136,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 3584
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0b1ac8226cf54ffd016a69d507588081918f9052f2b887e143",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "external",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 100
+              }
+            },
+            {
+              "name": "find_entitlements",
+              "args": {
+                "entitlement_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "contract_id": 0,
+                "support_level": "premium",
+                "coverage_hours": "h12x6",
+                "max_cases_per_month": 0,
+                "active": true,
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "retrieve_installed_products",
+              "args": {
+                "installed_product_id": 0,
+                "location_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "serial_number": "",
+                "status": "repair",
+                "warranty_end": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "search_cases",
+              "args": {
+                "case_id": 0,
+                "number": "",
+                "account_id": 1300,
+                "contact_id": 0,
+                "product_id": 0,
+                "installed_product_id": 0,
+                "channel": "phone",
+                "priority": "critical",
+                "state": "new",
+                "short_description": "",
+                "escalation": true,
+                "escalation_reason": "breach_risk",
+                "reopen_count": 0,
+                "closed_on": "",
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_entitlements",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_installed_products",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "search_cases",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 5590,
+            "output_tokens": 212,
+            "total_tokens": 5802,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 49
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 212,
+              "prompt_tokens": 5590,
+              "total_tokens": 5802,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 49,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_053cf0b722e4f78e016a69d5155c70819192212c9833c50b1f",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 10
+              }
+            },
+            {
+              "name": "find_entitlements",
+              "args": {
+                "entitlement_id": 0,
+                "account_id": 1300,
+                "product_id": 0,
+                "contract_id": 0,
+                "support_level": "standard",
+                "coverage_hours": "h8x5",
+                "max_cases_per_month": 0,
+                "active": true,
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_entitlements",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 5841,
+            "output_tokens": 186,
+            "total_tokens": 6027,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 94
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 186,
+              "prompt_tokens": 5841,
+              "total_tokens": 6027,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 94,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_079ca1d6646e7e29016a69d51def78819187655aebe93a059d",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "9999-12-31 23:59:59",
+                "created_after": "1900-01-01 00:00:00",
+                "limit": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 5985,
+            "output_tokens": 123,
+            "total_tokens": 6108,
+            "input_token_details": {
+              "cache_read": 4608,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 57
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 123,
+              "prompt_tokens": 5985,
+              "total_tokens": 6108,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 57,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 4608
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_07e98769cfb8a601016a69d525e20c8191932e4431d2b56261",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 6103,
+            "output_tokens": 329,
+            "total_tokens": 6432,
+            "input_token_details": {
+              "cache_read": 5632,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 85
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 329,
+              "prompt_tokens": 6103,
+              "total_tokens": 6432,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 85,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 5632
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0f7c8a16cb1cd11e016a69d52dcc448191b5ed7450c5244189",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "V12",
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 100
+              }
+            },
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "V12",
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "state": "published",
+                "visibility": "external",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 100
+              }
+            },
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "Aurora Transit",
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 100
+              }
+            },
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "entitlement exception",
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 100
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 6555,
+            "output_tokens": 144,
+            "total_tokens": 6699,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 70
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 144,
+              "prompt_tokens": 6555,
+              "total_tokens": 6699,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 70,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0ca3e1a32a53f021016a69d538fb308191870ec91721bf7a7a",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "retrieve_knowledge",
+              "args": {
+                "search_text": "KB-CSM-ENT-077",
+                "knowledge_id": 0,
+                "kb_number": "KB-CSM-ENT-077",
+                "title": "",
+                "state": "published",
+                "visibility": "internal",
+                "product_id": 0,
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": "",
+                "limit": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "type": "ai_message",
+          "content": "Unable to complete the Aurora V12 entitlement exception review safely.\n\n- **Account resolved:** Aurora Transit, account ID **1300**\n- **Blocking issue:** The CSM knowledge source returned no current published article for **KB-CSM-ENT-077**, including searches by article number and relevant text.\n- Therefore, I could not verify or compose the binding:\n  - general rule,\n  - exception,\n  - precedence rule,\n  - exact case-update values,\n  - CI-update value, or\n  - Drive evidence-file description.\n\nPer policy, I stopped rather than infer these values or select plausible records. **No case, configuration item, entitlement, installed product, Drive file, or permissions were created or modified.** No ITSM knowledge article was retrieved.",
+          "usage_metadata": {
+            "input_tokens": 6681,
+            "output_tokens": 245,
+            "total_tokens": 6926,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 85
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 245,
+              "prompt_tokens": 6681,
+              "total_tokens": 6926,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 85,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0f54d534b82a4034016a69d53ff6748191a035d180c8ce4745",
+            "finish_reason": "stop",
+            "logprobs": null
+          },
+          "tool_calls": []
+        }
+      ],
+      "tools_used": [
+        "find_account",
+        "retrieve_knowledge",
+        "find_entitlements",
+        "retrieve_installed_products",
+        "search_cases"
+      ],
+      "tool_results": [
+        {
+          "tool_name": "find_account",
+          "arguments": {
+            "name": "Aurora Transit"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"account_id\": 1300, \"name\": \"Aurora Transit\", \"account_type\": \"customer\", \"email_domain\": \"aurora-transit.example\", \"active\": 1}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "KB-CSM-ENT-077",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 10
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "entitlement exception V12 Aurora",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "external",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 10
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "KB-CSM-ENT-077",
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 50
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "0001-01-01 00:00:00",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_entitlements",
+          "arguments": {
+            "entitlement_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "contract_id": 0,
+            "support_level": "standard",
+            "coverage_hours": "h8x5",
+            "max_cases_per_month": 0,
+            "active": true,
+            "created_before": "9999-12-31",
+            "created_after": "0001-01-01"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_installed_products",
+          "arguments": {
+            "installed_product_id": 0,
+            "location_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "serial_number": "",
+            "status": "in_use",
+            "warranty_end": "",
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "0001-01-01 00:00:00"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "",
+            "account_id": 1300,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "web",
+            "priority": "moderate",
+            "state": "in_progress",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "urgency",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "0001-01-01 00:00:00"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "KB-CSM-ENT-077",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_entitlements",
+          "arguments": {
+            "entitlement_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "contract_id": 0,
+            "support_level": "enterprise",
+            "coverage_hours": "h24x7",
+            "max_cases_per_month": 0,
+            "active": true,
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_installed_products",
+          "arguments": {
+            "installed_product_id": 0,
+            "location_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "serial_number": "",
+            "status": "in_stock",
+            "warranty_end": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "",
+            "account_id": 1300,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "email",
+            "priority": "high",
+            "state": "pending",
+            "short_description": "",
+            "escalation": false,
+            "escalation_reason": "impact",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "external",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_entitlements",
+          "arguments": {
+            "entitlement_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "contract_id": 0,
+            "support_level": "premium",
+            "coverage_hours": "h12x6",
+            "max_cases_per_month": 0,
+            "active": true,
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_installed_products",
+          "arguments": {
+            "installed_product_id": 0,
+            "location_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "serial_number": "",
+            "status": "repair",
+            "warranty_end": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "search_cases",
+          "arguments": {
+            "case_id": 0,
+            "number": "",
+            "account_id": 1300,
+            "contact_id": 0,
+            "product_id": 0,
+            "installed_product_id": 0,
+            "channel": "phone",
+            "priority": "critical",
+            "state": "new",
+            "short_description": "",
+            "escalation": true,
+            "escalation_reason": "breach_risk",
+            "reopen_count": 0,
+            "closed_on": "",
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 10
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "find_entitlements",
+          "arguments": {
+            "entitlement_id": 0,
+            "account_id": 1300,
+            "product_id": 0,
+            "contract_id": 0,
+            "support_level": "standard",
+            "coverage_hours": "h8x5",
+            "max_cases_per_month": 0,
+            "active": true,
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "9999-12-31 23:59:59",
+            "created_after": "1900-01-01 00:00:00",
+            "limit": 10
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 10
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "V12",
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "V12",
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "state": "published",
+            "visibility": "external",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "Aurora Transit",
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "entitlement exception",
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 100
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        },
+        {
+          "tool_name": "retrieve_knowledge",
+          "arguments": {
+            "search_text": "KB-CSM-ENT-077",
+            "knowledge_id": 0,
+            "kb_number": "KB-CSM-ENT-077",
+            "title": "",
+            "state": "published",
+            "visibility": "internal",
+            "product_id": 0,
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": "",
+            "limit": 10
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[]",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-csm-server"
+        }
+      ],
+      "verification_results": {
+        "target_case_exact": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id=1300 AND number='CS-V12-09007' AND account_id=1300 AND installed_product_id=1300 AND state='in_progress' AND priority='high' AND escalation=1 AND escalation_reason='impact'",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "lookalike_case_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id=1301 AND number='CS-V12-09008' AND account_id=1301 AND installed_product_id=1301 AND state='new' AND priority='moderate' AND escalation=0 AND escalation_reason IS NULL",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "other_target_case_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM customer_case WHERE case_id=1302 AND product_id=1301 AND state='new' AND priority='low' AND escalation=0",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "entitlement_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM entitlement WHERE entitlement_id=1300 AND account_id=1300 AND product_id=1300 AND support_level='enterprise' AND coverage_hours='h24x7' AND active=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "decoy_entitlement_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM entitlement WHERE entitlement_id=1301 AND account_id=1301 AND support_level='standard' AND active=0",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "target_installed_product_unchanged": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM installed_product WHERE installed_product_id=1300 AND account_id=1300 AND product_id=1300 AND serial_number='ENT-AX-9007' AND status='in_use'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "target_ci_maintenance": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM configuration_item WHERE configuration_item_id='CI_V12_ENT_9007' AND serial_number='ENT-AX-9007' AND status='maintenance'",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "neighbour_ci_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM configuration_item WHERE configuration_item_id='CI_V12_ENT_9008' AND serial_number='ENT-AX-9008' AND status='in_use'",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "drive_evidence_exact": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM files WHERE name='ENT-AX-9007' AND mime_type='text/plain' AND description='Entitlement exception evidence for Aurora Transit' AND trashed=0",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "drive_evidence_single": {
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM files WHERE name='ENT-AX-9007'",
+          "details": "Comparison equals: 0 vs 1"
+        },
+        "decoy_drive_file_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM files WHERE id='DRV_FILE_V12_ENT_DECOY' AND name='ENT-AX-9008' AND description='Pre-existing evidence for the neighbouring account' AND trashed=0",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "drive_permission_preserved": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM permissions WHERE id='DRV_PERMISSION_V12_ENT_DECOY' AND file_id='DRV_FILE_V12_ENT_DECOY' AND role='owner' AND type='user' AND user_id='DRV_USER_V12_ENT' AND deleted=0",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "all_granted_tools_exercised": {
+          "passed": false,
+          "selected_tools": [
+            "retrieve_knowledge",
+            "find_account",
+            "find_entitlements",
+            "retrieve_installed_products",
+            "search_cases",
+            "update_case",
+            "find_configuration_item_by_serial_number",
+            "update_configuration_item",
+            "create_file"
+          ],
+          "tools_called": [
+            "find_account",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "find_entitlements",
+            "retrieve_installed_products",
+            "search_cases",
+            "retrieve_knowledge",
+            "find_entitlements",
+            "retrieve_installed_products",
+            "search_cases",
+            "retrieve_knowledge",
+            "find_entitlements",
+            "retrieve_installed_products",
+            "search_cases",
+            "retrieve_knowledge",
+            "find_entitlements",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge",
+            "retrieve_knowledge"
+          ],
+          "missing_tools": [
+            "update_case",
+            "find_configuration_item_by_serial_number",
+            "update_configuration_item",
+            "create_file"
+          ],
+          "minimum_tool_calls": 1,
+          "actual_tool_calls": 25
+        }
+      },
+      "verification_summary": {
+        "total": 13,
+        "passed": 8,
+        "failed": 5,
+        "pass_rate": 0.6153846153846154
+      },
+      "overall_success": false,
+      "usage": {
+        "input_tokens": 61642,
+        "output_tokens": 2729,
+        "total_tokens": 64371,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 19968,
+        "reasoning_tokens": 731,
+        "turns": 12,
+        "turns_captured": 12
+      }
+    }
+  ],
+  "statistics": {
+    "total_runs": 1,
+    "successful_runs": 0,
+    "overall_success_rate": 0.0,
+    "pass_at_1": 0.0,
+    "verifier_level_pass_rate": 0.6153846153846154,
+    "total_verifiers_checked": 13,
+    "total_verifiers_passed": 8,
+    "individual_verifier_stats": {
+      "target_case_exact": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "lookalike_case_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "other_target_case_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "entitlement_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "decoy_entitlement_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "target_installed_product_unchanged": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "target_ci_maintenance": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "neighbour_ci_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "drive_evidence_exact": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "drive_evidence_single": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      },
+      "decoy_drive_file_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "drive_permission_preserved": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "all_granted_tools_exercised": {
+        "passed": 0,
+        "total": 1,
+        "pass_rate": 0.0
+      }
+    },
+    "mean_execution_time_ms": 99329.0,
+    "tool_call_counts": {
+      "find_account": 1,
+      "retrieve_knowledge": 1,
+      "find_entitlements": 1,
+      "retrieve_installed_products": 1,
+      "search_cases": 1
+    },
+    "tool_usage": {
+      "find_account": 1,
+      "retrieve_knowledge": 1,
+      "find_entitlements": 1,
+      "retrieve_installed_products": 1,
+      "search_cases": 1
+    },
+    "token_usage": {
+      "total": {
+        "input_tokens": 61642,
+        "output_tokens": 2729,
+        "total_tokens": 64371,
+        "cache_read_input_tokens": 19968,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 731
+      },
+      "per_run": [
+        {
+          "input_tokens": 61642,
+          "output_tokens": 2729,
+          "total_tokens": 64371,
+          "cache_read_input_tokens": 19968,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 731
+        }
+      ],
+      "runs_with_usage": 1,
+      "mean_input_tokens_per_run": 61642.0,
+      "mean_output_tokens_per_run": 2729.0
+    },
+    "cost_summary": {
+      "model": "vllm/gpt-5.6-sol",
+      "total": {
+        "total_cost_usd": 0.30022400000000005,
+        "input_cost_usd": 0.21835400000000002,
+        "output_cost_usd": 0.08187,
+        "model": "vllm/gpt-5.6-sol",
+        "priced_tokens": {
+          "input_tokens": 61642,
+          "output_tokens": 2729,
+          "cache_read_input_tokens": 19968,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 731
+        }
+      },
+      "per_run": [
+        {
+          "total_cost_usd": 0.30022400000000005,
+          "input_cost_usd": 0.21835400000000002,
+          "output_cost_usd": 0.08187,
+          "model": "vllm/gpt-5.6-sol",
+          "priced_tokens": {
+            "input_tokens": 61642,
+            "output_tokens": 2729,
+            "cache_read_input_tokens": 19968,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 731
+          }
+        }
+      ],
+      "mean_cost_usd_per_run": 0.30022400000000005,
+      "priced_runs": 1
+    }
+  }
+}

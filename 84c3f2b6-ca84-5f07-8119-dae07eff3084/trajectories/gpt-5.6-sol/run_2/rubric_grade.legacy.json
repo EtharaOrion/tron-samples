@@ -1,0 +1,127 @@
+{
+  "task": "task13_service_credit_rounding",
+  "uuid": "84c3f2b6-ca84-5f07-8119-dae07eff3084",
+  "run": "run_2",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "af7bacc5323c74d194add5ad59289d7b0cad1f7814d99c728dc7b89b3c85f51b",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 0,
+    "gate_met": 0,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 57,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Every find_contracts and search_cases call (e.g. #4, #6, #9, #11, #16, #19, #20, #21, #23, #25, #32, #35, #39, #47, #50) returns '[]'; the contract price and SLA/breach data were never obtained. Final message: 'there was no verified contractual price, term, breached SLA window.'"
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "No update_contract call appears anywhere in the 57 calls. Final message: 'No contract ... records were changed.'"
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "No contract was ever located (all find_contracts calls return '[]', e.g. #6, #9, #11, #16, #19, #20, #21, #23, #25, #32, #35, #39, #47, #50), so no contract was written to at all."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "No find_case_slas or equivalent call appears anywhere in the trajectory (searched all 57 calls for it); the case was never found by any search_cases call, all of which return '[]'."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "No update_case call appears anywhere in the trajectory; the case was never located. No audit line was ever written."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No send_message call appears anywhere in the 57 calls. Final message: 'No ... email records were changed.'"
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "No list_messages, email_list_delegates, get_vacation_settings, or any other email-mailbox tool call appears anywhere in this trajectory (searched all 57 calls); the delegate address ravi.nambiar@northwindgrid.com is never surfaced at all in this run."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No mailbox read of any kind occurred (searched the full 57-call trajectory); the customer's quoted-figure email was never retrieved or referenced, and the final message contains no distinguishing note."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "Call #3 find_user_by_email('karen.watkins@servicenow.com') does confirm the CSM identity from the system, but no get_user_profile or equivalent call ever confirms the sending mailbox (no email tool call of any kind appears in the trajectory), so the AND-condition 'CSM identity and sending mailbox from the systems' is only half met."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No delegation listing (email_list_delegates) or any email tool call occurs anywhere in this trajectory, so the required first-email-action delegation read never happened at all."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "The case was never located by any of the ~30 search_cases calls in this trajectory (e.g. #2, #4, #7, #10, #13, #15, #17, #18, #22, #24, #26-#31, #33, #34, #36-#38, #40-#46, #48, #49, #51-#57), all returning '[]', so no case-resolution reasoning or action occurred."
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "No send_message call exists anywhere in the trajectory, so there is no announcement to check recipients on."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "The case record was never retrieved (all search_cases calls return '[]'), so there is no escalation-field state to cite."
+    },
+    {
+      "id": "R14",
+      "score": 0,
+      "evidence": "No email_list_delegates, get_vacation_settings, or any mailbox-config read call appears anywhere in the 57 calls, so the level-1 requirement 'the responder and delegation are read to extract the delegate' was never attempted, let alone satisfied."
+    },
+    {
+      "id": "R15",
+      "score": 0,
+      "evidence": "No send_notification call appears anywhere in the 57 calls. Final message: 'No ... notifications ... were changed.'"
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

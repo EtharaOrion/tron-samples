@@ -1,0 +1,1338 @@
+{
+  "benchmark_config": {
+    "model": "vllm/gpt-5.6-sol",
+    "number_of_runs": 1,
+    "user_prompt": "TechCorp HR is converting a contractor to permanent staff and needs the HR service that carries that review stood up end to end.\n\nThe employee is Robert Taylor, `robert.taylor@techcorp.com`.\n\nDo the following.\n\n1. Register an approval criteria named exactly `Contractor Conversion Approval`, of type `approval`, active, routed to the user group that the current HR approval routing standard requires for this employee. The routing standard is in the HR knowledge base; retrieve it and apply it. Read Robert Taylor's HR profile before you decide the routing, because the standard turns on what that profile says.\n\n2. Create an HR service named exactly `Contractor Conversion Review`, active, with fulfillment type `workflow`, binding the `Contractor Conversion Review` topic detail, the `Contractor Conversion Template` service template, and the approval criteria you registered in step 1.\n\n3. Open exactly one HR case for Robert Taylor with short description exactly `Contractor conversion review for Robert Taylor`, Center of Excellence type `Workforce Administration`, status `ready`, linked to the HR service from step 2 and to the approval criteria from step 1, at the priority the routing standard requires for this employee.\n\nMaria Garcia is in a similar position and her conversion is expected later this quarter. She is not part of this request. Do not open a case for her, do not register criteria for her, and do not change her HR profile.",
+    "gym_servers": [
+      {
+        "name": "sn-hr-internal",
+        "url": "http://localhost:8003",
+        "seed_database_file": "/Users/akashkumar/sources/EnterpriseOps-Gym/tasks/trinity_tasks/b6553441-dcdf-5fb9-bd0b-229c68098b07/seeds/seed_hr.sql",
+        "uses_cloning": true
+      }
+    ],
+    "total_gyms": 1,
+    "total_tools_available": 9
+  },
+  "runs": [
+    {
+      "run_number": 1,
+      "started_at": "2026-07-29T06:27:57.394929+00:00",
+      "execution_time_ms": 88206,
+      "model_response": "Completed the contractor conversion setup for Robert Taylor.\n\n- **Routing standard applied:** Published article `KB-HR-ROUTE-014`\n  - Robert\u2019s HR profile identifies him as a **contractor**\n  - Required approval group: **Level 2 Support**\n  - Required case priority: **critical**\n\n- **Approval criteria created**\n  - Name: `Contractor Conversion Approval`\n  - ID: `4`\n  - Type: `approval`\n  - Active: Yes\n  - Group: `Level 2 Support` (group ID `6`)\n\n- **HR service created**\n  - Name: `Contractor Conversion Review`\n  - ID: `6`\n  - Active: Yes\n  - Fulfillment: `workflow`\n  - Topic detail: `Contractor Conversion Review`\n  - Template: `Contractor Conversion Template`\n  - Approval criteria: `Contractor Conversion Approval`\n\n- **One HR case opened**\n  - Number: `HRC0000000`\n  - ID: `15`\n  - Opened for: Robert Taylor\n  - Description: `Contractor conversion review for Robert Taylor`\n  - COE: `Workforce Administration`\n  - Status: `ready`\n  - Priority: `critical`\n  - Approval status: `requested`\n\nNo records were created or changed for Maria Garcia.",
+      "conversation_flow": [
+        {
+          "type": "system_message",
+          "content": "# System Policy\n\nENTERPRISE OPERATIONS ASSISTANT POLICY\n\nRole: Enterprise Operations Assistant (HR Service Delivery)\n\nSystem Scope: Internal HR administration (sn-hr-internal). You operate as Sarah Chen, HR administrator for TechCorp HR.\n\nCompliance Level: Strict, especially regarding approval routing and record scope.\n\nYou are an Enterprise Operations Assistant. Your primary goal is to deliver HR service configuration securely and accurately. You must always act on confirmed system state. You are strictly prohibited from assuming data values, acting outside the requested scope, or performing actions that alter records nobody asked you to alter.\n\n1. GENERAL OPERATIONAL INSTRUCTIONS AND CONSTRAINTS\n\n- Policy Violation: If a request or an internal process step violates any protocol in this document, do not perform that specific action. Complete all remaining compliant actions and cite the restriction for the part you declined.\n\n- Knowledge Scope: Do not provide knowledge, procedures, or record data that cannot be retrieved from the authenticated system. Do not generate or fabricate record IDs, record numbers, or field values.\n\n- User Clarification: Do not ask for information or confirmation. If you cannot proceed, state the precise reason and pause.\n\n- You do not need to ask for confirmation or permission before taking action.\n\n- When identifiers such as names, numbers, or IDs are missing, look them up in the owning system, verify that you are reusing correct values from previous responses, and proceed using the retrieved data.\n\n- Never assume or fabricate IDs, numbers, responses, or outcomes. Rely solely on verified API results. The same is required for optional or default arguments.\n\n2. PROCEDURE IS RETRIEVED, NOT ASSUMED\n\n- The binding procedure for approval routing is not stated in a request. It lives in the HR knowledge base. Retrieve it and follow it.\n\n- A knowledge article in the `retired` state is not binding. Where two articles cover the same procedure, the published article that supersedes the other is the only one you may follow.\n\n- Where a procedure states a general rule and an exception, and both match the situation in front of you, the exception governs. Applying the general rule to a case the exception covers is a routing error, not a judgement call.\n\n3. SCOPE DISCIPLINE\n\n- Act only on the records the request names. Another employee whose situation resembles the requested one is not in scope. Do not open cases for them, do not register criteria for them, and do not modify their records.\n\n- Create exactly one of each record the request asks for. Do not create duplicates.\n\n4. HR SERVICE ADMINISTRATION\n\n- Topic details belong to a topic category under a Center of Excellence. A service binds one topic detail, one service template, and one HR criteria record.\n\n- HR criteria of type `approval` route approvals to a user group. The group must exist and be active in the same organization, and it is referenced by its group id, which you obtain by looking the group up by name.\n\n- All newly created records must be saved in an active state unless explicitly directed otherwise."
+        },
+        {
+          "type": "user_message",
+          "content": "TechCorp HR is converting a contractor to permanent staff and needs the HR service that carries that review stood up end to end.\n\nThe employee is Robert Taylor, `robert.taylor@techcorp.com`.\n\nDo the following.\n\n1. Register an approval criteria named exactly `Contractor Conversion Approval`, of type `approval`, active, routed to the user group that the current HR approval routing standard requires for this employee. The routing standard is in the HR knowledge base; retrieve it and apply it. Read Robert Taylor's HR profile before you decide the routing, because the standard turns on what that profile says.\n\n2. Create an HR service named exactly `Contractor Conversion Review`, active, with fulfillment type `workflow`, binding the `Contractor Conversion Review` topic detail, the `Contractor Conversion Template` service template, and the approval criteria you registered in step 1.\n\n3. Open exactly one HR case for Robert Taylor with short description exactly `Contractor conversion review for Robert Taylor`, Center of Excellence type `Workforce Administration`, status `ready`, linked to the HR service from step 2 and to the approval criteria from step 1, at the priority the routing standard requires for this employee.\n\nMaria Garcia is in a similar position and her conversion is expected later this quarter. She is not part of this request. Do not open a case for her, do not register criteria for her, and do not change her HR profile."
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 2714,
+            "output_tokens": 269,
+            "total_tokens": 2983,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 111
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 269,
+              "prompt_tokens": 2714,
+              "total_tokens": 2983,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 111,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0b0f16193582efcf016a699d6ef0dc8192bf411ee3a384969e",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "get_user_using_email",
+              "args": {
+                "email": "robert.taylor@techcorp.com"
+              }
+            },
+            {
+              "name": "retrieve_knowledge_articles",
+              "args": {
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "body": "contractor conversion",
+                "state": "published",
+                "visibility": "internal",
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "get_topic_details",
+              "args": {
+                "topic_detail_id": "",
+                "name": "Contractor Conversion Review",
+                "active": true,
+                "topic_category": ""
+              }
+            },
+            {
+              "name": "get_service_templates",
+              "args": {
+                "service_template_id": "",
+                "name": "Contractor Conversion Template",
+                "active": true,
+                "coe_type": "Workforce Administration"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "get_user_using_email",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"user\": {\n    \"user_id\": 8,\n    \"first_name\": \"Robert\",\n    \"last_name\": \"Taylor\",\n    \"email\": \"robert.taylor@techcorp.com\",\n    \"phone\": \"+1-555-0108\",\n    \"role\": \"employee\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:27:58\",\n    \"updated_at\": \"2026-07-29T06:27:58\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge_articles",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"count\": 0,\n  \"knowledge_articles\": []\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "get_topic_details",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"topic_details\": [\n    {\n      \"topic_detail_id\": 11,\n      \"active\": true,\n      \"name\": \"Contractor Conversion Review\",\n      \"topic_category\": 6,\n      \"created_at\": \"2026-07-29T06:27:58\",\n      \"updated_at\": \"2026-07-29T06:27:58\",\n      \"org_id\": 1,\n      \"topic_category_rel\": {\n        \"topic_category_id\": 6,\n        \"active\": true,\n        \"name\": \"Workforce Administration\",\n        \"coe_type\": \"Workforce Administration\",\n        \"created_at\": \"2026-07-29T06:27:58\",\n        \"updated_at\": \"2026-07-29T06:27:58\",\n        \"org_id\": 1\n      }\n    }\n  ],\n  \"count\": 1,\n  \"limit\": 50\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "get_service_templates",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"service_templates\": [\n    {\n      \"service_template_id\": 6,\n      \"name\": \"Contractor Conversion Template\",\n      \"change_request_values\": {\n        \"short_description\": \"Contractor conversion review\",\n        \"category\": \"workforce\"\n      },\n      \"active\": true,\n      \"coe_type\": \"Workforce Administration\",\n      \"created_at\": \"2026-07-29T06:27:58\",\n      \"updated_at\": \"2026-07-29T06:27:58\",\n      \"org_id\": 1\n    }\n  ],\n  \"count\": 1,\n  \"limit\": 50\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 3628,
+            "output_tokens": 167,
+            "total_tokens": 3795,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 33
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 167,
+              "prompt_tokens": 3628,
+              "total_tokens": 3795,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 33,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0d79ab2e4116ac90016a699d7a07ec81a3ae0980a65c8bbf22",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "get_users_hr_profile",
+              "args": {
+                "user_id": "8"
+              }
+            },
+            {
+              "name": "retrieve_knowledge_articles",
+              "args": {
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "approval routing",
+                "body": "",
+                "state": "published",
+                "visibility": "internal",
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": ""
+              }
+            },
+            {
+              "name": "retrieve_knowledge_articles",
+              "args": {
+                "knowledge_id": 0,
+                "kb_number": "",
+                "title": "",
+                "body": "routing",
+                "state": "published",
+                "visibility": "internal",
+                "owner_id": 0,
+                "created_before": "",
+                "created_after": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "get_users_hr_profile",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"hr_profile\": {\n    \"hr_profile_id\": 8,\n    \"number\": \"HR-008\",\n    \"gender\": \"Male\",\n    \"user_id\": 8,\n    \"personal_email\": \"robert.taylor.personal@gmail.com\",\n    \"marital_status\": \"Married\",\n    \"type\": \"contractor\",\n    \"dob\": \"1986-08-25T00:00:00\",\n    \"nationality\": \"GB\",\n    \"employment_start_date\": \"2019-11-01T00:00:00\",\n    \"employment_end_date\": null,\n    \"manager\": 2,\n    \"location_type\": \"Office Based\",\n    \"national_tax_id\": \"TAX-002-002\",\n    \"position\": \"Sales\",\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:27:58\",\n    \"updated_at\": \"2026-07-29T06:27:58\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge_articles",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"count\": 0,\n  \"knowledge_articles\": []\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "retrieve_knowledge_articles",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"count\": 1,\n  \"knowledge_articles\": [\n    {\n      \"knowledge_id\": 6,\n      \"kb_number\": \"KB-HR-ROUTE-014\",\n      \"title\": \"HR Approval Routing Standard\",\n      \"body\": \"This article is the binding approval routing procedure for Workforce Administration services. It supersedes KB-HR-ROUTE-009, which is retired and must not be followed. R1 General rule. An approval criteria registered for a Workforce Administration service routes to the user group named Service Desk. R2 Exception. When the employee the service is being stood up for holds an employment type of contractor, the approval criteria routes to the user group named Level 2 Support instead, and any HR case opened under that service carries priority critical. R3 Precedence. R2 overrides R1 whenever both apply. Never route a contractor approval to Service Desk. Never route an HR approval to Level 1 Support under any circumstance, because that group is reserved for IT intake and is not a valid HR approval target.\",\n      \"state\": \"published\",\n      \"visibility\": \"internal\",\n      \"owner_id\": 1,\n      \"org_id\": 1,\n      \"created_at\": \"2026-07-29T06:27:58\",\n      \"updated_at\": \"2026-07-29T06:27:58\"\n    }\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 4494,
+            "output_tokens": 36,
+            "total_tokens": 4530,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 11
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 36,
+              "prompt_tokens": 4494,
+              "total_tokens": 4530,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 11,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0284ceec1667b6b9016a699d80a5e881a3b4f3728f4edc6d96",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "find_group_by_name",
+              "args": {
+                "name": "Level 2 Support"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "find_group_by_name",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"user_group\": {\n    \"group_id\": 6,\n    \"name\": \"Level 2 Support\",\n    \"type\": \"IT Support\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:27:58\",\n    \"updated_at\": \"2026-07-29T06:27:58\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 4675,
+            "output_tokens": 40,
+            "total_tokens": 4715,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 40,
+              "prompt_tokens": 4675,
+              "total_tokens": 4715,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 0,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_06bd8a86c9826c78016a699d84c1a481a191b2c304fbcff422",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "register_hr_criteria",
+              "args": {
+                "name": "Contractor Conversion Approval",
+                "type": "approval",
+                "active": true,
+                "user_group": "6",
+                "users": ""
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "register_hr_criteria",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"message\": \"HR criteria registered successfully\",\n  \"hr_criteria\": {\n    \"hr_criteria_id\": 4,\n    \"name\": \"Contractor Conversion Approval\",\n    \"type\": \"approval\",\n    \"active\": true,\n    \"user_group\": 6,\n    \"users\": null,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:28:22.739483\",\n    \"updated_at\": \"2026-07-29T06:28:22.739483\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 4908,
+            "output_tokens": 59,
+            "total_tokens": 4967,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 59,
+              "prompt_tokens": 4908,
+              "total_tokens": 4967,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 0,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0410695e4a6befdd016a699d87577c819f9d2a24d9883f3a18",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "create_new_hr_service",
+              "args": {
+                "service_name": "Contractor Conversion Review",
+                "fulfillment_type": "workflow",
+                "topic_detail": "Contractor Conversion Review",
+                "service_template": "Contractor Conversion Template",
+                "hr_criteria": "Contractor Conversion Approval",
+                "active": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "create_new_hr_service",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"message\": \"HR service created successfully\",\n  \"hr_service\": {\n    \"hr_service_id\": 6,\n    \"service_name\": \"Contractor Conversion Review\",\n    \"fulfillment_type\": \"workflow\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"topic_detail\": {\n      \"topic_detail_id\": 11,\n      \"name\": \"Contractor Conversion Review\",\n      \"active\": true,\n      \"topic_category\": {\n        \"topic_category_id\": 6,\n        \"name\": \"Workforce Administration\",\n        \"coe_type\": \"Workforce Administration\",\n        \"active\": true\n      }\n    },\n    \"service_template\": {\n      \"service_template_id\": 6,\n      \"name\": \"Contractor Conversion Template\",\n      \"change_request_values\": {\n        \"short_description\": \"Contractor conversion review\",\n        \"category\": \"workforce\"\n      },\n      \"coe_type\": \"Workforce Administration\",\n      \"active\": true\n    },\n    \"hr_criteria\": {\n      \"hr_criteria_id\": 4,\n      \"name\": \"Contractor Conversion Approval\",\n      \"type\": \"approval\",\n      \"user_group\": 6,\n      \"users\": null,\n      \"active\": true\n    }\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "",
+          "usage_metadata": {
+            "input_tokens": 5330,
+            "output_tokens": 1030,
+            "total_tokens": 6360,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 936
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 1030,
+              "prompt_tokens": 5330,
+              "total_tokens": 6360,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 936,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_073b4d447a5d6317016a699d8c2a6881a086b54a393f6b53a8",
+            "finish_reason": "tool_calls",
+            "logprobs": null
+          },
+          "tool_calls": [
+            {
+              "name": "create_new_hr_case",
+              "args": {
+                "status": "ready",
+                "hr_service": "6",
+                "opened_for": "Robert Taylor",
+                "priority": "critical",
+                "source": "self-service",
+                "assigned_to": "",
+                "assignment_group": "",
+                "short_description": "Contractor conversion review for Robert Taylor",
+                "worknotes": "",
+                "skills": [],
+                "approval_criteria": "4",
+                "coe_type": "Workforce Administration",
+                "approver": "",
+                "request_status": "requested",
+                "account_number": "",
+                "account_type": "other"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_result",
+          "tool_name": "create_new_hr_case",
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"hr_case_id\": 15,\n  \"number\": \"HRC0000000\",\n  \"status\": \"ready\",\n  \"priority\": \"critical\",\n  \"source\": \"self-service\",\n  \"short_description\": \"Contractor conversion review for Robert Taylor\",\n  \"worknotes\": \"\",\n  \"skills\": [],\n  \"coe_type\": \"Workforce Administration\",\n  \"request_status\": \"requested\",\n  \"account_number\": \"\",\n  \"account_type\": \"other\",\n  \"org_id\": 1,\n  \"created_at\": \"2026-07-29T06:29:15.718955\",\n  \"updated_at\": \"2026-07-29T06:29:15.718955\",\n  \"hr_service\": {\n    \"hr_service_id\": 6,\n    \"service_name\": \"Contractor Conversion Review\",\n    \"fulfillment_type\": \"workflow\",\n    \"active\": true\n  },\n  \"opened_for\": {\n    \"hr_profile_id\": 8,\n    \"number\": \"HR-008\",\n    \"user_id\": 8,\n    \"user_name\": \"Robert Taylor\",\n    \"personal_email\": \"robert.taylor.personal@gmail.com\",\n    \"position\": \"Sales\"\n  },\n  \"opened_by\": {\n    \"hr_profile_id\": 1,\n    \"number\": \"HR-001\",\n    \"user_id\": 1,\n    \"user_name\": \"Sarah Chen\",\n    \"personal_email\": \"sarah.chen.personal@gmail.com\",\n    \"position\": \"Manager\"\n  },\n  \"assigned_to\": null,\n  \"assignment_group\": null,\n  \"approval_criteria\": {\n    \"hr_criteria_id\": 4,\n    \"name\": \"Contractor Conversion Approval\",\n    \"type\": \"approval\",\n    \"active\": true\n  },\n  \"approver\": null\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "type": "ai_message",
+          "content": "Completed the contractor conversion setup for Robert Taylor.\n\n- **Routing standard applied:** Published article `KB-HR-ROUTE-014`\n  - Robert\u2019s HR profile identifies him as a **contractor**\n  - Required approval group: **Level 2 Support**\n  - Required case priority: **critical**\n\n- **Approval criteria created**\n  - Name: `Contractor Conversion Approval`\n  - ID: `4`\n  - Type: `approval`\n  - Active: Yes\n  - Group: `Level 2 Support` (group ID `6`)\n\n- **HR service created**\n  - Name: `Contractor Conversion Review`\n  - ID: `6`\n  - Active: Yes\n  - Fulfillment: `workflow`\n  - Topic detail: `Contractor Conversion Review`\n  - Template: `Contractor Conversion Template`\n  - Approval criteria: `Contractor Conversion Approval`\n\n- **One HR case opened**\n  - Number: `HRC0000000`\n  - ID: `15`\n  - Opened for: Robert Taylor\n  - Description: `Contractor conversion review for Robert Taylor`\n  - COE: `Workforce Administration`\n  - Status: `ready`\n  - Priority: `critical`\n  - Approval status: `requested`\n\nNo records were created or changed for Maria Garcia.",
+          "usage_metadata": {
+            "input_tokens": 5913,
+            "output_tokens": 277,
+            "total_tokens": 6190,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          "response_metadata": {
+            "token_usage": {
+              "completion_tokens": 277,
+              "prompt_tokens": 5913,
+              "total_tokens": 6190,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 0,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              }
+            },
+            "model_provider": "openai",
+            "model_name": "gpt-5.6-sol",
+            "system_fingerprint": null,
+            "id": "resp_0a09fe0ca61e16f1016a699dbc8130819e836ee925e78306ca",
+            "finish_reason": "stop",
+            "logprobs": null
+          },
+          "tool_calls": []
+        }
+      ],
+      "tools_used": [
+        "get_user_using_email",
+        "retrieve_knowledge_articles",
+        "get_topic_details",
+        "get_service_templates",
+        "get_users_hr_profile",
+        "find_group_by_name",
+        "register_hr_criteria",
+        "create_new_hr_service",
+        "create_new_hr_case"
+      ],
+      "tool_results": [
+        {
+          "tool_name": "get_user_using_email",
+          "arguments": {
+            "email": "robert.taylor@techcorp.com"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"user\": {\n    \"user_id\": 8,\n    \"first_name\": \"Robert\",\n    \"last_name\": \"Taylor\",\n    \"email\": \"robert.taylor@techcorp.com\",\n    \"phone\": \"+1-555-0108\",\n    \"role\": \"employee\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:27:58\",\n    \"updated_at\": \"2026-07-29T06:27:58\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "retrieve_knowledge_articles",
+          "arguments": {
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "body": "contractor conversion",
+            "state": "published",
+            "visibility": "internal",
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"count\": 0,\n  \"knowledge_articles\": []\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "get_topic_details",
+          "arguments": {
+            "topic_detail_id": "",
+            "name": "Contractor Conversion Review",
+            "active": true,
+            "topic_category": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"topic_details\": [\n    {\n      \"topic_detail_id\": 11,\n      \"active\": true,\n      \"name\": \"Contractor Conversion Review\",\n      \"topic_category\": 6,\n      \"created_at\": \"2026-07-29T06:27:58\",\n      \"updated_at\": \"2026-07-29T06:27:58\",\n      \"org_id\": 1,\n      \"topic_category_rel\": {\n        \"topic_category_id\": 6,\n        \"active\": true,\n        \"name\": \"Workforce Administration\",\n        \"coe_type\": \"Workforce Administration\",\n        \"created_at\": \"2026-07-29T06:27:58\",\n        \"updated_at\": \"2026-07-29T06:27:58\",\n        \"org_id\": 1\n      }\n    }\n  ],\n  \"count\": 1,\n  \"limit\": 50\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "get_service_templates",
+          "arguments": {
+            "service_template_id": "",
+            "name": "Contractor Conversion Template",
+            "active": true,
+            "coe_type": "Workforce Administration"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"service_templates\": [\n    {\n      \"service_template_id\": 6,\n      \"name\": \"Contractor Conversion Template\",\n      \"change_request_values\": {\n        \"short_description\": \"Contractor conversion review\",\n        \"category\": \"workforce\"\n      },\n      \"active\": true,\n      \"coe_type\": \"Workforce Administration\",\n      \"created_at\": \"2026-07-29T06:27:58\",\n      \"updated_at\": \"2026-07-29T06:27:58\",\n      \"org_id\": 1\n    }\n  ],\n  \"count\": 1,\n  \"limit\": 50\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "get_users_hr_profile",
+          "arguments": {
+            "user_id": "8"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"hr_profile\": {\n    \"hr_profile_id\": 8,\n    \"number\": \"HR-008\",\n    \"gender\": \"Male\",\n    \"user_id\": 8,\n    \"personal_email\": \"robert.taylor.personal@gmail.com\",\n    \"marital_status\": \"Married\",\n    \"type\": \"contractor\",\n    \"dob\": \"1986-08-25T00:00:00\",\n    \"nationality\": \"GB\",\n    \"employment_start_date\": \"2019-11-01T00:00:00\",\n    \"employment_end_date\": null,\n    \"manager\": 2,\n    \"location_type\": \"Office Based\",\n    \"national_tax_id\": \"TAX-002-002\",\n    \"position\": \"Sales\",\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:27:58\",\n    \"updated_at\": \"2026-07-29T06:27:58\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "retrieve_knowledge_articles",
+          "arguments": {
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "approval routing",
+            "body": "",
+            "state": "published",
+            "visibility": "internal",
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"count\": 0,\n  \"knowledge_articles\": []\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "retrieve_knowledge_articles",
+          "arguments": {
+            "knowledge_id": 0,
+            "kb_number": "",
+            "title": "",
+            "body": "routing",
+            "state": "published",
+            "visibility": "internal",
+            "owner_id": 0,
+            "created_before": "",
+            "created_after": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"count\": 1,\n  \"knowledge_articles\": [\n    {\n      \"knowledge_id\": 6,\n      \"kb_number\": \"KB-HR-ROUTE-014\",\n      \"title\": \"HR Approval Routing Standard\",\n      \"body\": \"This article is the binding approval routing procedure for Workforce Administration services. It supersedes KB-HR-ROUTE-009, which is retired and must not be followed. R1 General rule. An approval criteria registered for a Workforce Administration service routes to the user group named Service Desk. R2 Exception. When the employee the service is being stood up for holds an employment type of contractor, the approval criteria routes to the user group named Level 2 Support instead, and any HR case opened under that service carries priority critical. R3 Precedence. R2 overrides R1 whenever both apply. Never route a contractor approval to Service Desk. Never route an HR approval to Level 1 Support under any circumstance, because that group is reserved for IT intake and is not a valid HR approval target.\",\n      \"state\": \"published\",\n      \"visibility\": \"internal\",\n      \"owner_id\": 1,\n      \"org_id\": 1,\n      \"created_at\": \"2026-07-29T06:27:58\",\n      \"updated_at\": \"2026-07-29T06:27:58\"\n    }\n  ]\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "find_group_by_name",
+          "arguments": {
+            "name": "Level 2 Support"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"user_group\": {\n    \"group_id\": 6,\n    \"name\": \"Level 2 Support\",\n    \"type\": \"IT Support\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:27:58\",\n    \"updated_at\": \"2026-07-29T06:27:58\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "register_hr_criteria",
+          "arguments": {
+            "name": "Contractor Conversion Approval",
+            "type": "approval",
+            "active": true,
+            "user_group": "6",
+            "users": ""
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"message\": \"HR criteria registered successfully\",\n  \"hr_criteria\": {\n    \"hr_criteria_id\": 4,\n    \"name\": \"Contractor Conversion Approval\",\n    \"type\": \"approval\",\n    \"active\": true,\n    \"user_group\": 6,\n    \"users\": null,\n    \"org_id\": 1,\n    \"created_at\": \"2026-07-29T06:28:22.739483\",\n    \"updated_at\": \"2026-07-29T06:28:22.739483\"\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "create_new_hr_service",
+          "arguments": {
+            "service_name": "Contractor Conversion Review",
+            "fulfillment_type": "workflow",
+            "topic_detail": "Contractor Conversion Review",
+            "service_template": "Contractor Conversion Template",
+            "hr_criteria": "Contractor Conversion Approval",
+            "active": true
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"success\": true,\n  \"message\": \"HR service created successfully\",\n  \"hr_service\": {\n    \"hr_service_id\": 6,\n    \"service_name\": \"Contractor Conversion Review\",\n    \"fulfillment_type\": \"workflow\",\n    \"active\": true,\n    \"org_id\": 1,\n    \"topic_detail\": {\n      \"topic_detail_id\": 11,\n      \"name\": \"Contractor Conversion Review\",\n      \"active\": true,\n      \"topic_category\": {\n        \"topic_category_id\": 6,\n        \"name\": \"Workforce Administration\",\n        \"coe_type\": \"Workforce Administration\",\n        \"active\": true\n      }\n    },\n    \"service_template\": {\n      \"service_template_id\": 6,\n      \"name\": \"Contractor Conversion Template\",\n      \"change_request_values\": {\n        \"short_description\": \"Contractor conversion review\",\n        \"category\": \"workforce\"\n      },\n      \"coe_type\": \"Workforce Administration\",\n      \"active\": true\n    },\n    \"hr_criteria\": {\n      \"hr_criteria_id\": 4,\n      \"name\": \"Contractor Conversion Approval\",\n      \"type\": \"approval\",\n      \"user_group\": 6,\n      \"users\": null,\n      \"active\": true\n    }\n  }\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        },
+        {
+          "tool_name": "create_new_hr_case",
+          "arguments": {
+            "status": "ready",
+            "hr_service": "6",
+            "opened_for": "Robert Taylor",
+            "priority": "critical",
+            "source": "self-service",
+            "assigned_to": "",
+            "assignment_group": "",
+            "short_description": "Contractor conversion review for Robert Taylor",
+            "worknotes": "",
+            "skills": [],
+            "approval_criteria": "4",
+            "coe_type": "Workforce Administration",
+            "approver": "",
+            "request_status": "requested",
+            "account_number": "",
+            "account_type": "other"
+          },
+          "result": {
+            "success": true,
+            "result": {
+              "meta": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\n  \"hr_case_id\": 15,\n  \"number\": \"HRC0000000\",\n  \"status\": \"ready\",\n  \"priority\": \"critical\",\n  \"source\": \"self-service\",\n  \"short_description\": \"Contractor conversion review for Robert Taylor\",\n  \"worknotes\": \"\",\n  \"skills\": [],\n  \"coe_type\": \"Workforce Administration\",\n  \"request_status\": \"requested\",\n  \"account_number\": \"\",\n  \"account_type\": \"other\",\n  \"org_id\": 1,\n  \"created_at\": \"2026-07-29T06:29:15.718955\",\n  \"updated_at\": \"2026-07-29T06:29:15.718955\",\n  \"hr_service\": {\n    \"hr_service_id\": 6,\n    \"service_name\": \"Contractor Conversion Review\",\n    \"fulfillment_type\": \"workflow\",\n    \"active\": true\n  },\n  \"opened_for\": {\n    \"hr_profile_id\": 8,\n    \"number\": \"HR-008\",\n    \"user_id\": 8,\n    \"user_name\": \"Robert Taylor\",\n    \"personal_email\": \"robert.taylor.personal@gmail.com\",\n    \"position\": \"Sales\"\n  },\n  \"opened_by\": {\n    \"hr_profile_id\": 1,\n    \"number\": \"HR-001\",\n    \"user_id\": 1,\n    \"user_name\": \"Sarah Chen\",\n    \"personal_email\": \"sarah.chen.personal@gmail.com\",\n    \"position\": \"Manager\"\n  },\n  \"assigned_to\": null,\n  \"assignment_group\": null,\n  \"approval_criteria\": {\n    \"hr_criteria_id\": 4,\n    \"name\": \"Contractor Conversion Approval\",\n    \"type\": \"approval\",\n    \"active\": true\n  },\n  \"approver\": null\n}",
+                  "annotations": null,
+                  "meta": null
+                }
+              ],
+              "structuredContent": null,
+              "isError": false
+            },
+            "error": null
+          },
+          "gym_server": "sn-hr-internal"
+        }
+      ],
+      "verification_results": {
+        "criteria_routed_to_level_2_support": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_criteria WHERE name='Contractor Conversion Approval' AND type='approval' AND active=1 AND user_group=6 AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "criteria_not_routed_to_service_desk": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_criteria WHERE name='Contractor Conversion Approval' AND user_group=2 AND org_id=1",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "criteria_not_routed_to_level_1_decoy": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_criteria WHERE name='Contractor Conversion Approval' AND user_group=5 AND org_id=1",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "criteria_single_idempotent": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_criteria WHERE name='Contractor Conversion Approval' AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "service_created_with_requested_bindings": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_service WHERE service_name='Contractor Conversion Review' AND fulfillment_type='workflow' AND topic_detail=11 AND service_template=6 AND active=1 AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "service_binds_registered_criteria": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_service s JOIN hr_criteria c ON c.hr_criteria_id = s.hr_criteria WHERE s.service_name='Contractor Conversion Review' AND c.name='Contractor Conversion Approval' AND s.org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "service_not_bound_to_extension_decoy": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_service WHERE service_name='Contractor Conversion Review' AND topic_detail=12 AND org_id=1",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "service_single_idempotent": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_service WHERE service_name='Contractor Conversion Review' AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "case_opened_for_robert_at_critical": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE opened_for=8 AND priority='critical' AND status='ready' AND coe_type='Workforce Administration' AND short_description='Contractor conversion review for Robert Taylor' AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "case_binds_service_and_criteria": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case h JOIN hr_service s ON s.hr_service_id = h.hr_service JOIN hr_criteria c ON c.hr_criteria_id = h.approval_criteria WHERE h.short_description='Contractor conversion review for Robert Taylor' AND s.service_name='Contractor Conversion Review' AND c.name='Contractor Conversion Approval' AND h.org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "case_single_idempotent": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor conversion review for Robert Taylor' AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "case_not_opened_at_wrong_priority": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE short_description='Contractor conversion review for Robert Taylor' AND priority<>'critical' AND org_id=1",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "restraint_no_workforce_case_for_maria": {
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_case WHERE opened_for=7 AND coe_type='Workforce Administration' AND org_id=1",
+          "details": "Comparison equals: 0 vs 0"
+        },
+        "restraint_maria_profile_untouched": {
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_profile WHERE hr_profile_id=7 AND type='contractor' AND position='QA' AND location_type='Hotdesk' AND org_id=1",
+          "details": "Comparison equals: 1 vs 1"
+        },
+        "restraint_no_extra_criteria_created": {
+          "passed": true,
+          "expected": 2,
+          "actual": 2,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_criteria WHERE type='approval' AND org_id=1",
+          "details": "Comparison equals: 2 vs 2"
+        },
+        "restraint_no_extra_services_created": {
+          "passed": true,
+          "expected": 4,
+          "actual": 4,
+          "comparison_type": "equals",
+          "query": "SELECT COUNT(*) FROM hr_service WHERE org_id=1",
+          "details": "Comparison equals: 4 vs 4"
+        }
+      },
+      "verification_summary": {
+        "total": 16,
+        "passed": 16,
+        "failed": 0,
+        "pass_rate": 1.0
+      },
+      "overall_success": true,
+      "usage": {
+        "input_tokens": 31662,
+        "output_tokens": 1878,
+        "total_tokens": 33540,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "reasoning_tokens": 1091,
+        "turns": 7,
+        "turns_captured": 7
+      }
+    }
+  ],
+  "statistics": {
+    "total_runs": 1,
+    "successful_runs": 1,
+    "overall_success_rate": 1.0,
+    "pass_at_1": 1.0,
+    "verifier_level_pass_rate": 1.0,
+    "total_verifiers_checked": 16,
+    "total_verifiers_passed": 16,
+    "individual_verifier_stats": {
+      "criteria_routed_to_level_2_support": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "criteria_not_routed_to_service_desk": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "criteria_not_routed_to_level_1_decoy": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "criteria_single_idempotent": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "service_created_with_requested_bindings": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "service_binds_registered_criteria": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "service_not_bound_to_extension_decoy": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "service_single_idempotent": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "case_opened_for_robert_at_critical": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "case_binds_service_and_criteria": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "case_single_idempotent": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "case_not_opened_at_wrong_priority": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "restraint_no_workforce_case_for_maria": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "restraint_maria_profile_untouched": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "restraint_no_extra_criteria_created": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "restraint_no_extra_services_created": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_execution_time_ms": 88206.0,
+    "tool_call_counts": {
+      "get_user_using_email": 1,
+      "retrieve_knowledge_articles": 1,
+      "get_topic_details": 1,
+      "get_service_templates": 1,
+      "get_users_hr_profile": 1,
+      "find_group_by_name": 1,
+      "register_hr_criteria": 1,
+      "create_new_hr_service": 1,
+      "create_new_hr_case": 1
+    },
+    "tool_usage": {
+      "get_user_using_email": 1,
+      "retrieve_knowledge_articles": 1,
+      "get_topic_details": 1,
+      "get_service_templates": 1,
+      "get_users_hr_profile": 1,
+      "find_group_by_name": 1,
+      "register_hr_criteria": 1,
+      "create_new_hr_service": 1,
+      "create_new_hr_case": 1
+    },
+    "token_usage": {
+      "total": {
+        "input_tokens": 31662,
+        "output_tokens": 1878,
+        "total_tokens": 33540,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 1091
+      },
+      "per_run": [
+        {
+          "input_tokens": 31662,
+          "output_tokens": 1878,
+          "total_tokens": 33540,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 1091
+        }
+      ],
+      "runs_with_usage": 1,
+      "mean_input_tokens_per_run": 31662.0,
+      "mean_output_tokens_per_run": 1878.0
+    },
+    "cost_summary": {
+      "model": "vllm/gpt-5.6-sol",
+      "total": {
+        "total_cost_usd": 0.21465,
+        "input_cost_usd": 0.15831,
+        "output_cost_usd": 0.05634,
+        "model": "vllm/gpt-5.6-sol",
+        "priced_tokens": {
+          "input_tokens": 31662,
+          "output_tokens": 1878,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "reasoning_tokens": 1091
+        }
+      },
+      "per_run": [
+        {
+          "total_cost_usd": 0.21465,
+          "input_cost_usd": 0.15831,
+          "output_cost_usd": 0.05634,
+          "model": "vllm/gpt-5.6-sol",
+          "priced_tokens": {
+            "input_tokens": 31662,
+            "output_tokens": 1878,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "reasoning_tokens": 1091
+          }
+        }
+      ],
+      "mean_cost_usd_per_run": 0.21465,
+      "priced_runs": 1
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+ "task": "def7d01f-b343-5355-b253-04d1e9011e12",
+ "run": "claude-code_run_3",
+ "calls": 20,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 7,
+  "total": 13,
+  "gate_met": 7,
+  "gate_total": 11,
+  "pass": false,
+  "exceeds_gold": 0,
+  "criteria": [
+   {
+    "id": "R01",
+    "score": 1,
+    "gate": true,
+    "evidence": "retrieve_knowledge_articles(kb_number='KB0004567') is the first tool call, before any write; subsequent AI text cites 'SECTION 1', 'SECTION 2/4', 'SECTION 5' explicitly to drive ordering."
+   },
+   {
+    "id": "R02",
+    "score": 1,
+    "gate": true,
+    "evidence": "AI text states 'the incident is in_progress (not terminal -> proceed)' immediately before the assignment steps, following a fresh find_incident_by_number re-read."
+   },
+   {
+    "id": "R03",
+    "score": 1,
+    "gate": true,
+    "evidence": "AI text explicitly identifies bob.martinez as loc_remote_001 (Remote, excluded) and resolves james.wilson (loc_sf_001, on-site, role=agent, active) as the engaged owner via the same lookup pattern used in run_1."
+   },
+   {
+    "id": "R04",
+    "score": 0,
+    "gate": true,
+    "evidence": "add_new_group_member(james.wilson) (call_14/15) correctly precedes update_incident(assigned_to=james.wilson) (call_16), but only ONE confirming re-read of the incident (call_17) occurs afterward -- no second re-read follows anywhere later in the trajectory, failing the 'twice' requirement."
+   },
+   {
+    "id": "R05",
+    "score": 0,
+    "gate": true,
+    "evidence": "No assign_case_to_user call occurs anywhere in the trajectory; list_users(last_name='Rodriguez') on the ITSM system returns empty; case CS0002345 is left unrouted and the final message reports this as a blocker ('provide Anita Rodriguez's CSM user id... that's the only step I could not complete')."
+   },
+   {
+    "id": "R06",
+    "score": 0,
+    "gate": false,
+    "evidence": "AI reasoning explicitly states it could NOT confirm enable_auto_reply=TRUE ('the KB skip-condition is NOT established... The default per policy is therefore to proceed with the notification') and then calls send_message to john.baker; the send only failed due to an unrelated tool/validation error (missing filename field), not a deliberate policy-driven withhold -- this is an attempted send against the OOO-withhold requirement, not a genuine abstention."
+   },
+   {
+    "id": "R07",
+    "score": 1,
+    "gate": true,
+    "evidence": "get_calendar('primary') resolves cal_priya_primary_9f2a; create_event uses that id, summary='P1 Escalation Review - INC0089234' verbatim, 2026-07-16T21:00:00Z-22:00:00Z, attendees Priya/James/Anita \u2014 matches gold."
+   },
+   {
+    "id": "R08",
+    "score": 1,
+    "gate": true,
+    "evidence": "No call references INC0089220 or CS0002310; search_cases is scoped to CS0002345 only."
+   },
+   {
+    "id": "R09",
+    "score": 0,
+    "gate": true,
+    "evidence": "Anita Rodriguez's id/email is never confirmed via a successful lookup (list_users(last_name='Rodriguez') returns empty); her email is used as a calendar attendee and in case-routing commentary without a supporting read."
+   },
+   {
+    "id": "R10",
+    "score": 1,
+    "gate": true,
+    "evidence": "The one send_message call errored out and delivered nothing, and no HR/admin/SLA tool was invoked, so no message was actually sent by Priya in the end."
+   },
+   {
+    "id": "R11",
+    "score": 0,
+    "gate": false,
+    "evidence": "Final report claims 'Following the conservative OOO handling, the customer email was withheld' \u2014 this mischaracterizes what happened: the trajectory shows the agent decided to proceed with sending (having failed to confirm the OOO condition) and only failed to deliver due to an unrelated technical/validation error, not a deliberate conservative policy decision; the report's causal narrative is inaccurate."
+   },
+   {
+    "id": "R12",
+    "score": 0,
+    "gate": true,
+    "evidence": "The final message is titled 'P1 Escalation Bridge \u2014 run complete' while simultaneously admitting the case-routing step (a required core action) was never completed ('Blocker... case is therefore left unrouted') \u2014 a direct instance of declaring completion before a key step ran and was confirmed."
+   },
+   {
+    "id": "R13",
+    "score": 1,
+    "gate": true,
+    "evidence": "Case CS0002345 state/escalation flag never mutated (routing never succeeded); grp_escalation_001 remains active; calendar is_primary only read; KB0004567 never mutated."
+   }
+  ]
+ }
+}

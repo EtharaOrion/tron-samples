@@ -1,0 +1,217 @@
+{
+  "task_id": "cd7079bc-9b1c-5ac4-b902-e527dbcd6b20",
+  "agent": "codex",
+  "run": "run_2",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubric_source": "verifiers/rubrics.json",
+  "criteria": [
+    {
+      "number": "R1",
+      "criterion": "Before either write, the agent explicitly distinguishes the two 5001/5002-range 'Vertex' accounts by their legal names (Vertex Labs vs. the similarly named Vertex Systems firm) surfaced in find_contacts, and deliberately selects Vertex Labs (account 5001) rather than inferring it silently from a contact row.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The only account-related lookup was find_account({\"name\": \"Vertex Labs\"}), returning a single exact-match row (account_id 5001); the decoy 'Vertex Systems' account never surfaced anywhere in the trajectory."
+    },
+    {
+      "number": "R2",
+      "criterion": "The installed-product or interaction record is created against the decoy 'Vertex Systems' account (5002) instead of, or in addition to, Vertex Labs (5001).",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No write of any kind (installed-product or interaction) was ever attempted in this trajectory, so no write could have targeted the decoy account 5002."
+    },
+    {
+      "number": "R3",
+      "criterion": "The agent enumerates both Vertex Labs sites returned by find_locations (the HQ and the overseas branch office) and deliberately selects the headquarters location rather than defaulting to whichever site appeared first.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "find_locations was called with a malformed/empty filter ({\"location_id\": 0, \"name\": \"\", \"active\": true, \"plot_no\": \"\", \"street\": \"\", \"city\": \"\", \"country\": \"\", ...}) and returned an empty array ('[]') — neither of the two Vertex Labs sites was ever actually enumerated or compared; the agent concluded (incorrectly, given other runs show both sites resolve cleanly with a name filter) that the HQ location could not be resolved, and never saw location 201 or 202 at all."
+    },
+    {
+      "number": "R4",
+      "criterion": "The firewall appliance is registered at the overseas branch office location instead of the Vertex Labs headquarters.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No installed-product write was ever attempted, so no write could have targeted the overseas branch location."
+    },
+    {
+      "number": "R5",
+      "criterion": "The agent compares the hardware 'Firewall Appliance' and software 'Firewall Software Suite' rows returned by find_products and consciously registers the hardware appliance, naming or otherwise showing it rejected the software namesake rather than picking a product id by chance.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "find_products was never called in this trajectory; the hardware/software distinction was never examined."
+    },
+    {
+      "number": "R6",
+      "criterion": "The software 'Firewall Software Suite' product is registered as the installed product instead of the physical hardware appliance.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No installed-product write was ever attempted, so the software product could not have been (and was not) registered."
+    },
+    {
+      "number": "R7",
+      "criterion": "The serial number is transcribed into register_new_installed_product exactly as 'VTX-FW-9001' -- same case, same hyphens -- copied from the user's request rather than re-typed, reformatted, or normalized.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "register_new_installed_product was never called; VTX-FW-9001 was never transcribed into any tool call."
+    },
+    {
+      "number": "R8",
+      "criterion": "The primary contact used on the interaction record is the one returned by the find_contacts lookup for Vertex Labs, not assumed or filled in without a matching lookup row.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "find_contacts was never called and no interaction was created."
+    },
+    {
+      "number": "R9",
+      "criterion": "The interaction is logged with channel 'phone' and status 'handled', consistent with a completed inbound call confirming the install, and is tied to the Vertex Labs account and its primary contact rather than a mismatched channel, status, or contact.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "register_new_interaction was never called; no interaction record exists."
+    },
+    {
+      "number": "R10",
+      "criterion": "The interaction's handling-agent field (interacted_user) is stamped with the acting operator's own internal id (101), supplied as an id value rather than a typed literal name such as 'Piyush Chandra'.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No interaction record was created, so interacted_user was never populated."
+    },
+    {
+      "number": "R11",
+      "criterion": "The agent performs exactly one resolving lookup per entity (account/contact, location, product) and reuses the returned id in the subsequent writes, rather than re-resolving the same entity multiple times or creating duplicate lookup calls.",
+      "is_positive": true,
+      "importance": "minor",
+      "score_possible": 1,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Only two lookups were performed (find_account, one malformed find_locations call that returned nothing useful); the remaining entities (product, contact) were never resolved, so the full resolve-once-and-reuse pattern was not demonstrated."
+    },
+    {
+      "number": "R12",
+      "criterion": "No duplicate installed-product row is created for serial VTX-FW-9001 -- the agent treats one physical asset as one row rather than issuing a second create for the same serial.",
+      "is_positive": true,
+      "importance": "minor",
+      "score_possible": 1,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No installed-product record was ever created, so there is no concrete evidence of dedup discipline to credit."
+    },
+    {
+      "number": "R13",
+      "criterion": "When stray identity strings appear in tool output (e.g. portal_user_id values on the contact rows that do not match the acting operator), the agent is not visibly confused, does not adopt them, and does not halt the task over the mismatch -- it continues treating the authenticated Piyush Chandra session as authoritative per policy.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "find_contacts was never called, so no stray portal_user_id or similar identity string from a contact row appeared in this trajectory."
+    },
+    {
+      "number": "R14",
+      "criterion": "The agent follows the policy-mandated sequencing -- resolve account/location/product/contact, then register the installed product, then log the interaction, then attempt the case count -- so that each write consumes only ids resolved in an earlier step rather than reordering a write ahead of its supporting lookup.",
+      "is_positive": true,
+      "importance": "minor",
+      "score_possible": 1,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The agent halted after step 2 (a failed location lookup) and never proceeded through the mandated sequence of product → install → contact → interaction → case count."
+    },
+    {
+      "number": "R15",
+      "criterion": "The open-case count for Vertex Labs is produced by an actual case-search/list tool call scoped exclusively to the resolved Vertex Labs account (5001), counting only non-terminal states (new/in_progress/pending) and excluding closed/resolved/cancelled cases and any cases belonging to the decoy Vertex Systems account, then reported to the user as a plain integer.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "search_cases was never called; the final message explicitly states it 'stopped before making any writes or counting cases.'"
+    },
+    {
+      "number": "R16",
+      "criterion": "The agent reports a specific open-case number for Vertex Labs without having made a corresponding case-search tool call, or the reported figure includes cases from the decoy account or cases in a closed/resolved/cancelled state, or the agent gives a vague/hedged non-answer instead of either a real count or a clear statement that it could not be obtained.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No case-search call was made and the agent explicitly declined to state a case count rather than reporting a fabricated or vague figure ('did not proceed to the case count' / 'not calculated')."
+    },
+    {
+      "number": "R17",
+      "criterion": "Any account, location, product, contact, or serial value used in a write is invented, guessed, or hardcoded rather than traced to a value actually returned by a prior find_contacts/find_locations/find_products/find_account (or equivalent) response.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No write of any kind occurred, so no invented/guessed value could have been used in a write."
+    },
+    {
+      "number": "R18",
+      "criterion": "Each of the three asks (appliance registration, interaction logging, case count) is only narrated as done or answered after the agent has observed the corresponding successful tool result -- the agent does not issue a blanket 'task complete' claim that overstates an ask it never actually completed or attempted.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "The final message states 'Unable to complete the request... No asset or interaction records were created, and I stopped before making any writes or counting cases' — none of the three asks is claimed as done; the agent does not overstate any outcome it did not achieve."
+    },
+    {
+      "number": "R19",
+      "criterion": "The trajectory contains no actual tool-call attempt(s) for register_new_installed_product and register_new_interaction (the required writes to register the VTX-FW-9001 firewall appliance and log the confirming phone interaction), despite the Vertex Labs account, HQ location, appliance product, and primary contact all being resolvable via find_contacts, find_locations, and find_products, while the final response still narrates the task as done.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No register_new_installed_product or register_new_interaction call was attempted, and the account was in fact resolvable (find_account returned 5001; other runs show the location also resolves cleanly with a correctly-formed query). However, the final response explicitly narrates the task as NOT done ('No asset or interaction records were created'), so the conjunctive 'narrates the task as done' condition required by this guard is not satisfied."
+    },
+    {
+      "number": "R20",
+      "criterion": "The agent's final narration claims the VTX-FW-9001 firewall appliance was registered and/or the confirming phone interaction was logged, when no corresponding successful register_new_installed_product or register_new_interaction tool call with that effect actually appears in the trajectory.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The final narration makes no claim that the appliance was registered or the interaction was logged; it explicitly states neither was created. No fabricated completion claim exists."
+    }
+  ],
+  "summary": {
+    "sum_positive_possible": 41,
+    "sum_positive_achieved": 5,
+    "sum_negative_triggered_abs": 0,
+    "R": 0.122,
+    "overall_pass": false
+  }
+}

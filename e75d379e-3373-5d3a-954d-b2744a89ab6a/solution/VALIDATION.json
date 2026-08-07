@@ -1,0 +1,69 @@
+{
+ "task_uuid": "e75d379e-3373-5d3a-954d-b2744a89ab6a",
+ "task_slug": "task_e75d379e",
+ "validated_on": "2026-07-28",
+ "sft_eligible": true,
+ "solve_sh_sha256": "81be0ef5a11c13b7a4c9a85f773e560ab6bd5c97e55f1eba6ca0007ba51bbfe9",
+ "golden_json_sha256": "c587c26364a6932f34bd04e15204b3fd98050461118351bc6d415e5f1405a6ff",
+ "plan_only": {
+  "what": "solve.sh run with every RECONCILE 'fix' list emptied, so phase 2 can only SELECT. Reward is earned by MCP tool calls alone -- the action space a real agent has.",
+  "fix_statements_neutralised": 51,
+  "reconcile_checks_audited": 45,
+  "mcp_calls": 30,
+  "mcp_calls_failed": 0,
+  "log_complete": false,
+  "reward": 1.0,
+  "verifiers_passed": 45,
+  "verifiers_total": 45,
+  "verdict": "SOLVABLE BY TOOL CALLS ALONE"
+ },
+ "discovery_gate": {
+  "what": "every identifier-shaped argument must trace to a prompt, a strictly earlier tool response, or a computation the ground truth explains.",
+  "steps": 30,
+  "matchable_args": 33,
+  "given": 1,
+  "read": 29,
+  "derived": 2,
+  "skipped": 1,
+  "fabricated": 0,
+  "blocking": 0,
+  "derived_values": [
+   {
+    "step_id": "P1-03",
+    "ordinal": 9,
+    "gym": "csm",
+    "tool": "assign_case_to_user",
+    "arg": "case_id",
+    "value": "6611",
+    "why": "computed; explained by TRUTH"
+   },
+   {
+    "step_id": "P1-04",
+    "ordinal": 10,
+    "gym": "csm",
+    "tool": "assign_case_to_user",
+    "arg": "case_id",
+    "value": "6612",
+    "why": "computed; explained by TRUTH"
+   }
+  ],
+  "violations": [],
+  "verdict": "D01 PASS"
+ },
+ "golden_replay": {
+  "what": "golden.json's OWN tool calls executed against a fresh environment, fixes disarmed. plan-only proves the TASK is solvable; this proves the SFT ARTIFACT still reproduces it. It matters because golden.json stores literal args while solve.sh threads run-time generated ids through ${var} -- a task chaining on one could rot silently.",
+  "fix_statements_neutralised": 51,
+  "reconcile_checks_audited": 45,
+  "mcp_calls": 30,
+  "mcp_calls_failed": 0,
+  "log_complete": true,
+  "reward": 1.0,
+  "verifiers_passed": 45,
+  "verifiers_total": 45,
+  "verdict": "GOLDEN REPRODUCES THE TASK"
+ },
+ "caveats": [
+  "Gyms were the locally available images; a port-alias sidecar and the harness-era /api/seed-database endpoint were used to bring them up. Shipped bundle bytes were not modified — the adaptation is a compose override.",
+  "Reward 1.0 is the ORACLE's path. It proves the task is solvable, not easy; see SHIPPED_TASKS_SUMMARY.md for measured model results."
+ ]
+}

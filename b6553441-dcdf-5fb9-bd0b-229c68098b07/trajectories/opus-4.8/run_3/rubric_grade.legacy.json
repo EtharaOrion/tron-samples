@@ -1,0 +1,105 @@
+{
+  "task": "b6553441-dcdf-5fb9-bd0b-229c68098b07",
+  "uuid": "b6553441-dcdf-5fb9-bd0b-229c68098b07",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "555ec7cb976751f6eb1fa3c4c5ea59144a0bdcce10de930ce7299bf74bfb3dd8",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R09",
+    "R10",
+    "R11"
+  ],
+  "result": {
+    "scored": 12,
+    "met": 11,
+    "gate_met": 9,
+    "gate_total": 9,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 9,
+    "writes": 3
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "#3 get_users_hr_profile returns type=\"contractor\"; #5 retrieve_knowledge_articles({}) returns KB-HR-ROUTE-014 with R2 exception text. Both precede #7 register_hr_criteria. Final message: 'Robert Taylor's HR profile (HR-008) shows employment type = contractor. Under R2 ... a contractor's approval routes to Level 2 Support.'"
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "#5 retrieve_knowledge_articles({}) returned both the active KB-HR-ROUTE-014 and the retired KB-HR-ROUTE-009 unfiltered, but the final message explicitly excludes the retired one: 'Its predecessor KB-HR-ROUTE-009 is retired and was not followed.'"
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "#6 find_group_by_name(\"Level 2 Support\") returns group_id 6; #7 register_hr_criteria arguments \"user_group\": \"6\", response confirms user_group 6."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "#7 register_hr_criteria response: name \"Contractor Conversion Approval\", type \"approval\", active true."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "#8 create_new_hr_service response: fulfillment_type \"workflow\", active true, topic_detail_id 11, service_template_id 6, hr_criteria_id 4."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "#9 create_new_hr_case response: short_description exact, coe_type \"Workforce Administration\", status \"ready\", priority \"critical\"."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "#9 create_new_hr_case response links hr_service.hr_service_id 6, approval_criteria.hr_criteria_id 4, opened_for.user_id 8 (Robert Taylor)."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all 9 calls: no get_topic_details or get_service_templates lookup exists. topic_detail_id 11 and service_template_id 6 first appear only in the #8 create_new_hr_service response after being passed as bare name strings, never confirmed by a prior read \u2014 matching the R08 level-0 example ('assumes at least one (e.g., template or topic detail) without a confirming read')."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Order: #7 register_hr_criteria (id 4) -> #8 create_new_hr_service (returns hr_service_id 6) -> #9 create_new_hr_case (\"hr_service\": \"6\", \"approval_criteria\": \"4\", taken from prior create responses)."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Exactly one register_hr_criteria (#7), one create_new_hr_service (#8), one create_new_hr_case (#9) in the 9-call trajectory."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No call references Maria Garcia anywhere; final message: 'Maria Garcia was not touched: no case opened, no criteria registered, and no change to her HR profile.'"
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Final message's reported hr_criteria_id 4/group 6/hr_service_id 6/hr_case_id 15/priority critical all match #7, #8, #9 responses exactly."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

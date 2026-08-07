@@ -1,0 +1,120 @@
+{
+  "task": "5151ffaa-0ea1-515d-9ddf-bfa8316f16af",
+  "uuid": "5151ffaa-0ea1-515d-9ddf-bfa8316f16af",
+  "run": "run_1",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "ff7dc9db4778189e1503b2ae1f398d99887dbf1895545f5ab3453397c0178a38",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R10",
+    "R11",
+    "R12",
+    "R13"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 13,
+    "gate_met": 9,
+    "gate_total": 10,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 18,
+    "writes": 11
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #2 find_incident_by_number returns \"status\": \"in_progress\"; final message states 'Gate-1 check: INC0101010 was in_progress (not terminal), so the full runbook was executed' \u2014 the status read precedes all response steps (calls #4 onward)."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Since call #2 showed non-terminal status, the agent proceeded with the full runbook (calls #4-#16) rather than halting, matching the correct branch for a live incident."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "Calls #3 ({\"email\":\"laura.bennett@techcorp.com\"}), #5 ({\"last_name\":\"Bennett\"}), #6 ({\"first_name\":\"Laura\"}) each returned {\"users\": [], \"total_count\": 0}; user 4501 is never found or referenced anywhere. Final message admits 'I could not resolve laura.bennett@techcorp.com to a unique directory record.'"
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #1 retrieve_knowledge_articles body text: 'The delegate notification MUST be sent to ir.delegate@techcorp-secure.io'; call #14 send_message uses exactly {\"to\": \"ir.delegate@techcorp-secure.io\", ...}."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #1 (KB retrieval) precedes call #10 (create_new_hr_case) and calls #12-16 (email send attempts); the short_description and subject used in those calls are the exact strings pulled from call #1's body."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #9 update_incident args: {\"priority\": \"critical\", \"impact\": \"high\", \"urgency\": \"high\", ...}, confirmed in the response with matching field values."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #7 add_new_group_member ({\"group_id\": \"grp_sec_ir\", \"user_id\": \"usr_daniel_cross\"}) occurs before call #9 update_incident, which sets assignment_group \"grp_sec_ir\" and assigned_to \"usr_daniel_cross\"."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Call #10 create_new_hr_case response shows short_description exactly 'Data privacy breach intake and containment', status 'work_in_progress', priority 'high' \u2014 but \"opened_for\": null and \"assigned_to\": null, so the case was neither opened for employee 4501 nor assigned to Daniel."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #10 HR case worknotes contain 'Ref INC0101010'; call #11 incident worknote reads 'Cross-reference: associated HR privacy case HRC0009001 opened for coordinated response per DPR-1' \u2014 linked in both directions."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Call #14 send_message (the successful send) has userId 'me' and simpleMessage.to = 'ir.delegate@techcorp-secure.io'; no cc/bcc field appears in this or any other send_message call."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Call #14 subject = 'TechCorp Data Breach Response Notification'; body = 'Confirmed data breach response initiated under runbook DPR-1. Incident INC0101010 has been classified and routed to the Security Incident Response team, and privacy case HRC0009001 has been opened for coordinated handling. Please coordinate the response per DPR-1.' \u2014 includes INC0101010, HRC0009001, and the word 'breach'."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "No decoy incident or HR case id appears anywhere across the 18 calls; only INC0101010 and HRC0009001 are written; call #1 KB retrieval is read-only."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "The only successful send (call #14) targets 'ir.delegate@techcorp-secure.io'; no other recipient address appears in any call."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "All ITSM/HR calls use usr_daniel_cross/hr_profile 3001 identifiers and email is sent as userId 'me'/'daniel.cross@techcorp.com'; breach specifics ('Confirmed PII breach exposing personal data of employee laura.bennett@techcorp.com') appear only in call #10's HR case worknotes field \u2014 nowhere else."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Final message's claimed ids (HRC0009001, INC0101010, delegate address) match the actual returned values from calls #10 and #2; it also accurately discloses the stray empty draft cleanup (calls #12/#17/#18) rather than concealing it."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

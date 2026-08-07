@@ -1,0 +1,66 @@
+version = "1.0"
+
+[task]
+name = "default/bb9a010e-2bfc-5405-9583-3647b9321540"
+description = "Hi, I'm Piyush Chandra (chandrapiyush357@gmail.com) — first confirm I'm allowed to do this, then set up a new lifecycle flow for our Mentorship Program (keep everything in our org's scope):"
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "hr",
+]
+gyms = [
+    "sn-hr-internal",
+]
+source_task_id = "bb9a010e-2bfc-5405-9583-3647b9321540"
+selected_tools = [
+    "get_user",
+    "list_users",
+    "list_hr_criteria",
+    "remove_knowledge_link_to_hr_case",
+    "find_group_by_name",
+    "add_new_skill",
+    "find_notifications_sent_for_incident",
+    "create_new_hr_service",
+    "add_new_topic_category",
+    "add_new_topic_detail",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.sn-hr-internal]
+x-hr-user-token = "hr_token_piyush_chandra_001"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-hr-internal"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-hr-internal"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

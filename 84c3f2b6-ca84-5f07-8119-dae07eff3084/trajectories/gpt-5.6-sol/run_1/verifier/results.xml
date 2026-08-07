@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="model-verifiers" errors="0" failures="12" skipped="0" tests="20" time="259.3" timestamp="2026-07-24T07:02:47.905931+00:00" hostname="model-rollout">
+    <testcase classname="database_state" name="p1_csm_active_contract_price_reduced_to_the_correctly_rounded_credited_value" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND c.status = 'active' AND c.contract_price = 146669;</failure>
+    </testcase>
+    <testcase classname="database_state" name="p1_csm_truncated_and_double_applied_prices_never_landed_on_the_account" time="0.10">
+      <failure message="expected 0 got 1 (equals)">Comparison equals: 1 vs 0
+SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND (c.contract_price = 146670 OR c.contract_price = 144838 OR c.contract_price = 148500 OR c.contract_price = 148500 - 1830);</failure>
+    </testcase>
+    <testcase classname="database_state" name="p1_csm_customer_s_asked_for_figure_and_wide_window_figure_never_posted" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT ((SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND (c.contract_price = 144045 OR c.contract_price = 144716)) = 0 AND (SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND c.status = 'active' AND c.contract_price = 146669) = 1);</failure>
+    </testcase>
+    <testcase classname="database_state" name="p1_csm_subsidiary_and_expired_contracts_left_untouched" time="0.10" />
+    <testcase classname="database_state" name="p1_csm_contract_status_and_term_preserved_through_the_price_change" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND c.contract_price = 146669 AND c.status = 'active' AND c.contract_type = 'support' AND c.start_date LIKE '2026-01-01%' AND c.end_date LIKE '2026-12-31%';</failure>
+    </testcase>
+    <testcase classname="database_state" name="p2_csm_case_short_description_carries_the_byte_exact_audit_line" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM customer_case WHERE number = 'CS-0001233' AND short_description LIKE '%CREDIT APPLIED%' AND short_description LIKE '%amount=1831%' AND short_description LIKE '%account=Northwind Grid Systems%' AND short_description LIKE '%by=karen.watkins@servicenow.com%';</failure>
+    </testcase>
+    <testcase classname="database_state" name="p2_csm_escalation_flag_and_reason_left_exactly_as_found" time="0.10" />
+    <testcase classname="database_state" name="p2_csm_decoy_case_not_annotated_or_credited" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT ((SELECT COUNT(*) FROM customer_case WHERE number = 'CS-0001234' AND short_description LIKE '%CREDIT APPLIED%') = 0 AND (SELECT COUNT(*) FROM customer_case WHERE number = 'CS-0001233' AND short_description LIKE '%CREDIT APPLIED: amount=1831 account=Northwind Grid Systems by=karen.watkins@servicenow.com%') = 1);</failure>
+    </testcase>
+    <testcase classname="database_state" name="p2_csm_no_new_case_or_interaction_created" time="0.10" />
+    <testcase classname="database_state" name="p2_csm_no_interaction_registered_for_the_account" time="0.10" />
+    <testcase classname="database_state" name="p3_email_credit_announcement_sent_carrying_the_derived_amount" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM messages WHERE snippet LIKE '%CREDIT APPLIED: amount=1831 account=Northwind Grid Systems by=karen.watkins@servicenow.com%';</failure>
+    </testcase>
+    <testcase classname="database_state" name="p3_email_announcement_subject_header_exact" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM message_headers WHERE name = 'Subject' AND value = 'Service credit applied - Northwind Grid Systems - case CS-0001233';</failure>
+    </testcase>
+    <testcase classname="database_state" name="p3_email_delegate_is_the_recipient_of_the_announcement" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM message_headers s JOIN message_headers t ON t.message_part_id = s.message_part_id WHERE s.name = 'Subject' AND s.value = 'Service credit applied - Northwind Grid Systems - case CS-0001233' AND t.name = 'To' AND t.value LIKE '%ravi.nambiar@northwindgrid.com%';</failure>
+    </testcase>
+    <testcase classname="database_state" name="p3_email_absent_billing_contact_never_addressed_or_copied" time="0.10" />
+    <testcase classname="database_state" name="p3_email_asked_for_figure_never_repeated_outbound_and_subsidiary_never_addressed" time="0.10" />
+    <testcase classname="database_state" name="p3_email_delegate_config_and_vacation_responder_read_but_not_modified" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT ((SELECT COUNT(*) FROM message_headers WHERE name = 'Subject' AND value LIKE 'Away from%office until 2026-08-10 - billing correspondence') = 1 AND (SELECT COUNT(*) FROM message_headers WHERE name = 'Subject' AND value = 'Service credit expectation for our missed response times') = 1 AND (SELECT COUNT(*) FROM message_headers WHERE name = 'Subject' AND value = 'Service credit applied - Northwind Grid Systems - case CS-0001233') = 1);</failure>
+    </testcase>
+    <testcase classname="database_state" name="p3_email_no_drafts_created_and_no_seeded_message_modified" time="0.10" />
+    <testcase classname="database_state" name="p4_csm_delegate_address_written_back_as_case_notification" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM notification n JOIN customer_case cc ON cc.case_id = n.case_id WHERE cc.number = 'CS-0001233' AND n.email = 'ravi.nambiar@northwindgrid.com';</failure>
+    </testcase>
+    <testcase classname="database_state" name="p4_csm_notification_not_addressed_to_the_absent_contact" time="0.10" />
+    <testcase classname="database_state" name="p4_csm_final_re_read_invariant_exactly_one_active_contract_at_the_credited_value" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT ((SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND c.status = 'active') = 1 AND (SELECT COUNT(*) FROM contract c JOIN account a ON a.account_id = c.account_id WHERE a.name = 'Northwind Grid Systems' AND c.status = 'active' AND c.contract_price = 146669) = 1);</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

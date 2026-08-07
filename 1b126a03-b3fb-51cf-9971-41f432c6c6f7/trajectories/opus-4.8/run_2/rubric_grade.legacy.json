@@ -1,0 +1,107 @@
+{
+  "task": "1b126a03-b3fb-51cf-9971-41f432c6c6f7",
+  "uuid": "1b126a03-b3fb-51cf-9971-41f432c6c6f7",
+  "run": "run_2",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "d29dbe588140219dbe7d63f09d180ba954dd74609913cae2b479328bdf19b0c6",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R10"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 13,
+    "gate_met": 7,
+    "gate_total": 7,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 6,
+    "writes": 2
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 find_account({\"name\": \"Stellar Systems\"}) returned {\"account_id\": 201, \"name\": \"Stellar Systems\", \"account_type\": \"customer\", \"email_domain\": \"stellarsystems.com\"}; final message: 'Stellar Systems (account_id 201, customer, stellarsystems.com \u2014 correctly distinguished from Stellar Solutions)'."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 find_contracts returned both contracts: 301 (support, active) and 302 (warranty, expired); Call #3 update_contract acts on contract_id 301, and the final message notes 'Contract 301 (support, active) was the correct match.'"
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #2 shows original end_date '2026-12-31'; Call #3 update_contract sets end_date '2027-12-31' \u2014 exactly +12 months, same month/day; final message: 'End date pushed out exactly one year (2026-12-31 \u2192 2027-12-31)'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #3 update_contract arguments include \"contract_price\": 60000, response confirms contract_price: 60000."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #4 find_contacts({is_primary:true, active:true}) returned contact 401 -> portal_user_id 1101; Call #5 update_user_details({user_id:1101, phone:'+1-555-0199'}) sets the exact number; response confirms phone: '+1-555-0199'."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #2 surfaced contract 302 as warranty/expired; no write call targets contract_id 302 anywhere in the 6 calls; final message: 'The lapsed warranty (contract 302, expired) was left untouched.'"
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #4 returns the primary flag (is_primary:1) for contact 401 via an is_primary:true filter; no write call targets any other contact/user; final message: 'No secondary/decoy records were modified.'"
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #6 find_entitlements is read-only, returning entitlement 501 with active:1; no entitlement write call appears among the 6 calls."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #6 find_entitlements arguments are {\"contract_id\": 301}, tying the entitlement directly to the amended support contract."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "account_id 201 from Call #1, contract_id 301 from Call #2, user_id 1101 from Call #4; both writes (Call #3, Call #5) use only these prior-looked-up ids."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Order: #1 find_account, #2 find_contracts, #3 update_contract, #4 find_contacts(primary), #5 update_user_details, #6 find_entitlements \u2014 matches identify \u2192 amend \u2192 contact \u2192 verify."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Final message follows all 6 successful (\"success\": true) tool calls and accurately summarizes the amendment, phone update, and verification."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Call #6 response shows \"active\": 1; final message states 'Entitlement 501 tied to contract 301 is active (premium, h24x7, 20 cases/month)', directly grounded in that read."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

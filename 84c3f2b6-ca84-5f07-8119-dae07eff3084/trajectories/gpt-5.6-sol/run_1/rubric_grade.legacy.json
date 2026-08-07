@@ -1,0 +1,127 @@
+{
+  "task": "task13_service_credit_rounding",
+  "uuid": "84c3f2b6-ca84-5f07-8119-dae07eff3084",
+  "run": "run_1",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "af7bacc5323c74d194add5ad59289d7b0cad1f7814d99c728dc7b89b3c85f51b",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 1,
+    "gate_met": 1,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 58,
+    "writes": 2
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Every find_contracts and search_cases call in the trajectory (e.g. #4, #7, #10, #16, #18, #23, #30, #33, #40, #42, #45) returns '[]'; the contract price 148500 and the SLA/breach data were never obtained, so no derivation of 1831 exists. Final message: 'no verified contract price, term, breached SLA window ... so there was no verified contract price.'"
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "No update_contract call appears anywhere in the 58 calls. Final message confirms: 'No contract ... was changed or sent.'"
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "No contract was ever located (all find_contracts calls, e.g. #4, #7, #16, #18, #23, #30, #33, #40, #42, #45, return '[]'), so no contract-selection reasoning or write occurred."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "No find_case_slas or equivalent SLA-history call appears anywhere in the trajectory; the case itself was never located (all search_cases calls return '[]'), so breached vs non-breached clocks were never inspected."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "No update_case call appears anywhere in the trajectory; the case was never found (all search_cases calls return '[]'). No audit line was ever written."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No send_message call appears anywhere in the 58 calls. Final message: 'No ... email was changed or sent.'"
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Call #12 list_messages does surface the auto-reply text naming ravi.nambiar@northwindgrid.com, and call #14 email_list_delegates('me') returns '{delegates: null}', but the address is never subsequently reused anywhere (no send, no case note) \u2014 the level-1 bar of 'reuses that exact string everywhere' is not met since the run ends with no downstream use."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No list_messages search targeting the ops lead's quoted-figure email (e.g. by 'Northwind' or the case number) was ever performed \u2014 only a subject-exact search for the auto-reply (call #12). Final message never mentions or distinguishes a claimed figure from a computed one."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "No call in the trajectory confirms the CSM identity (no find_user_by_email/whoami-style call for karen.watkins@servicenow.com) nor the sending mailbox (no get_user_profile call). Completion is not falsely claimed, but the identity-confirmation half of this AND-criterion is absent."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "Call #12 list_messages (the closest thing to a delegation-adjacent read) does precede any send, but since no send/compose action ever occurs in this trajectory, the delegate address is never 'retained and reused' as required by the level-1 text \u2014 nothing downstream exists to verify the ordering claim against."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "The case was never located by any search_cases call (all 21 case searches in the trajectory, e.g. #2, #3, #6, #9, #15, #17, #19-#22, #25-#29, #32, #34-#37, #44, #46-#58, return '[]'), so no case-resolution reasoning or action occurred at all."
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "No send_message call exists anywhere in the trajectory, so there is no announcement to check recipients on."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "The case record itself was never retrieved (all search_cases calls return '[]'), so there is no escalation-field state to cite as read, changed, or re-confirmed."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Call #13 email_list_delegates(userId='meera.varghese@northwindgrid.com') errors (access denied) and call #14 email_list_delegates(userId='me') returns '{delegates: null}' \u2014 both are read attempts; no update/clear call targeting vacation or delegation settings appears anywhere in the 58 calls."
+    },
+    {
+      "id": "R15",
+      "score": 0,
+      "evidence": "No send_notification call appears anywhere in the 58 calls. Final message: 'No ... notification ... was changed or sent.'"
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "id": "4d0dab5c-67f0-5d69-967d-37f744bbe832",
+  "task_name": "default/269a6ce0-e57e-410b-9770-32cb6feb3601",
+  "trial_name": "269a6ce0-e57e-410b-9770-32cb6feb3601__gpt-5-6__run1",
+  "trial_uri": "harbor/269a6ce0-e57e-410b-9770-32cb6feb3601/gpt-5-6/run1",
+  "task_id": {
+    "path": "dataset/269a6ce0-e57e-410b-9770-32cb6feb3601"
+  },
+  "source": null,
+  "task_checksum": "942aae05a78ebfcc24c3414013ba12e3c0bef2e4ece964c0f14428ba9d596dce",
+  "config": {
+    "task": {
+      "path": "dataset/269a6ce0-e57e-410b-9770-32cb6feb3601",
+      "git_url": null,
+      "git_commit_id": null,
+      "name": null,
+      "ref": null,
+      "overwrite": false,
+      "download_dir": null,
+      "source": null
+    },
+    "trial_name": "269a6ce0-e57e-410b-9770-32cb6feb3601__gpt-5-6__run1",
+    "trials_dir": "harbor/269a6ce0-e57e-410b-9770-32cb6feb3601",
+    "timeout_multiplier": 1.0,
+    "agent_timeout_multiplier": null,
+    "verifier_timeout_multiplier": null,
+    "agent_setup_timeout_multiplier": null,
+    "environment_build_timeout_multiplier": null,
+    "agent": {
+      "name": "gpt-5-6",
+      "import_path": null,
+      "model_name": "vllm/gpt-5.6-sol",
+      "skills": [],
+      "override_timeout_sec": null,
+      "override_setup_timeout_sec": null,
+      "max_timeout_sec": null,
+      "extra_allowed_hosts": [],
+      "kwargs": {
+        "number_of_runs": 1
+      },
+      "env": {},
+      "mcp_servers": [
+        {
+          "name": "gym-itsm-mcp",
+          "transport": "sse",
+          "url": "http://localhost:8002",
+          "command": null,
+          "args": []
+        },
+        {
+          "name": "email_v4",
+          "transport": "sse",
+          "url": "http://localhost:8007",
+          "command": null,
+          "args": []
+        }
+      ]
+    },
+    "environment": {
+      "type": "docker",
+      "import_path": null,
+      "force_build": false,
+      "delete": true,
+      "cpu_enforcement_policy": "auto",
+      "memory_enforcement_policy": "auto",
+      "override_cpus": null,
+      "override_memory_mb": null,
+      "override_storage_mb": null,
+      "override_gpus": null,
+      "override_tpu": null,
+      "mounts": null,
+      "extra_docker_compose": [],
+      "env": {},
+      "kwargs": {},
+      "extra_allowed_hosts": []
+    },
+    "verifier": {
+      "override_timeout_sec": 300.0,
+      "max_timeout_sec": 300.0,
+      "env": {},
+      "disable": false
+    },
+    "artifacts": [],
+    "extra_instruction_paths": [],
+    "job_id": "fec32ff4-5155-505e-b1e8-d0a740ac0355"
+  },
+  "agent_info": {
+    "name": "gpt-5-6",
+    "version": "1.0",
+    "model_info": {
+      "name": "vllm/gpt-5.6-sol",
+      "provider": "vllm"
+    }
+  },
+  "agent_result": {
+    "n_input_tokens": 1684989,
+    "n_cache_tokens": 377856,
+    "n_output_tokens": 15590,
+    "cost_usd": null,
+    "rollout_details": null,
+    "metadata": {
+      "turns": 50,
+      "turns_captured": 50,
+      "reasoning_tokens": 5057,
+      "execution_time_ms": 506897,
+      "tools_used": [
+        "list_users",
+        "list_incidents",
+        "find_configuration_item_by_serial_number",
+        "find_configuration_items",
+        "find_service_by_name",
+        "find_group_by_name",
+        "get_incidents_assigned_to",
+        "find_services",
+        "find_service_offerings",
+        "list_incident_affected_cis",
+        "list_user_groups",
+        "list_group_members",
+        "list_messages",
+        "list_threads",
+        "get_user",
+        "find_service_offering_by_name"
+      ],
+      "overall_success": false,
+      "verification_summary": {
+        "total": 17,
+        "passed": 9,
+        "failed": 8,
+        "pass_rate": 0.5294117647058824
+      },
+      "final_message": "{\"meta\": null, \"content\": [{\"type\": \"text\", \"text\": \"{\\n  \\\"user_groups\\\": [],\\n  \\\"total_count\\\": 0\\n}\", \"annotations\": null, \"meta\": null}], \"structuredContent\": null, \"isError\": false}"
+    }
+  },
+  "verifier_result": {
+    "rewards": {
+      "reward": 0.5294117647058824,
+      "P2-ITSM: target incident re-pointed to correct CI": 0.0,
+      "P2-ITSM: service re-pointed to the service discovered from CI description": 0.0,
+      "P2-ITSM: assignment group set to the owner-derived group": 0.0,
+      "P2-ITSM: decoy group never written as assignment group": 1.0,
+      "P2-ITSM: seeded triage fields and caller left untouched": 1.0,
+      "P2-ITSM: incident still open despite claimed pre-approval to close": 1.0,
+      "P2-ITSM: contractor namesake decoy incident untouched": 1.0,
+      "P2-ITSM: no audit lines leaked onto the decoy incident": 1.0,
+      "P3-ITSM: retarget audit line appended byte-exactly": 0.0,
+      "P3-ITSM: pre-existing seeded worknote preserved": 1.0,
+      "P4-EMAIL: exactly one notification message with dictated subject and recipient": 0.0,
+      "P4-EMAIL: message body carries group and open-status confirmation": 0.0,
+      "P4-EMAIL: contractor namesake never addressed": 1.0,
+      "P5-ITSM: notification hand-off written back into incident worknotes": 0.0,
+      "P5-ITSM: contractor address never recorded in incident worknotes": 1.0,
+      "P5-ITSM: configuration item records unmodified": 1.0,
+      "P2-ITSM: original wrong CI and service no longer on target incident": 0.0
+    }
+  },
+  "exception_info": null,
+  "started_at": "2026-07-23T18:18:19.554145Z",
+  "finished_at": "2026-07-23T18:26:46.451145Z",
+  "environment_setup": null,
+  "agent_setup": null,
+  "agent_execution": {
+    "started_at": "2026-07-23T18:18:19.554145Z",
+    "finished_at": "2026-07-23T18:26:46.451145Z"
+  },
+  "verifier": null,
+  "step_results": null
+}

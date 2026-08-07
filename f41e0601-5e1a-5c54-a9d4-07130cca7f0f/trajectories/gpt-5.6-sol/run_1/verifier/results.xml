@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="model-verifiers" errors="0" failures="4" skipped="0" tests="32" time="246.44" timestamp="2026-07-23T11:45:41.390533+00:00" hostname="model-rollout">
+    <testcase classname="database_state" name="verify_hr_wave_users_created" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_wave_profiles_created" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_wave_type_fulltime" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_aisha_manager_derived" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_marco_manager_derived" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_lena_manager_derived" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_wave_manager_not_decoy_absence" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_aisha_in_team_group" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_marco_in_team_group" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_lena_in_team_group" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_wave_team_memberships_count" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_wave_not_in_admin_groups_absence" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_onboarding_tasks_count" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_prov_task_aisha_verbatim" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_prov_task_marco_verbatim" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_prov_task_lena_verbatim" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_prov_tasks_count_exact" time="0.10" />
+    <testcase classname="database_state" name="verify_hr_no_admin_prov_task_absence" time="0.10" />
+    <testcase classname="database_state" name="verify_teams_wave_accounts_enabled" time="0.10" />
+    <testcase classname="database_state" name="verify_teams_wave_channel_memberships_count" time="0.10" />
+    <testcase classname="database_state" name="verify_teams_wave_not_in_exec_absence" time="0.10" />
+    <testcase classname="database_state" name="verify_teams_decoys_not_mutated" time="0.10" />
+    <testcase classname="database_state" name="verify_email_welcome_aisha_verbatim" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='EM_DIEGO' AND mh.name='Subject' AND mh.value='Welcome to TechCorp - Aisha Khan'</failure>
+    </testcase>
+    <testcase classname="database_state" name="verify_email_welcome_marco_verbatim" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='EM_DIEGO' AND mh.name='Subject' AND mh.value='Welcome to TechCorp - Marco Rossi'</failure>
+    </testcase>
+    <testcase classname="database_state" name="verify_email_welcome_lena_verbatim" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='EM_DIEGO' AND mh.name='Subject' AND mh.value='Welcome to TechCorp - Lena Vogt'</failure>
+    </testcase>
+    <testcase classname="database_state" name="verify_email_welcome_count_exact" time="0.10">
+      <failure message="expected 3 got 0 (equals)">Comparison equals: 0 vs 3
+SELECT COUNT(DISTINCT m.id) FROM messages m JOIN message_parts mp ON mp.message_id=m.id JOIN message_headers mh ON mh.message_part_id=mp.id WHERE m.user_id='EM_DIEGO' AND mh.name='Subject' AND LOWER(mh.value) LIKE 'welcome to techcorp - %'</failure>
+    </testcase>
+    <testcase classname="database_state" name="verify_cal_orient_aisha_verbatim" time="0.10" />
+    <testcase classname="database_state" name="verify_cal_orient_marco_verbatim" time="0.10" />
+    <testcase classname="database_state" name="verify_cal_orient_lena_verbatim" time="0.10" />
+    <testcase classname="database_state" name="verify_cal_orient_count_exact" time="0.10" />
+    <testcase classname="database_state" name="verify_cal_orient_start_utc_count" time="0.10" />
+    <testcase classname="database_state" name="verify_kb_retrieved_presence" time="0.10" />
+  </testsuite>
+</testsuites>

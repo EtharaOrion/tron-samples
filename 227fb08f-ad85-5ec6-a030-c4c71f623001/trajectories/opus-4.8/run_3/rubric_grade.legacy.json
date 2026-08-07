@@ -1,0 +1,134 @@
+{
+  "task": "adopted_227fb08f",
+  "uuid": "227fb08f-ad85-5ec6-a030-c4c71f623001",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "1ac30cad327199af36ae5deaeb6ac141c7b9f65aa1d6443fa8fd6518766ad1a4",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 11,
+    "gate_met": 10,
+    "gate_total": 15,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 35,
+    "writes": 16
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 retrieve_knowledge_articles{\"title\":\"KB-BREACH-RESP\"} mis-fires (empty result), but calls #3 and #4 successfully retrieve the full KB-BREACH-RESP body; the first write is call #12 create_problem, so the policy is retrieved and used (calls #5-#11 derive the group/manager/members from it) well before any write."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #7 list_group_members{\"group_id\":\"GRP_DWSVC\"} returns total_count 3 (USR_ANNA, USR_BEN, USR_CARLA); the agent iterates them at #8-#10 and later containment calls #18-#23, #30-#32."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #13 get_user{\"user_id\":\"USR_SVC\"} explicitly returns \"user_name\": \"dwh.monitor\", confirming the reporter's identity; USR_SVC/dwh.monitor is never targeted by any subsequent deactivate/revoke/notify call in the trajectory."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #6 find_group_by_name{\"name\":\"Data Warehouse Support\"} returns GRP_DWSUP and is inspected, but it is never enumerated or acted on afterward -- only GRP_DWSVC (from call #5) is used for containment."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #12 create_problem uses short_description \"Shared analytics credential compromise - INC-BREACH-4471\" (verbatim), priority \"critical\" (matches call #2's incident priority), assignment_group \"GRP_SECOPS\"."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "Searched calls #1-#11 (everything before create_problem at #12): two KB retrievals, find_incident_by_number, two find_group_by_name, list_group_members, and four get_user calls. No find_problem or equivalent existing-Problem check appears; only one Problem is created with no prior existence check."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #16 update_incident sets \"problem\": \"PRB_011\" (the id returned by call #12) and \"status\": \"in_progress\"."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #17 send_notification is sent once to \"email\": \"mia.nolan@techcorp.com\" with \"subject\": \"breach containment for shared analytics credential INC-BREACH-4471\" (verbatim)."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Calls #18-#20 update_user_details set active:false for USR_ANNA/USR_BEN/USR_CARLA; calls #21-#23 remove_group_membership revoke all three from GRP_DWSVC; calls #30-#32 update_user (Teams) set accountEnabled:false for all three."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Across the 35 executed calls, only USR_ANNA, USR_BEN, and USR_CARLA are ever mutated (calls #18-#23, #30-#32); USR_SVC (dwh.monitor, identified at call #13) and GRP_DWSUP/its manager are never modified."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "The agent only reads the mailbox (calls #33 list_forwarding_addresses, #34 list_filters, #35 list_send_as_aliases). All four required mailbox writes (delete_forwarding_address x2, delete_filter, delete_send_as_alias, email_create_delegate) appear only as unexecuted JSON text inside the final message, not as real tool calls -- confirmed by the trajectory footer 'contains 35 tool calls in total. There are no others.'"
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "No mailbox write was ever executed (see R11), so the malicious configuration was never actually stripped; the level-1 condition (only malicious items removed) cannot be confirmed as performed."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "The mailbox stage produced only three read calls (#33-#35) and zero executed write calls; the agent never demonstrated an executed forwarding/delegate mutation of any kind, so compliant handling of new-forwarding risk was never actually exercised."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Calls #27-#29 create_comments add 'EVIDENCE HOLD - Incident INC-BREACH-4471 ...' to FIL_1, FIL_2, and FIL_3 respectively, each with success responses; no trash/delete call on any Drive file appears anywhere."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Call #26 update_problem sets worknotes citing 'INC-BREACH-4471' and 'Data Warehouse Service group', and fix_notes \"Revoke shared analytics credential access - INC-BREACH-4471\" -- verbatim match to the KB string."
+    },
+    {
+      "id": "R16",
+      "score": 0,
+      "evidence": "No send_channel_message call is ever executed; the war-room post text appears only inside the final message's inert JSON block ('{\"tool_calls\":[...,{\"name\":\"send_channel_message\"...}]}'), and the trajectory footer confirms only 35 real tool calls occurred, none of which is send_channel_message."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+version = "1.0"
+
+[task]
+name = "default/cd7079bc-9b1c-5ac4-b902-e527dbcd6b20"
+description = "Hi — a few things for our customer Vertex Labs (the labs company, not the similarly named systems firm):"
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "csm",
+]
+gyms = [
+    "sn-csm-server",
+]
+source_task_id = "cd7079bc-9b1c-5ac4-b902-e527dbcd6b20"
+selected_tools = [
+    "count_notifications_by_case",
+    "search_cases",
+    "find_product",
+    "find_contacts",
+    "find_location",
+    "create_new_case",
+    "register_new_installed_product",
+    "register_new_interaction",
+    "update_case",
+    "update_installed_product_details",
+    "update_interaction",
+    "find_account",
+    "retrieve_installed_products",
+    "find_interactions",
+    "find_locations",
+    "find_products",
+]
+restricted_tools = []
+
+[metadata.gym_contexts.sn-csm-server]
+x-user-email = "chandrapiyush357@gmail.com"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-csm-server"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-csm-server"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

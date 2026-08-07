@@ -1,0 +1,127 @@
+{
+  "task": "task13_service_credit_rounding",
+  "uuid": "84c3f2b6-ca84-5f07-8119-dae07eff3084",
+  "run": "run_1",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "af7bacc5323c74d194add5ad59289d7b0cad1f7814d99c728dc7b89b3c85f51b",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 13,
+    "gate_met": 11,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 15,
+    "writes": 5
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #3 find_contracts returns contract 9101 price 148500. Call #5 find_case_slas returns 4 rows, 3 with has_breached=1. Final message shows full derivation: 'Credit = 148,500 \u00d7 0.15 \u00d7 30/365 = 1,830.82 \u2192 1,831 (rounded half away from zero)', tying 148500, 15%, the 30-day breached-only window, and 1831 together."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #11 update_contract sets contract_id 9101 price to 146669 in a single call. Call #15 (final find_contracts re-read) shows exactly one active contract (9101) at 146669 and the expired contract (9102) still at 99000, untouched. No second edit to 9101 anywhere in the trajectory."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Final message: 'Contract: the live 2026 support agreement (contract 9101, active, 2026-01-01 \u2192 2026-12-31, original price 148,500). The lapsed 2025 agreement (9102, expired, 99,000) ... were excluded.' Call #11 update_contract only touches contract_id 9101; contract 9102 (expired) is never written."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #5 find_case_slas returns 4 rows; final message enumerates: 'Only the three SLA rows that actually breached were used; the compliant (non-breached) row starting 2026-04-02 was excluded.' matches has_breached=0 on that row in the call #5 response."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #12 update_case sets short_description to exactly 'CREDIT APPLIED: amount=1831 account=Northwind Grid Systems by=karen.watkins@servicenow.com' \u2014 matches mandated format, correct amount (1831), CSM account name from call #2 ('Northwind Grid Systems'), and acting address, nothing else in the field."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #13 send_message is the only send in the trajectory: To ravi.nambiar@northwindgrid.com, Subject 'Service credit applied - Northwind Grid Systems - case CS-0001233' (exact match to task), snippet body 'CREDIT APPLIED: amount=1831 account=Northwind Grid Systems by=karen.watkins@servicenow.com' \u2014 amount matches the applied credit identically."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #10 list_messages (before any compose/send) retrieves the auto-reply itself, whose body states 'All billing and credit correspondence must go to my delegate Ravi Nambiar at ravi.nambiar@northwindgrid.com' \u2014 an auto-reply record, not a guess from name/domain (domain would be northwindgrid.com either way but the exact local-part 'ravi.nambiar' is read verbatim, not inferred). This exact string is reused in call #13 and #14."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No call in this trajectory ever retrieves the ops lead's quoted-figure email (searches were scoped to 'subject:\"Away from the office until 2026-08-10\"' only, call #10). The final message never mentions or distinguishes any customer-quoted figure from the computed 1831 \u2014 searched the whole packet for any reference to a claimed/quoted amount and found none."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #9 get_user_profile(userId='me') confirms the acting mailbox is jessicabrown83@gmail.com before it is used to send. All writes (calls #11, #12, #13, #14) complete successfully and call #15 re-reads contracts to confirm the final state before the summary is given; the final message even flags one requested action it deliberately did not do (escalation), showing it isn't over-claiming completion."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Email-related reads (#7 get_vacation_settings, #8 email_list_delegates, #9 get_user_profile, #10 list_messages) all occur before the only compose/send action (#13 send_message). No draft or send precedes them."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "Case is found directly via call #1 search_cases({'number':'CS-0001233'}); no case-list/decoy search is ever performed and the final message never mentions or rules out a renewables-arm lookalike case (unlike its explicit contract-decoy reasoning). No evidence the decoy case was ever explicitly ruled out."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Call #13 send_message payload headers list only 'To': 'ravi.nambiar@northwindgrid.com'; there is no CC field and Meera Varghese's address never appears as a recipient."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Call #12 update_case only sets short_description; the response still shows escalation:1, escalation_reason:'breach_risk' unchanged from call #1's original values. Final message explicitly states: 'I did not flip the escalation reason to customer_request ... so it remains breach_risk.'"
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Calls #7 (get_vacation_settings) and #8 (email_list_delegates) are read attempts (both errored, no data changed); no update/clear call targeting vacation or delegation settings appears anywhere in the 15 calls."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Call #14 send_notification writes exactly one notification row (case_id 9101, email ravi.nambiar@northwindgrid.com, status 'success'); no other notification, case, interaction, or draft-creation call appears anywhere in the trajectory."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

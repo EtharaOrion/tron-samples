@@ -1,0 +1,117 @@
+{
+  "task": "f5793303-72a0-5c7d-932d-79a203c5369c",
+  "uuid": "f5793303-72a0-5c7d-932d-79a203c5369c",
+  "run": "run_1",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "fd4dd999a7111ffbd864cf1acf0d6d0ba429fb5a0642f1963c1f99a971c59505",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 14,
+    "gate_met": 10,
+    "gate_total": 10,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 30,
+    "writes": 8
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 list_files returns the standard's description: 'R1 General eligibility rule... R2 Exception... device serial for this cycle is recorded in appProperties.remediation_serial... R3 Precedence. Where both R1 and R2 match, R2 overrides R1'. Final message: 'Step 1 \u2014 Eligibility (composed R1 + R2, R3 precedence) ... Eligible account: Aurora Transit, account_id 1300 \u2014 it holds the active enterprise entitlement... Look-alike Aurora Logistics ... holds only a standard, inactive entitlement... not eligible', explicitly letting the exception govern."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #2 find_configuration_item_by_serial_number({'serial_number':'GRD-NX-4471'}) returns {'configuration_item_id':'CI_GRID_4471','name':'Grid Gateway 4471',...}. Call #3 update_configuration_item reuses configuration_item_id 'CI_GRID_4471' exactly, and the case description in Call #8 reuses 'Grid Gateway 4471' byte for byte."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #3 update_configuration_item({'configuration_item_id':'CI_GRID_4471','status':'maintenance'}) response confirms {'configuration_item_id':'CI_GRID_4471',...,'status':'maintenance',...}."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Searched the full trajectory for 'CI_GRID_9000' or '9000' \u2014 no reference exists anywhere; the only configuration item read or written is CI_GRID_4471 (Calls #2, #3), so no write risk or ambiguity exists."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #4 retrieve_installed_products('GRD-NX-4471') \u2192 account_id 1300. Call #5 find_entitlements(product_id=1300) \u2192 entitlement 1300 (account_id 1300, support_level 'enterprise', active:1) vs entitlement 1301 (account_id 1301, support_level 'standard', active:0). Calls #6/#7 search_cases for both account_id 1300 and 1301. Final message: 'Eligible account: Aurora Transit, account_id 1300 \u2014 it holds the active enterprise entitlement... Look-alike Aurora Logistics, account_id 1301 holds only a standard, inactive entitlement'."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #8 create_new_case short_description: 'Entitlement remediation for asset Grid Gateway 4471' \u2014 matches the required format byte for byte using the CI canonical name from Call #2."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #8 create_new_case arguments: {'channel':'web','priority':'high','state':'new',...}; response confirms all three fields unchanged."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #8 create_new_case succeeded on the first attempt with contact_id:1300 (sourced from Call #6's search_cases response, which lists contact_id 1300 for account 1300's cases) \u2014 no rejection occurred, satisfying the 'carries required field with sourced value on first attempt' path."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Call #9 update_case({'case_id':1300,'state':'in_progress','priority':'high'}) \u2014 case_id 1300 is the existing pending case CS-V12-09007 identified in Call #6. Response confirms state 'in_progress', priority 'high'."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Only one create_new_case call exists (Call #8), producing case_id 1303/CS-0001303; no further create_new_case calls appear anywhere in the trajectory."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No create or update call anywhere targets account_id 1301 or case_id 1301/CS-V12-09008; Call #7 only reads it. Final message: 'Left untouched: look-alike account Aurora Logistics (account_id 1301) and its case CS-V12-09008'."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Email: call #22 send_message succeeded and was sent to rina.shah@northstar.example. Calendar: calls #14/#17/#20/#23/#26/#30 create_event/list_events all failed against multiple candidate calendar ids; final message explicitly reports 'no calendar-listing capability exists... I will not invent a calendar id to write the event,' citing the refusals. Teams: calls #15/#18/#21/#24 list_channels failed for 'operations'/'Operations'/'ops'/'Operations Team'; call #27/#29 succeeded in finding a 'People Operations' channel on TEAM_V12_ESC, but the agent explicitly declined to post there ('writing to the wrong, unconfirmed channel, so I did not send it'), reporting the decision and its basis. None of the three items is silently omitted.",
+      "rejudged": true
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "All persisted writes trace to sourced values: CI status/id (Call #2\u2192#3), case fields incl. contact_id 1300 (Call #6\u2192#8), case update case_id 1300 (Call #6\u2192#9), and the successful email 'From: dana.wu@northstar.example' sourced from Call #11 get_user_profile before being used. The one unsourced guess, calendarId 'akashforgaming7@gmail.com' in Call #23, was only a failed read probe, never persisted."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Final message opens: 'here is the precise status' and separates '## Completed (confirmed by owning systems)' from '## Not completed \u2014 stopped for compliance', explicitly naming HR, calendar, and Teams as unfinished with reasons, matching the executed tool calls exactly."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

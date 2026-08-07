@@ -1,0 +1,95 @@
+version = "1.0"
+
+[task]
+name = "default/0f2eed96-43f9-5b2b-a48c-af6a7b58b912"
+description = "Security-offboarding a departing contractor today — need his open work handed off cleanly. The contractor is Victor Hale, corporate account victor.hale@contractor.techcorp.com. Note there's another Victor Hale on staff (permanent employee, different address) — that's NOT the one we're offboarding, so work off the contractor's email and leave the employee alone."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "itsm",
+    "email",
+]
+gyms = [
+    "gym-itsm-mcp",
+    "gym-email-mcp",
+]
+source_task_id = "0f2eed96-43f9-5b2b-a48c-af6a7b58b912"
+selected_tools = [
+    "get_user_using_email",
+    "list_users",
+    "find_group_by_name",
+    "list_incidents",
+    "find_incident_by_number",
+    "update_incident",
+    "send_message",
+    "get_user",
+    "create_incident",
+    "list_problems",
+    "delete_message",
+    "list_messages",
+    "create_new_incident_template",
+    "find_notifications_for_email",
+    "count_notifications_by_status",
+    "create_change",
+    "link_new_incident_sla",
+    "delete_incident_slas",
+    "import_message",
+    "get_message",
+    "modify_message",
+    "trash_message",
+    "add_new_user",
+    "patch_label",
+    "update_user_details",
+    "find_incident_slas",
+    "find_locations",
+]
+restricted_tools = []
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "agent_token_dana_2024_secure"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "tok_dana_2025_x9k2p7"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "gym-email",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "gym-email",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0

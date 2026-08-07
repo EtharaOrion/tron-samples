@@ -1,0 +1,205 @@
+version = "1.0"
+
+[task]
+name = "default/e75d379e-3373-5d3a-954d-b2744a89ab6a"
+description = "Hi — Marcus Whitfield, Controller at Northwind Financial. I'm handing off controller duties this afternoon; please run the full handover across tickets, customer cases, HR, mailboxes, my Controller — Operations calendar, and the FinOps d..."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "itsm",
+    "csm",
+    "hr",
+    "email",
+    "calendar",
+    "teams",
+    "drive",
+]
+gyms = [
+    "gym-itsm-mcp",
+    "sn-csm-server",
+    "sn-hr-internal",
+    "gym-email-mcp",
+    "gym-calendar",
+    "gym-teams-mcp",
+    "gym-google-drive-mcp",
+]
+source_task_id = "e75d379e-3373-5d3a-954d-b2744a89ab6a"
+selected_tools = [
+    "list_drives",
+    "search_cases",
+    "create_new_hr_case",
+    "retrieve_knowledge_articles",
+    "get_user",
+    "list_users",
+    "list_changes",
+    "list_incidents",
+    "list_skills",
+    "get_user_profile",
+    "send_message",
+    "get_calendar",
+    "list_events",
+    "list_acl_rules",
+    "insert_acl_rule",
+    "delete_acl_rule",
+    "list_files",
+    "create_permission",
+    "update_permission",
+    "delete_permission",
+    "send_chat_message",
+    "update_chat_message",
+    "create_chat",
+    "list_chats",
+    "list_chat_messages",
+    "create_channel",
+    "send_channel_message",
+    "pin_chat_message",
+    "soft_delete_chat_message",
+    "add_team_member",
+    "list_teams",
+    "delete_team",
+    "create_team",
+    "update_team",
+    "set_user_status_message",
+    "find_change_request_mappings_for_incident",
+    "get_changes_assigned_to",
+    "update_change",
+    "link_case_knowledge",
+    "send_notification",
+    "find_account",
+    "count_notifications_by_status",
+    "update_hr_case_task",
+    "list_checklists",
+    "trash_message",
+    "insert_message",
+    "import_message",
+    "clear_calendar",
+    "watch_events",
+    "patch_acl_rule",
+    "update_incident",
+    "find_incident_by_number",
+    "add_new_group_member",
+    "update_user_details",
+    "assign_case_to_user",
+    "update_case",
+    "register_new_interaction",
+    "set_case_assignment_group",
+    "update_hr_case",
+    "create_hr_case_task",
+    "get_user_using_name",
+    "get_vacation_settings",
+    "update_vacation_settings",
+    "get_auto_forwarding",
+    "update_auto_forwarding",
+    "update_acl_rule",
+    "get_calendar_list",
+    "create_event",
+    "list_channels",
+    "get_primary_channel",
+    "list_permission",
+    "get_files",
+]
+restricted_tools = []
+
+[metadata.actor]
+email = "marcus.whitfield@northwind-fin.com"
+name = "Marcus Whitfield"
+user_id = "usr_marcus_whitfield"
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"
+
+[metadata.gym_contexts.gym-itsm-mcp]
+x-itsm-user-token = "admin_token_marcus_2024_secure"
+
+[metadata.gym_contexts.sn-csm-server]
+x-user-email = "marcus.whitfield@northwind-fin.com"
+
+[metadata.gym_contexts.sn-hr-internal]
+x-hr-user-token = "hr_token_marcus_whitfield_042"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "tok_marcus_2025_wfld7q"
+
+[metadata.gym_contexts.gym-calendar]
+x-access-token = "tok_marcus.whitfield"
+
+[metadata.gym_contexts.gym-teams-mcp]
+x-teams-access-token = "ya29.marcus_wf_locked"
+
+[metadata.gym_contexts.gym-google-drive-mcp]
+x-auth-token = "JWT_MARCUS_WF"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "gym-csm",
+    "gym-hr",
+    "gym-email",
+    "gym-calendar",
+    "gym-teams",
+    "gym-drive",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "gym-itsm-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-itsm-mcp"
+
+[[environment.mcp_servers]]
+name = "sn-csm-server"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-csm-server"
+
+[[environment.mcp_servers]]
+name = "sn-hr-internal"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-hr-internal"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-calendar"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-calendar"
+
+[[environment.mcp_servers]]
+name = "gym-teams-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-teams-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-google-drive-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-google-drive-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-itsm",
+    "gym-csm",
+    "gym-hr",
+    "gym-email",
+    "gym-calendar",
+    "gym-teams",
+    "gym-drive",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0

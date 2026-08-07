@@ -1,0 +1,111 @@
+{
+  "task": "996a64af-e210-5bc5-a984-0d2f94c92fc8",
+  "uuid": "996a64af-e210-5bc5-a984-0d2f94c92fc8",
+  "run": "run_3",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "52e2864e575efdeedee187eeb887ea3904a34911ba918fda7731b0c310ee8713",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R03",
+    "R08",
+    "R11",
+    "R12",
+    "R14"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 4,
+    "gate_met": 3,
+    "gate_total": 5,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 25,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Searched all 25 calls; every retrieve_knowledge call (#2,3,4,5,9,13,17,19,20,21,22,23,24,25) with varying kb_number/search_text/state/visibility filters returns \"[]\" (empty). No call ever returns the article body, so no clauses were ever composed; final message: 'The CSM knowledge source returned no current published article for KB-CSM-ENT-077, including searches by article number and relevant text.'"
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "The article was never retrieved in any of the 14 retrieve_knowledge attempts (all empty), so its published status was never confirmed. Final message states the agent 'could not verify or compose the binding: general rule, exception, precedence rule...'."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "All 25 calls target sn-csm-server only (find_account, retrieve_knowledge, find_entitlements, retrieve_installed_products, search_cases); no ITSM knowledge/article tool call or gym-itsm-mcp call of any kind appears anywhere. Final message: 'No ITSM knowledge article was retrieved.'"
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "Call #1 find_account resolves account_id 1300, but every find_entitlements call (#6,10,14,18) guessing support_level/coverage_hours combinations returns \"[]\", every retrieve_installed_products call (#7,11,15) returns \"[]\", and every search_cases call (#8,12,16) returns \"[]\" \u2014 entitlement, installed product, and case were never resolved."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Searched all 25 calls for update_case; none appears anywhere in the trajectory."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "retrieve_installed_products calls (#7,11,15) all return \"[]\" so no CSM serial was ever obtained, and no gym-itsm-mcp call appears anywhere in the 25-call trajectory."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Searched all 25 calls for update_configuration_item; none appears, and no ITSM tool is invoked at all."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No create_file or any Drive tool call appears anywhere in the 25 calls, so no evidence file was created."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "Zero Drive files created \u2014 searched all 25 calls and found no Drive tool invocation. Final message confirms 'No case, configuration item, entitlement, installed product, Drive file, or permissions were created or modified.'"
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "find_entitlements/retrieve_installed_products/search_cases were attempted repeatedly (#6-18) but every one returned empty, so no specific look-alike case, neighbouring product, or decoy Drive file was ever actually resolved or identified by id; the final message makes no specific identification of any preserved decoy record, only a blanket statement that nothing was modified."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "No create_file or other Drive tool call appears anywhere in the 25-call trajectory, so there is no file-creation call to cite showing permissions were preserved alongside a file creation."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "All find_entitlements calls (#6,10,14,18) are read-only queries that returned empty; searched all 25 calls and found no create_entitlement or update_entitlement call anywhere. Final message: 'No case, configuration item, entitlement ... were created or modified.'"
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "The only identifier ever used across all 25 calls is account_id 1300, obtained from call #1's find_account response and reused in subsequent (all unsuccessful) lookups; no entitlement, case, serial, CI, or Drive folder id was ever obtained or used, since all downstream reads returned empty."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "The agent never claims the exception was handled; final message explicitly states 'Unable to complete the Aurora V12 entitlement exception review safely' and 'I stopped rather than infer these values or select plausible records' \u2014 no premature-completion claim is made."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

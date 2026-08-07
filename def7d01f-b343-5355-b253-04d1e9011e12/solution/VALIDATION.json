@@ -1,0 +1,53 @@
+{
+ "task_uuid": "def7d01f-b343-5355-b253-04d1e9011e12",
+ "task_slug": "task_def7d01f",
+ "validated_on": "2026-07-29",
+ "sft_eligible": true,
+ "solve_sh_sha256": "df878be4a8503812546b525a87c14b896d2b01c2d6415d047174e78c18ed643c",
+ "golden_json_sha256": "c9856cb382779ae1d372ab24c8a466ab6b8b1e228a1e6c772686e3693081664a",
+ "plan_only": {
+  "what": "tool-calls-only golden replayed against a fresh seed; reward earned by the MCP plan alone.",
+  "mcp_calls": 16,
+  "mcp_calls_failed": 0,
+  "log_complete": false,
+  "reward": 1.0,
+  "verifiers_passed": 37,
+  "verifiers_total": 38,
+  "verdict": "SOLVABLE BY TOOL CALLS ALONE"
+ },
+ "discovery_gate": {
+  "what": "every identifier-shaped argument must trace to a prompt, a strictly earlier tool response, or a computation the ground truth explains.",
+  "steps": 16,
+  "matchable_args": 22,
+  "given": 3,
+  "read": 19,
+  "derived": 0,
+  "skipped": 0,
+  "fabricated": 0,
+  "blocking": 0,
+  "derived_values": [],
+  "violations": [],
+  "verdict": "D01 PASS"
+ },
+ "golden_replay": {
+  "what": "golden.json's OWN tool calls executed against a freshly seeded gym (pipeline3.golden_trajectory). Proves the SFT artifact reproduces reward 1.0 by tool calls alone.",
+  "mcp_calls": 16,
+  "mcp_calls_failed": 0,
+  "reward": 1.0,
+  "verifiers_passed": 37,
+  "verifiers_total": 37,
+  "verdict": "GOLDEN REPRODUCES THE TASK"
+ },
+ "caveats": [
+  "Gyms were the locally available images; a port-alias sidecar and the harness-era /api/seed-database endpoint were used to bring them up. Shipped bundle bytes were not modified — the adaptation is a compose override.",
+  "Reward 1.0 is the ORACLE's path. It proves the task is solvable, not easy; see SHIPPED_TASKS_SUMMARY.md for measured model results.",
+  "Regenerated through pipeline3: solve.sh PLAN made discovery-complete, re-executed against freshly seeded live gyms via pipeline3.golden_trajectory; D01 verified with the taskgen discovery gate.",
+  "Contract change to make the task winnable: granted the already-catalogued search_cases tool (csm gym) so the case's internal ids are resolved from the case number, not assumed.",
+  "Regenerated through pipeline3: solve.sh PLAN made discovery-complete, re-executed against freshly seeded live gyms via pipeline3.golden_trajectory; D01 verified with the taskgen discovery gate.",
+  "Contract change to make the task winnable: granted the already-catalogued search_cases tool (csm gym) so the case's internal ids are resolved from the case number, not assumed.",
+  "Regenerated through pipeline3: solve.sh PLAN made discovery-complete, re-executed against freshly seeded live gyms via pipeline3.golden_trajectory; D01 verified with the taskgen discovery gate.",
+  "Contract change to make the task winnable: grant search_cases; dropped a redundant verify-read",
+  "Regenerated through pipeline3: solve.sh PLAN made discovery-complete, re-executed against freshly seeded live gyms via pipeline3.golden_trajectory; D01 verified with the taskgen discovery gate.",
+  "Contract change to make the task winnable: granted search_cases (csm) so case ids resolve from the case number; dropped a redundant verify-read; and named the three review attendees by role in KB0004567 SECTION 6 so the calendar_event_has_three_attendees verifier is instruction-backed (was unstated)."
+ ]
+}

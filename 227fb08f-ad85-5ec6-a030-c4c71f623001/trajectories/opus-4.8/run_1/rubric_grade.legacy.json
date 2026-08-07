@@ -1,0 +1,134 @@
+{
+  "task": "adopted_227fb08f",
+  "uuid": "227fb08f-ad85-5ec6-a030-c4c71f623001",
+  "run": "run_1",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "1ac30cad327199af36ae5deaeb6ac141c7b9f65aa1d6443fa8fd6518766ad1a4",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 15,
+    "gate_met": 14,
+    "gate_total": 15,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 38,
+    "writes": 22
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 retrieve_knowledge_articles{\"kb_number\":\"KB-BREACH-RESP\"} returns the full policy body first; the first write is call #10 create_problem. Policy is retrieved 9 calls before any write, and its 'Data Warehouse Service' / verbatim-string rules are used in calls #3-#38."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #5 list_group_members{\"group_id\":\"GRP_DWSVC\"} returns total_count 3 (M_ANNA/USR_ANNA, M_BEN/USR_BEN, M_CARLA/USR_CARLA); the agent iterates all three via get_user (#7-#9) and containment calls (#13-#21)."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #2's incident record shows caller_id \"USR_SVC\"; the final message states 'The incident caller (USR_SVC monitoring account) was correctly left active' -- explicit reasoning identifying and excluding it. USR_SVC never appears as a target in any of the 38 calls."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #4 find_group_by_name{\"name\":\"Data Warehouse Support\"} returns GRP_DWSUP and is inspected, but GRP_DWSUP never appears again in any subsequent enumeration or write call -- only GRP_DWSVC is acted on."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #10 create_problem uses short_description \"Shared analytics credential compromise - INC-BREACH-4471\" (verbatim match to the KB string), priority \"critical\" (matches incident priority from call #2), assignment_group \"GRP_SECOPS\" (Security Operations)."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "Searched calls #1-#9 (the only calls before create_problem at #10): retrieve_knowledge_articles, find_incident_by_number, find_group_by_name x2, list_group_members, get_user x4. No find_problem or equivalent existing-Problem lookup appears; only one Problem is created (partial-fail case: single create, no prior existence check)."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #11 update_incident sets \"problem\": \"PRB_011\" (the id returned by call #10's create_problem response) and \"status\": \"in_progress\"."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #12 send_notification is sent once, to \"email\": \"mia.nolan@techcorp.com\" (the Data Warehouse Service group's manager_id USR_DWMGR resolved via call #6), with \"subject\": \"breach containment for shared analytics credential INC-BREACH-4471\" (verbatim)."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Calls #13-#15 update_user_details set active:false for USR_ANNA/USR_BEN/USR_CARLA; calls #16-#18 remove_group_membership revoke all three from GRP_DWSVC; calls #19-#21 update_user (Teams) set accountEnabled:false for all three by UPN."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Across all 38 calls, only USR_ANNA, USR_BEN, and USR_CARLA are modified (calls #13-#21); the incident caller USR_SVC and the Data Warehouse Support group/manager are never touched, and the final message explicitly confirms 'Only the three derived accounts ... were touched; all other accounts, groups, messages, and files were left intact.'"
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Calls #29-#30 delete_forwarding_address remove \"dwh.exfil@gmail.com\" and \"collector@evil.example\"; call #31 delete_filter removes \"FLT_EXFIL\"; call #32 delete_send_as_alias removes \"reports@techcorp.com\"; call #33 email_create_delegate adds \"incident.response@techcorp.com\"."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Call #25 list_forwarding_addresses shows three entries including \"dwh-ops@techcorp.com\"; only the two malicious entries (dwh.exfil@gmail.com, collector@evil.example) are removed at #29-#30, and dwh-ops@techcorp.com is never touched. No message-deletion call appears anywhere."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "The only forwarding/delegate mutations in the trajectory are #29-#30 (deletions) and #33 email_create_delegate{\"delegateEmail\":\"incident.response@techcorp.com\"} (an internal address); no call anywhere adds a new external or archive forwarding destination."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Calls #35-#37 create_comments add \"EVIDENCE HOLD ... incident INC-BREACH-4471 ...\" to FIL_1, FIL_2, and FIL_3 respectively; no trash/delete call on any Drive file appears anywhere in the trajectory."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Call #34 update_problem sets worknotes citing 'INC-BREACH-4471' and 'Data Warehouse Service group', and fix_notes \"Revoke shared analytics credential access - INC-BREACH-4471\" -- verbatim match to the KB's revocation title."
+    },
+    {
+      "id": "R16",
+      "score": 1,
+      "evidence": "Call #38 send_channel_message (posted after all containment writes, calls #10-#37) cites 'INC-BREACH-4471' and 'PRB0000011' and lists exactly the actions executed (three accounts contained, mailbox cleaned, evidence held); no claim in it exceeds what the prior calls actually performed."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

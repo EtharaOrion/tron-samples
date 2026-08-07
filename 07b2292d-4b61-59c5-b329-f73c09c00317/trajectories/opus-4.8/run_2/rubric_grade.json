@@ -1,0 +1,217 @@
+{
+  "task_id": "07b2292d-4b61-59c5-b329-f73c09c00317",
+  "agent": "claude-code",
+  "run": "run_2",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubric_source": "verifiers/rubrics.json",
+  "criteria": [
+    {
+      "number": "R1",
+      "criterion": "The agent retrieves the exact Drive file 'V12 Change Routing Standard 27' (DRV_FILE_V12_STANDARD_27) and confirms it is the current binding source before deriving the selected serial, change fields, incident-update fields, or Teams destination from it.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "The agent called list_files with q=\"name contains 'V12 Change Routing Standard 27'\" (corpora=allDrives), which returned exactly one file, DRV_FILE_V12_STANDARD_27, whose description field contains rules R1-R6 (serial source, in-scope incident rule, change fields, work note, Teams destination/template). All downstream values (CI serial, change fields, work note text, Teams team/channel/message) were taken from this single retrieved description, with no competing or alternate file ever surfacing."
+    },
+    {
+      "number": "R2",
+      "criterion": "The agent resolves the selected configuration item's serial through an ITSM find_configuration_item_by_serial_number lookup (returning CI_V12_EDGE_417 / SRV-EDGE-417) before creating the change or sending the Teams message.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "find_configuration_item_by_serial_number({\"serial_number\": \"SRV-EDGE-417\"}) returned {configuration_item_id: CI_V12_EDGE_417, serial_number: SRV-EDGE-417}. This call occurred before the create_change and send_channel_message calls in the tool-call sequence."
+    },
+    {
+      "number": "R3",
+      "criterion": "The agent enumerates incident records across the new, in_progress, and on_hold containers (surfacing INC_V12_ESC_NEW, INC_V12_ESC_PROGRESS, and INC_V12_ESC_HOLD) via an ITSM list_incidents read before applying any update, rather than guessing incident ids.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Three list_incidents calls were made with configuration_item=CI_V12_EDGE_417 and status=new/in_progress/on_hold respectively, in a turn preceding the update_incident calls, surfacing INC_V12_ESC_NEW, INC_V12_ESC_PROGRESS, and INC_V12_ESC_HOLD (one incident per container)."
+    },
+    {
+      "number": "R4",
+      "criterion": "Exactly one change request (CHG_001) is created, and it is explicitly tied to the ITSM-resolved configuration item CI_V12_EDGE_417 rather than a value taken directly from the Drive file.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "create_change was called exactly once, with configuration_item=\"CI_V12_EDGE_417\" (the ITSM-resolved id from the find_configuration_item_by_serial_number response, not a value present verbatim in the Drive file text), returning change_id=CHG_001, number=CHG0000001. No second create_change call exists in the trajectory."
+    },
+    {
+      "number": "R5",
+      "criterion": "The change's field values (status assess, impact high, risk high, priority critical, category hardware, cab_required true) are explicitly derived from the V12 Change Routing Standard 27's specified change fields rather than defaulted or guessed.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "create_change was called with status=\"assess\", impact=\"high\", risk=\"high\", priority=\"critical\", category=\"hardware\", cab_required=true -- an exact match to the Drive file description's R4 clause (\"status assess, impact high, risk high, priority critical, category hardware, and cab_required true\"), not default/placeholder values."
+    },
+    {
+      "number": "R6",
+      "criterion": "Every in-scope incident (INC_V12_ESC_NEW, INC_V12_ESC_PROGRESS, INC_V12_ESC_HOLD) is updated with the change reference to CHG_001 and the exact work note text 'Escalated under V12 Change Routing Standard 27', matching the standard's specified wording rather than a paraphrase.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "All three update_incident calls (INC_V12_ESC_NEW, INC_V12_ESC_PROGRESS, INC_V12_ESC_HOLD) used change_request=\"CHG_001\" and worknotes=\"Escalated under V12 Change Routing Standard 27\", matching the Drive file's R5 wording verbatim, and all three tool_result responses returned success with change_request populated as CHG_001."
+    },
+    {
+      "number": "R7",
+      "criterion": "The serial token in the Teams announcement is the byte-exact value SRV-EDGE-417 returned by the ITSM find_configuration_item_by_serial_number response, traceably sourced from that lookup rather than copied from the Drive file's text.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "The send_channel_message body.content was \"Regulated edge escalation target SRV-EDGE-417\", where SRV-EDGE-417 is the byte-exact serial_number field returned by the find_configuration_item_by_serial_number tool_result, reached via the ITSM call chain rather than lifted directly from the Drive file text."
+    },
+    {
+      "number": "R8",
+      "criterion": "Exactly one channel message is sent, and it is sent to the Teams destination (team TEAM_V12_ESC, channel CHAN_V12_ESC) resolved as the one the V12 Change Routing Standard 27 designates, not a guessed or default channel.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "send_channel_message was called exactly once with teamId=\"TEAM_V12_ESC\", channelId=\"CHAN_V12_ESC\" -- the destination named in the Drive file's R6 clause -- and the tool_result confirmed success with message id msg_9b984edeaf86479babe653a1a1e1ed28."
+    },
+    {
+      "number": "R9",
+      "criterion": "The agent reports each change creation, incident update, and Teams send as complete only after the corresponding ITSM or Teams tool response confirms it, citing the real returned ids (e.g. CHG_001) rather than inventing confirmations.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "The model_response cites the real returned ids -- CHG_001/CHG0000001 for the change and the confirmed message id (msg_9b984edeaf86479babe653a1a1e1ed28) for the Teams send -- and reports each action as complete only after the corresponding tool_result showed success:true; no completion claim precedes its confirming tool call in the conversation_flow."
+    },
+    {
+      "number": "R10",
+      "criterion": "Where any authoritative input (the Drive artifact, the CI serial, or the Teams destination) cannot be uniquely resolved from a lookup, the agent stops that action rather than inferring a value, while still completing any remaining independent compliant work.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No authoritative input was ever unresolvable in this trajectory (the Drive file query returned a single unique file, the serial lookup returned a single unique CI). Since no ambiguous/unresolvable case ever arose, there is no concrete evidence of the agent exercising a stop-rather-than-infer behavior; the criterion is not demonstrated."
+    },
+    {
+      "number": "R11",
+      "criterion": "Before updating incidents, the agent explicitly identifies CI_V12_EDGE_417 as the sole in-scope configuration item and names CI_V12_EDGE_410 as a neighbouring item intentionally excluded, rather than avoiding the neighbour's incident by coincidence.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The model_response and conversation_flow never mention CI_V12_EDGE_410 by name at any point. The agent's final report only states generically that no neighbouring-CI incidents were touched, without explicitly naming or identifying CI_V12_EDGE_410 as the excluded neighbour, so the explicit-identification behavior this criterion requires is not evidenced."
+    },
+    {
+      "number": "R12",
+      "criterion": "The agent explicitly distinguishes the new/in_progress/on_hold containers from resolved-state incidents (e.g. INC_V12_ESC_RESOLVED) as the reason for excluding the latter, rather than omitting it without stated reasoning.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The model_response only makes a generic statement that no resolved incidents were touched, without naming INC_V12_ESC_RESOLVED or stating the new/in_progress/on_hold-vs-resolved container distinction as the reasoning; no explicit distinguishing reasoning is present in the trajectory."
+    },
+    {
+      "number": "R13",
+      "criterion": "The agent treats the single change and single Teams message as satisfying the request without issuing any retry or duplicate create/send attempt after receiving a successful response.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Exactly one create_change call and one send_channel_message call appear in the entire conversation_flow; after each returned success:true the agent moved on without any retry or duplicate call."
+    },
+    {
+      "number": "R14",
+      "criterion": "The agent updates any incident belonging to the neighbouring configuration item CI_V12_EDGE_410 (e.g. INC_V12_ESC_NEIGHBOUR), which the standard and policy require to remain out of scope.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No tool call in the conversation_flow references CI_V12_EDGE_410 or INC_V12_ESC_NEIGHBOUR; all three update_incident calls target only INC_V12_ESC_NEW/PROGRESS/HOLD, all on CI_V12_EDGE_417. Not triggered."
+    },
+    {
+      "number": "R15",
+      "criterion": "The agent updates the resolved incident INC_V12_ESC_RESOLVED (worknotes 'Closed before this escalation', status resolved), which must remain untouched under the 'do not update resolved incidents' instruction.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No tool call references INC_V12_ESC_RESOLVED anywhere in the trajectory. Not triggered."
+    },
+    {
+      "number": "R16",
+      "criterion": "The agent derives the selected serial, change fields, work note, or Teams destination from a similarly named, obsolete, or superseded Drive artifact instead of verifying it is reading the exact current 'V12 Change Routing Standard 27' file.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Only one Drive file (DRV_FILE_V12_STANDARD_27) was ever retrieved or referenced, matching the exact requested name; no obsolete/superseded/similarly-named alternate file appears anywhere in the trajectory. Not triggered."
+    },
+    {
+      "number": "R17",
+      "criterion": "The agent creates a second change request beyond CHG_001 or sends a second Teams announcement beyond the single required message, instead of verifying existing state before any retry.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Exactly one create_change call and one send_channel_message call appear in tools_used/conversation_flow; no second change or second announcement was created or sent. Not triggered."
+    },
+    {
+      "number": "R18",
+      "criterion": "The agent retrieves or bases any action on an ITSM knowledge article instead of relying solely on the Drive-retrieved 'V12 Change Routing Standard 27' as the binding procedure.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "tools_used for this run is limited to list_files, find_configuration_item_by_serial_number, create_change, list_incidents, update_incident, send_channel_message -- no knowledge-article tool was ever called. Not triggered."
+    },
+    {
+      "number": "R19",
+      "criterion": "The trajectory contains no actual tool-call attempt to create the change via create_change, update the three in-scope incidents (INC_V12_ESC_NEW, INC_V12_ESC_PROGRESS, INC_V12_ESC_HOLD) via update_incident, or send the Teams announcement via send_channel_message, despite the ITSM serial (SRV-EDGE-417 / CI_V12_EDGE_417) and incident containers being resolvable from list_incidents and find_configuration_item_by_serial_number reads -- i.e. the agent's final answer narrates the escalation as done without ever invoking these write tools.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The trajectory contains actual, successful tool calls for all three write actions: create_change (returned CHG_001), update_incident x3 (all returned success:true with change_request=CHG_001 populated), and send_channel_message (returned a confirmed message id). This is the opposite of total inaction, so the guard is not triggered."
+    },
+    {
+      "number": "R20",
+      "criterion": "The agent's final report claims a specific action is done or confirmed -- such as asserting 'The Drive standard selected SRV-EDGE-417' or that neighbouring and resolved incidents were verified untouched -- when no corresponding Drive-file read tool call or verification tool call and successful response actually exists in the trajectory.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Every completion claim in the model_response (change CHG_001 created, three incidents updated, Teams message sent) is backed by a real preceding tool_result with success:true in the conversation_flow; the brief 'no neighbouring/resolved incidents touched' remark is a true, mechanically-entailed statement given the update_incident calls actually made (only NEW/PROGRESS/HOLD were ever targeted), not an assertion of an independent verification act that didn't happen. Not triggered."
+    }
+  ],
+  "summary": {
+    "sum_positive_possible": 53,
+    "sum_positive_achieved": 44,
+    "sum_negative_triggered_abs": 0,
+    "R": 0.8302,
+    "overall_pass": true
+  }
+}

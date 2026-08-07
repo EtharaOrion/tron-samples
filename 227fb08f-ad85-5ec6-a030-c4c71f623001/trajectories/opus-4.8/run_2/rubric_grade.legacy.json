@@ -1,0 +1,134 @@
+{
+  "task": "adopted_227fb08f",
+  "uuid": "227fb08f-ad85-5ec6-a030-c4c71f623001",
+  "run": "run_2",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "1ac30cad327199af36ae5deaeb6ac141c7b9f65aa1d6443fa8fd6518766ad1a4",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 3,
+    "gate_met": 3,
+    "gate_total": 15,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 9,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 retrieve_knowledge_articles{\"kb_number\":\"KB-BREACH-RESP\"} returns the full policy body as the very first call; no write of any kind occurs anywhere in the 9-call trajectory, so the policy is retrieved before, and drives, the subsequent group-derivation calls (#3-#9)."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #5 list_group_members{\"group_id\":\"GRP_DWSVC\"} returns total_count 3 (USR_ANNA, USR_BEN, USR_CARLA); the agent iterates them via get_user calls #7-#9."
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "Searched all 9 calls for any lookup or reasoning naming USR_SVC/dwh.monitor: caller_id \"USR_SVC\" appears only inside call #2's raw incident JSON; no get_user(USR_SVC) call is made and the final message is an inert malformed tool_calls JSON blob with no prose reasoning identifying or excluding the reporter account."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #4 find_group_by_name{\"name\":\"Data Warehouse Support\"} returns GRP_DWSUP and is inspected; the agent never enumerates or otherwise acts on it -- only GRP_DWSVC is enumerated at call #5."
+    },
+    {
+      "id": "R05",
+      "score": 0,
+      "evidence": "Searched all 9 calls; no create_problem call is executed. The only mention of create_problem is inside the final message, which is an unexecuted, malformed JSON text blob ('{\"tool_calls\":[{\"name\":\"create_problem\"...}]}') rather than an actual tool call -- confirmed by the trajectory footer 'contains 9 tool calls in total. There are no others.'"
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "No Problem is ever created (see R05); there is no pre-create existence check either."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Searched all 9 calls for update_incident or an escalation/link call; none appears. The incident is never escalated or linked to a Problem."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all 9 calls for send_notification; none appears. No containment notification was sent."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "Searched all 9 calls for update_user_details, remove_group_membership, or a Teams update_user call; none appears. None of the three affected members were deactivated, revoked, or disabled."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No account of any kind is modified in this trajectory (only reads occurred), so there is no completed containment to confirm was scoped correctly, and no reasoning/statement about the scope boundary appears anywhere in the 9 calls or the malformed final message."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "Searched all 9 calls for any mailbox tool (list_forwarding_addresses, delete_forwarding_address, list_filters, delete_filter, list_send_as_aliases, delete_send_as_alias, email_create_delegate); none appears anywhere in the executed trajectory."
+    },
+    {
+      "id": "R12",
+      "score": 0,
+      "evidence": "No mailbox action of any kind was executed (see R11), so no removal-vs-preservation of forwarding entries can be confirmed; the run never reached this stage."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "The run never reaches the mailbox-containment stage at all -- no forwarding/delegate tool call of any kind (read or write) appears in the 9 executed calls, so no compliant handling of the mailbox was demonstrated."
+    },
+    {
+      "id": "R14",
+      "score": 0,
+      "evidence": "Searched all 9 calls for create_comments or any Drive tool; none appears. No evidence-hold comments were added."
+    },
+    {
+      "id": "R15",
+      "score": 0,
+      "evidence": "Searched all 9 calls for update_problem; none appears (no Problem was even created, see R05). No worknote or fix note was set."
+    },
+    {
+      "id": "R16",
+      "score": 0,
+      "evidence": "Searched all 9 calls for send_channel_message; none appears. The final message is an inert malformed JSON blob describing an intended create_problem call, not a posted war-room note."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

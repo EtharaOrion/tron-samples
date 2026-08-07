@@ -1,0 +1,60 @@
+{
+ "task_uuid": "84c3f2b6-ca84-5f07-8119-dae07eff3084",
+ "task_slug": "task13_service_credit_rounding",
+ "validated_on": "2026-07-28",
+ "sft_eligible": true,
+ "solve_sh_sha256": "d3f4c6db63fde032cf708b7ed589f4ffe6dd6a581e46cbed09d5be4ec318c378",
+ "golden_json_sha256": "0d755db26efe7f6695b56f98d5c897c991984e8c404a3667de0078bfd75d656f",
+ "plan_only": {
+  "what": "solve.sh run with every RECONCILE 'fix' list emptied, so phase 2 can only SELECT. Reward is earned by MCP tool calls alone -- the action space a real agent has.",
+  "fix_statements_neutralised": 12,
+  "reconcile_checks_audited": 20,
+  "mcp_calls": 27,
+  "mcp_calls_failed": 0,
+  "log_complete": false,
+  "reward": 1.0,
+  "verifiers_passed": 20,
+  "verifiers_total": 20,
+  "verdict": "SOLVABLE BY TOOL CALLS ALONE"
+ },
+ "discovery_gate": {
+  "what": "every identifier-shaped argument must trace to a prompt, a strictly earlier tool response, or a computation the ground truth explains.",
+  "steps": 27,
+  "matchable_args": 20,
+  "given": 2,
+  "read": 17,
+  "derived": 1,
+  "skipped": 0,
+  "fabricated": 0,
+  "blocking": 0,
+  "derived_values": [
+   {
+    "step_id": "P1-09",
+    "ordinal": 9,
+    "gym": "csm",
+    "tool": "update_contract",
+    "arg": "contract_price",
+    "value": "146669",
+    "why": "computed; explained by TRUTH"
+   }
+  ],
+  "violations": [],
+  "verdict": "D01 PASS"
+ },
+ "golden_replay": {
+  "what": "golden.json's OWN tool calls executed against a fresh environment, fixes disarmed. plan-only proves the TASK is solvable; this proves the SFT ARTIFACT still reproduces it. It matters because golden.json stores literal args while solve.sh threads run-time generated ids through ${var} -- a task chaining on one could rot silently.",
+  "fix_statements_neutralised": 12,
+  "reconcile_checks_audited": 20,
+  "mcp_calls": 27,
+  "mcp_calls_failed": 0,
+  "log_complete": true,
+  "reward": 1.0,
+  "verifiers_passed": 20,
+  "verifiers_total": 20,
+  "verdict": "GOLDEN REPRODUCES THE TASK"
+ },
+ "caveats": [
+  "Gyms were the locally available images; a port-alias sidecar and the harness-era /api/seed-database endpoint were used to bring them up. Shipped bundle bytes were not modified — the adaptation is a compose override.",
+  "Reward 1.0 is the ORACLE's path. It proves the task is solvable, not easy; see SHIPPED_TASKS_SUMMARY.md for measured model results."
+ ]
+}

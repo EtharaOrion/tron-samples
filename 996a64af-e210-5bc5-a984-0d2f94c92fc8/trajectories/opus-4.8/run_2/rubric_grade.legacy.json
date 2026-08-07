@@ -1,0 +1,111 @@
+{
+  "task": "996a64af-e210-5bc5-a984-0d2f94c92fc8",
+  "uuid": "996a64af-e210-5bc5-a984-0d2f94c92fc8",
+  "run": "run_2",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "52e2864e575efdeedee187eeb887ea3904a34911ba918fda7731b0c310ee8713",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R03",
+    "R08",
+    "R11",
+    "R12",
+    "R14"
+  ],
+  "result": {
+    "scored": 14,
+    "met": 13,
+    "gate_met": 5,
+    "gate_total": 5,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 9,
+    "writes": 3
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Call #1 retrieve_knowledge{kb_number:KB-CSM-ENT-077} returns state:published body with R1/R2/R3/R4/R5/R6, before any write (writes are #7-9). Final message composes 'General rule (R1)...', 'Exception (R2)...', 'Precedence (R3): R2 overrides R1', and the writes performed match R4/R5/R6 exactly, showing the clauses were applied before acting."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Call #1 response shows \"state\": \"published\"; final message states 'Binding procedure \u2014 KB-CSM-ENT-077 (published, internal, \"V12 Entitlement Exception Standard\")'. No draft/retired look-alike article is used anywhere."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "No ITSM knowledge-artifact tool call appears among the 9 calls; only gym-itsm-mcp calls are find_configuration_item_by_serial_number (#6) and update_configuration_item (#8). Final message: 'no ITSM knowledge article retrieved or used.'"
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #2 find_account -> account_id 1300. Call #3 find_entitlements{account_id:1300} -> entitlement_id 1300 (enterprise, active, product_id 1300). Call #4 retrieve_installed_products -> installed_product_id 1300 (product_id 1300, serial ENT-AX-9007) matches the entitlement's product_id. Call #5 search_cases{account_id:1300} returns two cases; the agent selects case_id 1300 (CS-V12-09007, installed_product_id 1300) as the qualifying one for the write in #7."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #7 update_case{case_id:1300, state:in_progress, priority:high, escalation:true, escalation_reason:impact} matches article R4 exactly; the other case returned in #5 (case_id 1302, CS-V12-02100) is never updated."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #4 returns CSM serial_number 'ENT-AX-9007' for installed_product_id 1300. Call #6 find_configuration_item_by_serial_number{serial_number:'ENT-AX-9007'} uses that saved serial to resolve CI_V12_ENT_9007."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #8 update_configuration_item{configuration_item_id: CI_V12_ENT_9007, status: maintenance} matches article R5. The neighbour CI (serial ENT-SN-2100, installed_product_id 1302) is never written; final message: 'Neighbouring installed product installed_product_id 1302 and its ITSM CI (serial ENT-SN-2100) \u2014 untouched.'"
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Call #6 ITSM lookup returns \"serial_number\": \"ENT-AX-9007\". Call #9 create_file uses \"name\": \"ENT-AX-9007\" \u2014 byte-exact match to the ITSM-returned serial."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Exactly one create_file call (#9) with description 'Entitlement exception evidence for Aurora Transit', matching article R6 verbatim. No decoy Drive file is referenced or altered."
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "Final message labels CS-V12-02100 'Look-alike / non-entitled case' and identifies the neighbouring installed product/CI, but CS-V12-02100 belongs to the SAME account (1300) tied to a different product \u2014 not the 'look-alike case for the non-entitled account' the task specifies as a separate decoy. No decoy Drive file is ever identified or even queried anywhere in the trajectory or final message, so the full triple (non-entitled-account case, neighbouring product, decoy Drive file) is not explicitly identified."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Call #9 create_file passes only {name, mimeType, description} with no permission parameters, and no permission-mutating call appears anywhere in the trajectory."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "Call #3 find_entitlements is a read-only query returning entitlement_id 1300, used only to qualify. No create/update entitlement call appears anywhere. Final message: 'No entitlements created or altered.'"
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "entitlement 1300 <- call #3; case 1300/CS-V12-09007 <- call #5; serial ENT-AX-9007 <- call #4; CI_V12_ENT_9007 <- call #6 (keyed on the call #4 serial). DRV_V12_ENT only appears as a system-assigned field in the call #9 response, never asserted beforehand by the agent."
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "Call #7 response confirms state:in_progress/priority:high/escalation:1. Call #8 response confirms status:maintenance. Call #9 response confirms \"status\": \"success\", \"message\": \"File created successfully\". The completion summary ('...is complete. Here is a summary...') with each write marked '\u2014 confirmed' follows all three confirmations."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "task": "7182f0cf-22d4-5a43-a805-a4933063dc87",
+  "run": "codex/run_1",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubrics_sha256": "680a86de4ab96a4c1ba8f27aff22f93c56812987584ee75d621398b667eb2ba7",
+  "rubric_schema": "weighted additive; each criterion carries is_positive/importance/score from verifiers/rubrics.json. R = max(0, (positive_achieved - negative_triggered_abs) / positive_possible); overall_pass = R >= 0.7.",
+  "note_on_prior_grade": "Replaces a prior rubric_grade.json in this file that was scored against a different, no-longer-present rubric version (sha 71df64e8...; R01-R14 binary/gate schema). That grade is stale and superseded by this one.",
+  "criteria": [
+    {
+      "number": "R1",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call [2] get_user_using_email(email='daniel.foster@globex.com') returned user_id 610 (role employee, active true). All subsequent writes (hr_profile update, case opened_for, email target) reference this id/email, never the decoy Sales contractor. Identity was resolved by email before any write."
+    },
+    {
+      "number": "R2",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "After a failed find_hr_services attempt [4]-[5] and a failed get_hr_service_by_name('Employee Conversion') [7]-[8] (casing mismatch), call [9] get_hr_service_by_name('employee conversion') succeeded, returning hr_service_id 100. create_new_hr_case [13] used hr_service='100', the looked-up id, not a guess."
+    },
+    {
+      "number": "R3",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call [15] update_hr_profile(hr_profile_id='610', type='full-time', ...) result [16] confirms hr_profile.type changed to full-time. Call [15] update_user_details(user_id='610', role='employee', active=true) result [17] shows only 'phone' changed -- active remained true throughout (never set to false). Conversion to full-time without deactivation confirmed."
+    },
+    {
+      "number": "R4",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call [13] create_new_hr_case created a brand-new case (hr_case_id 2, number HRC0004002). No tool call in the trajectory reads, edits, or references the pre-existing case HRC0004001; the pre-existing inquiry case was left untouched."
+    },
+    {
+      "number": "R5",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "create_new_hr_case result [14]: short_description 'Contractor to FTE conversion for Daniel Foster' (exact match), priority 'moderate', coe_type 'Workforce Administration', hr_service.hr_service_id 100 (employee conversion), opened_for -> user_id 610 (Daniel Foster), assigned_to -> user_id 501 (Maya Rodriguez). All fields match the mandated values exactly."
+    },
+    {
+      "number": "R6",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "create_new_hr_case [14] returned number 'HRC0004002' for hr_case_id 2. The subsequent update_hr_case call [20] wrote worknotes='Case number: HRC0004002.' onto that same case (hr_case_id '2') -- the agent's own case number, not fabricated or borrowed from HRC0004001."
+    },
+    {
+      "number": "R7",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Closing update_hr_case [22]/[23] set status='closed_complete' with worknotes 'Converted Daniel Foster to full-time employee, kept him active, and recorded case HRC0004002.' This omits the welcome email entirely because the email was never sent (see R9/R12) -- the case was resolved and closed without the mandated notification having occurred, so the closure does not summarize a completed 'welcome email' action as the criterion requires; the case was closed with one of the three required components (notification) never performed."
+    },
+    {
+      "number": "R8",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No email was ever successfully sent. The only send_message call [18] used args={} (empty -- no userId, recipient, subject, or body) and errored: '❌ Invalid Tool Arguments: [\"userId: is required\"]' (result [19]). There is no successful send from maya.rodriguez@globex.com or any mailbox to evaluate as compliant."
+    },
+    {
+      "number": "R9",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "send_message [18] failed with args={} and the tool error 'userId: is required' (result [19]). The agent did not retry with corrected arguments; it proceeded directly to closing the case. Final report [24] states explicitly: 'The welcome email was **not sent** because the email tool rejected the send request due to a missing mailbox-routing argument.' No email reached daniel.foster@globex.com."
+    },
+    {
+      "number": "R10",
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Throughout, the agent looked up and used Maya Rodriguez's own id (call [11]-[12] resolved user_id 501) as assigned_to/opened_by on the case, and never adopted Daniel Foster's or any other identity string for its own actions or reasoning."
+    },
+    {
+      "number": "R11",
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Every id used post-hoc was first obtained from a tool response: user_id 610 from [3], hr_profile number HRP0000610 from [6], hr_service_id 100 from [10], user_id 501 from [12], case number HRC0004002 from [14]. No id appears in an agent message or write call before its originating lookup."
+    },
+    {
+      "number": "R12",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Policy order requires notify (send welcome email) before stamping the case number and closing. Here, send_message [18] failed and was never retried; the very next actions were update_hr_case to record the case number [20] (still work_in_progress) and then update_hr_case to set status='closed_complete' [22]/[23] -- the case was declared closed even though the notification step never actually succeeded, exactly the ordering violation this criterion prohibits."
+    },
+    {
+      "number": "R13",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No tool call in the trajectory reads or writes user/profile 611 (the decoy Sales-side Daniel Foster) or any 'd.foster@globex.com' address. All reads/writes target user_id 610 only."
+    },
+    {
+      "number": "R14",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No email was sent at all (send_message [18] errored and was abandoned), so none was sent to a wrong/decoy address either. Not triggered."
+    },
+    {
+      "number": "R15",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The pre-existing case HRC0004001 is never referenced, read, or written in the trajectory; a new case (HRC0004002, hr_case_id 2) was created instead. Not triggered."
+    },
+    {
+      "number": "R16",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "update_hr_profile was actually called for user 610 [15]/[16], create_new_hr_case was actually called and returned a real case [13]/[14], and send_message was actually attempted [18] (it failed, but a genuine tool call was made, not omitted). This is a partial-completion/failed-retry case, not the wholesale inaction this guard targets, so it is not triggered."
+    },
+    {
+      "number": "R17",
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The final report [24] accurately reflects the tool history: it claims the case was created, numbered, and closed (all true per [13]/[14]/[20]/[21]/[22]/[23]) but explicitly and correctly states the welcome email was NOT sent, rather than fabricating a successful send. Not triggered."
+    }
+  ],
+  "totals": {
+    "positive_possible": 56,
+    "positive_achieved": 38,
+    "negative_triggered_abs": 0,
+    "R": 0.6786,
+    "overall_pass": false
+  },
+  "summary": "Codex run_1 correctly resolved Daniel Foster (610) by corporate email, looked up the real employee-conversion service id (100), created a single new, correctly-fielded case (HRC0004002), converted his HR profile to full-time while keeping him active, and self-referenced the case number in a worknote -- all via genuine tool calls with ids drawn from prior responses, and it never touched the decoy user, decoy case, or a wrong recipient. It fails, however, on the task's other mandated deliverable: the welcome-email tool call was made with empty arguments, errored ('userId: is required'), and was never retried; the agent then recorded the case number and closed the case as closed_complete anyway, violating the required order (notify before close) and leaving the closing worknote silent on the (unperformed) notification. The final report is honest about this failure rather than fabricating success, which is itself a positive sign, but the missed, unretried, mandatory email send and the premature closure are enough to keep the weighted score (0.679) under the 0.7 pass threshold. This is corroborated by the environment's own automated verifier suite in the raw results file, which shows overall_success=false with 3 of 31 checks failing (consistent with the missing welcome-email checks)."
+}

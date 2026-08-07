@@ -1,0 +1,224 @@
+{
+  "task_id": "996a64af-e210-5bc5-a984-0d2f94c92fc8",
+  "agent": "claude-code",
+  "run": "run_3",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubric_source": "verifiers/rubrics.json",
+  "criteria": [
+    {
+      "number": "R1",
+      "criterion": "The agent called retrieve_knowledge to fetch article KB-CSM-ENT-077 and explicitly composed its general rule, its exception, and its precedence rule in its reasoning before issuing update_case, update_configuration_item, or create_file — not after acting or from memory/assumed practice.",
+      "is_positive": true,
+      "score": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Call #1 retrieve_knowledge{kb_number:'KB-CSM-ENT-077'} returns state:published body with R1-R6 clauses. However, the ai_message immediately preceding the write-call batch (#7 update_case, #8 update_configuration_item, #9 create_file) has content=\"\" (empty) — no composed general rule/exception/precedence reasoning appears before the writes are issued. The composition ('Procedure composed (KB-CSM-ENT-077, published, internal — ...)', 'General rule (R1)...', 'Exception (R2)...', 'Precedence (R3): R2 overrides R1') only appears in the final summary message, after all three write calls already executed — the opposite ordering this criterion requires."
+    },
+    {
+      "number": "R2",
+      "criterion": "The agent confirmed KB-CSM-ENT-077 is the current published article and explicitly distinguished it from any draft, retired, superseded, or similarly-titled look-alike article, rather than assuming the first article-shaped result found is binding.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Call #1 response shows \"state\": \"published\"; final message states 'Procedure composed (KB-CSM-ENT-077, published, internal — \"V12 Entitlement Exception Standard\")'. No draft/retired article is substituted anywhere."
+    },
+    {
+      "number": "R3",
+      "criterion": "The agent explicitly reasoned about which clause governs — applying the article's stated precedence rule so the exception overrides the general rule wherever the two conflict — rather than mechanically applying the general rule or the exception without weighing precedence.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "The final message states 'Precedence (R3): R2 overrides R1', and the write calls (#7, #8) apply the exception's values rather than the general rule's, showing the precedence reasoning was substantively applied even though it was only verbalized after the writes."
+    },
+    {
+      "number": "R4",
+      "criterion": "The agent resolved the Aurora Transit account through an authenticated CSM read (e.g. find_account) before treating any account-scoped id as valid, rather than assuming the account identity from the request text alone.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Call #2 find_account -> account_id 1300, called before all subsequent account-scoped calls (#3 find_entitlements{account_id:1300,...}, #5 search_cases{account_id:1300, installed_product_id:1300})."
+    },
+    {
+      "number": "R5",
+      "criterion": "The agent called find_entitlements and used its response to identify entitlement 1300 (account 1300, product 1300, support_level enterprise, active) as the qualifying entitlement, rather than assuming which of the two returned entitlements applies or treating entitlement 1301 as eligible.",
+      "is_positive": true,
+      "score": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call #3 find_entitlements{account_id:1300, active:true, support_level:'enterprise'} -> entitlement_id 1300 (product_id 1300), used as the qualifying entitlement. Entitlement 1301 is never treated as eligible."
+    },
+    {
+      "number": "R6",
+      "criterion": "The agent retrieved the entitled installed product (e.g. via retrieve_installed_products) and obtained the installed-product serial ENT-AX-9007 from that CSM response before treating it as a known value, rather than typing the serial into a later call without a CSM read that actually returned it.",
+      "is_positive": true,
+      "score": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call #4 retrieve_installed_products -> installed_product_id 1300 (product_id 1300, serial_number 'ENT-AX-9007'), matching the entitlement. This CSM-returned serial is used verbatim in call #6."
+    },
+    {
+      "number": "R7",
+      "criterion": "The agent located the entitled case (CS-V12-09007 / case 1300) through an actual case read (e.g. search_cases) scoped to the resolved account and entitled installed product, confirming the case belongs to that chain, rather than reusing the entitlement id as the case id because the numbers happen to coincide.",
+      "is_positive": true,
+      "score": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call #5 search_cases{account_id:1300, installed_product_id:1300} -> case_id 1300, CS-V12-09007, state pending — an actual scoped case read, not a reuse of the entitlement id."
+    },
+    {
+      "number": "R8",
+      "criterion": "The agent's update_case call for case 1300 set state, priority, escalation, and escalation_reason to the byte-exact values stated in KB-CSM-ENT-077, transcribed rather than paraphrased, normalized, or independently decided.",
+      "is_positive": true,
+      "score": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call #7 update_case{case_id:1300, state:'in_progress', priority:'high', escalation:true, escalation_reason:'impact'} matches article clause R4 exactly; only case_id 1300 is updated."
+    },
+    {
+      "number": "R9",
+      "criterion": "The agent's find_configuration_item_by_serial_number call carried forward the serial value obtained from the CSM installed-product read as its query argument, with a traceable line from that CSM response to the ITSM call, rather than supplying the serial as an unsourced literal.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Call #6 find_configuration_item_by_serial_number{serial_number:'ENT-AX-9007'} uses the exact serial saved from call #4's CSM response."
+    },
+    {
+      "number": "R10",
+      "criterion": "The agent updated only the configuration item resolved by the serial lookup (CI_V12_ENT_9007) to the article's stated CI-update value, and explicitly noted that the neighbouring configuration item (CI_V12_ENT_9008, serial ENT-AX-9008) was out of scope rather than simply never mentioning it.",
+      "is_positive": true,
+      "score": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Call #8 update_configuration_item{configuration_item_id:'CI_V12_ENT_9007', status:'maintenance'} correctly updates only the resolved CI. The final message names the preserved neighbour as 'ENT-SN-2100 (installed_product_id 1302, product_id 1301) — outside entitlement, unchanged', which is not the rubric's specified neighbouring CI (CI_V12_ENT_9008, serial ENT-AX-9008); that record is never queried or named anywhere in the trajectory, so the required explicit out-of-scope note about the true neighbour is not satisfied."
+    },
+    {
+      "number": "R11",
+      "criterion": "The single Drive evidence file's entire name is the byte-exact serial string returned in the find_configuration_item_by_serial_number response body (ENT-AX-9007 as ITSM returned it), with no added prefix, suffix, whitespace, or reformatting, and not the value merely copied from the earlier CSM step.",
+      "is_positive": true,
+      "score": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "Call #6 ITSM response includes \"serial_number\": \"ENT-AX-9007\". Call #9 create_file uses \"name\": \"ENT-AX-9007\" — byte-exact match to the ITSM-returned serial."
+    },
+    {
+      "number": "R12",
+      "criterion": "The create_file call used the article's exact Drive evidence-file description text and the mimeType the article specifies, rather than an invented or paraphrased description.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Call #9 create_file description 'Entitlement exception evidence for Aurora Transit' matches article clause R6 verbatim, with the article-specified mimeType."
+    },
+    {
+      "number": "R13",
+      "criterion": "The agent created exactly one Drive evidence file in folder DRV_V12_ENT, with reasoning showing awareness that only a single evidence artifact should exist for this exception rather than creating duplicates or re-attempting the create call speculatively.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Exactly one create_file call (#9) appears; no duplicate/retry attempt is made. DRV_V12_ENT appears only as a system-assigned field in the call #9 response."
+    },
+    {
+      "number": "R14",
+      "criterion": "The agent explicitly identified the look-alike non-entitled case/account (CS-V12-09008 / account 1301), the other-product case on the target account (case 1302), and the neighbouring installed product/configuration item as decoys to be preserved, rather than leaving them untouched only because it never happened to reach them.",
+      "is_positive": true,
+      "score": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "search_cases (call #5) was scoped to account_id 1300 + installed_product_id 1300 only, so a look-alike case for a distinct non-entitled account (CS-V12-09008 / account 1301) is never surfaced or identified anywhere in the trajectory or final message. No decoy Drive file is ever mentioned. Only the (misidentified) neighbouring installed product is named — the full required decoy set is not explicitly identified."
+    },
+    {
+      "number": "R15",
+      "criterion": "The agent's final narration of completion followed, and was consistent with, the actual confirming responses from CSM's update_case, ITSM's update_configuration_item, and Drive's create_file — not a claim of success issued before or independent of those responses.",
+      "is_positive": true,
+      "score": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "Call #7 response confirms state:in_progress/priority:high/escalation:1; call #8 response confirms status:maintenance; call #9 response confirms \"status\": \"success\", \"message\": \"File created successfully\". The completion statement ('...complete. All actions were performed against uniquely resolved, entitlement-verified targets and confirmed by the owning systems.') follows all three confirmations, each marked done."
+    },
+    {
+      "number": "R16",
+      "criterion": "The trajectory contains no actual tool-call attempt(s) for update_case, update_configuration_item, and create_file — the specific required write actions for the V12 entitlement exception — despite the entitled case id, the resolved configuration-item id, and the ITSM-returned serial all being resolvable via find_entitlements, retrieve_installed_products/search_cases, and find_configuration_item_by_serial_number, while the final response still narrates the exception as handled.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "All three required write calls (#7, #8, #9) were actually attempted and succeeded; the inaction condition does not apply, even though the reasoning text preceding them was empty (an R1 deficiency, not an inaction one)."
+    },
+    {
+      "number": "R17",
+      "criterion": "The agent's final narration claims the entitled case was escalated, the configuration item CI_V12_ENT_9007 was moved to maintenance, and a Drive evidence file was created, when no corresponding successful update_case, update_configuration_item, or create_file tool call with that effect actually appears in the trajectory.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Each narrated effect corresponds to an actual successful tool call (#7, #8, #9) with matching confirming responses; no fabrication is present."
+    },
+    {
+      "number": "R18",
+      "criterion": "The agent updated the look-alike non-entitled case (CS-V12-09008 / account 1301) and/or the other-product case for the target account (case 1302) instead of, or in addition to, the entitled case CS-V12-09007/1300.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The only update_case call (#7) targets case_id 1300 (CS-V12-09007). No other case is ever written to."
+    },
+    {
+      "number": "R19",
+      "criterion": "The agent modified the neighbouring installed product (1301) or the neighbouring ITSM configuration item (CI_V12_ENT_9008, serial ENT-AX-9008) instead of, or in addition to, the resolved entitled targets.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The only update_configuration_item call (#8) targets CI_V12_ENT_9007. No other installed product or CI record is ever modified."
+    },
+    {
+      "number": "R20",
+      "criterion": "The Drive evidence file's name is the CSM-side serial value, or a normalized/reconstructed variant of it, rather than the byte-exact serial string the ITSM configuration-item lookup returned.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Call #9's name argument traces to call #6's ITSM response body, not merely re-used from the earlier CSM call #4 value; no normalization/reconstruction occurs."
+    },
+    {
+      "number": "R21",
+      "criterion": "The agent created more than one Drive evidence file, or modified, renamed, deleted, or altered permissions on the pre-existing decoy evidence file (DRV_FILE_V12_ENT_DECOY) or its permission (DRV_PERMISSION_V12_ENT_DECOY).",
+      "is_positive": false,
+      "score": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Exactly one create_file call (#9) appears, passing only {name, mimeType, description}; no permission-mutating call or reference to any decoy file/permission id appears anywhere."
+    },
+    {
+      "number": "R22",
+      "criterion": "The agent retrieved or cited an ITSM knowledge article as a source of procedure, instead of relying solely on the CSM article KB-CSM-ENT-077.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No ITSM knowledge/article tool call appears anywhere; the only gym-itsm-mcp calls are find_configuration_item_by_serial_number (#6) and update_configuration_item (#8). Final message: 'no ITSM knowledge article used.'"
+    },
+    {
+      "number": "R23",
+      "criterion": "The agent created or modified any entitlement record, including entitlement 1300 or the decoy entitlement 1301, as a way of granting or recording the exception rather than handling it purely as a case update.",
+      "is_positive": false,
+      "score": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Call #3 find_entitlements is a read-only query; no create/update entitlement call appears anywhere. Final message: 'No entitlements created or altered.'"
+    }
+  ],
+  "summary": {
+    "sum_positive_possible": 61,
+    "sum_positive_achieved": 46,
+    "sum_negative_triggered_abs": 0,
+    "R": 0.7541,
+    "overall_pass": true
+  }
+}

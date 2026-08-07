@@ -1,0 +1,30 @@
+{
+ "task": "0a1be4f9-e234-58e6-9c00-5d4f50e95b3a",
+ "run": "claude-code_run_3",
+ "calls": 13,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 13,
+  "total": 14,
+  "gate_met": 6,
+  "gate_total": 7,
+  "pass": false,
+  "exceeds_gold": 7,
+  "criteria": [
+   {"id": "R01", "score": 1, "gate": false, "evidence": "find_account(name='Acme Corporation') is called explicitly (first tool batch) and returns account_id 1001, account_type='customer', email_domain 'acme-customer.com' -- an exact-name resolution that, per the rubric's own gold_calibration note for R01, is the specific call that 'would satisfy this criterion outright'. Contact 3001 subsequently resolved via find_contacts(account_id=1001, is_primary=true) before any write."},
+   {"id": "R02", "score": 1, "gate": true, "evidence": "update_case(case_id=9001, state='in_progress', escalation=true, escalation_reason='breach_risk', priority='critical', ...) tool result echoes all four fields; verification_results.case9001_all_fields_combined passed."},
+   {"id": "R03", "score": 1, "gate": true, "evidence": "Same update_case call sets short_description='Wire fraud escalation for Acme Corporation pending funds recovery', byte-identical, confirmed in tool result and verification_results.case9001_short_description (passed)."},
+   {"id": "R04", "score": 1, "gate": false, "evidence": "update_case assigns case 9001 to 601; final summary explicitly states 'the London/active/agent filter returned the operator herself (Nadia, 501) plus Marcus (601); the operator is not the assignable escalation lead, leaving Marcus as the correct unique owner.' verification_results confirms owner is London active agent, not decoys 603/604."},
+   {"id": "R05", "score": 1, "gate": false, "evidence": "list_users(role='agent', active=true, location_id=11) explicitly called and returns exactly {501, 601} before 601 is used in the subsequent write; both active status and London location verified together."},
+   {"id": "R06", "score": 1, "gate": true, "evidence": "find_user(name='Nina Alvarez') resolves 602 (role=agent, active=1) prior to assign_case_to_user(case_id=9002, assigned_to_user_id=602); verification_results.subcase9002_assigned_deputy602 and number_intact both passed."},
+   {"id": "R07", "score": 1, "gate": true, "evidence": "9002's assign_case_to_user call touches only assigned_to; final summary states explicitly 'Assigned to Nina Alvarez (602) -- a different person from the escalation owner, satisfying the separation-of-duties red line. Nothing on this sub-case was routed to Marcus.' verification subcase9002_not_owner601_SoD and not_escalated passed."},
+   {"id": "R08", "score": 1, "gate": true, "evidence": "register_new_interaction(channel='phone', status='handled', account_id=1001, contact_id=3001, case_id=9001, interacted_user=501) -- all four linkages present in tool result; verification_results.interaction_full_combined passed."},
+   {"id": "R09", "score": 0, "gate": true, "evidence": "Three send_message attempts: first two (structured text/plain, then multipart) both returned isError:true ('filename can't be left empty...'); the third (raw base64 MIME) returned isError:false but the echoed message payload shows empty headers ('headers': [], 'filename': \"\"). verification_results confirm the failure: email_ack_subject_from_nadia, email_ack_to_priya, email_ack_message_correlated all show passed:false with actual=0 (no row in message_headers matches the required Subject/To for user 'usr_nadia'), i.e. no properly recorded ack email with the byte-exact subject to Priya exists despite apparent tool success. verification_summary shows overall_success:false, 28/31 passed."},
+   {"id": "R10", "score": 1, "gate": false, "evidence": "All three send_message attempts use userId='me' and a From header of 'Nadia Rahman <chandrapiyush357@gmail.com>', matching the operator record (user 501) returned by the preceding list_users call; final summary explicitly states 'From: chandrapiyush357@gmail.com (me)'. verification_results.email_not_sent_from_priya_mailbox passed."},
+   {"id": "R11", "score": 1, "gate": false, "evidence": "No tool call in the trajectory references case 9003; verification_results.decoy9003_billing_untouched_assign/state_new/priority_untouched all passed. Final response explicitly states 'No other Acme cases were touched, and no one other than Priya was emailed.'"},
+   {"id": "R12", "score": 1, "gate": true, "evidence": "All three send_message attempts target only priya.menon@acme-customer.com, no CC, no second recipient; no ITSM/HR-named tool call or mention appears anywhere in the trajectory."},
+   {"id": "R13", "score": 1, "gate": false, "evidence": "First tool batch (find_account, search_cases x2, find_location, find_user) plus the following list_users and find_contacts calls all occur before the write batch (update_case, assign_case_to_user, register_new_interaction, send_message); every id used in the writes (601, 602, 1001, 3001, 9001, 9002) was resolved by a preceding read."},
+   {"id": "R14", "score": 1, "gate": false, "evidence": "Final summary accurately states 'The first two send attempts failed on a payload formatting error and did not dispatch anything; only the final raw send succeeded, so no duplicates were sent' -- matching the three actual send_message tool_results (two isError:true, one isError:false); no fabricated or unexecuted step is claimed."}
+  ]
+ }
+}

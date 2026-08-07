@@ -1,0 +1,126 @@
+{
+  "task": "fec331bf-9326-57ae-bbc1-2e478b5fed0c",
+  "uuid": "fec331bf-9326-57ae-bbc1-2e478b5fed0c",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "689e37f676ae43cad658727369e4919e88958b39380db5a43ef6dc2e13971ed9",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R03",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 15,
+    "gate_met": 9,
+    "gate_total": 9,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 15,
+    "writes": 7
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "#1 list_files response gives the full standard text incl. 'policy serial is GRD-NX-4471', retrieved before #2."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Final message: 'R1 (general \u2014 standard-tier device = normal change) and R2 (exception \u2014 regulated grid gateway = special handling) both apply; R3 makes R2 govern. In-scope device for this cycle = regulated grid gateway, policy serial GRD-NX-4471.'"
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "#2 find_installed_product_by_serial \u2192 installed_product_id 5502147; final message states 'installed_product_id 5502147'."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "#3 find_configuration_item_by_serial_number \u2192 CI_GRID_4471, used consistently through #12."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "#8 create_change response short_description 'Change routing for installed asset 5502147'; final message confirms it is 'byte-for-byte the installed-product identifier from step 2'."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "#8 create_change response: status 'assess', impact 'medium', risk 'low', priority 'moderate'."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "#8 create_change accepted on first attempt; final message: 'The write was accepted first time (no rejection was returned...).'"
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Only one create_change call (#8), producing CHG_001/CHG0000001; no duplicates."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "#4 list_incidents returns INC_GRID_H1(on_hold), INC_GRID_P1(in_progress), INC_GRID_N1(new); #5-#7 update_incident set the exact worknote on all three, confirmed in the final message's enumerated list."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Only the three statuses new/in_progress/on_hold from #4 are annotated in #5-#7; no other-status incident appears."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No CI other than CI_GRID_4471 appears anywhere in #1-#15; final message states 'No incident on the neighbouring/any other CI was touched.'"
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "#9-#11 map_change_request link CHG_001 to INC_GRID_H1, INC_GRID_P1, INC_GRID_N1 \u2014 the full in-scope set."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "Email: only get_user_profile (call #14) was read; no send_message call was ever attempted -- the final message declines to send citing 'no confirmed operations recipient,' but there is no tool-level refusal to cite. Teams: no gym-teams-mcp call appears anywhere in the 15 calls; the final message claims 'no discovery tool available,' which is inaccurate -- other trajectories in this same task (codex run_1, run_3) successfully call list_channels(teamId='operations') and get an informative 'not found' response, so this run never even tried a discoverable action. Calendar: calls #13/#15 get_calendar_list only found 'cal_leaver_handoffs'; no create_event attempt was made. Since Teams in particular was neither attempted nor accurately characterized, this falls short of 'tries, is refused, and says so.'",
+      "rejudged": true
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "All written values (#5-#7, #8, #9-#11) trace to #1-#3 reads; final message confirms every carried value's source."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Final message explicitly separates 'Steps 1\u20134 completed successfully' from 'Step 5 ... could not be completed', matching the executed calls exactly with no overstatement."
+    },
+    {
+      "id": "R16",
+      "score": 1,
+      "evidence": "Final message states a precise, non-fabricated reason for each of the four blocked audit sub-steps (HR profile not found with no bridge; no confirmed operations recipient for email; 'no operations calendar ... I will not misfile it onto the HR calendar'; 'no team/channel identifier ... I will not fabricate a team/channel ID') while steps 1-4 are fully completed via #1-#11."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

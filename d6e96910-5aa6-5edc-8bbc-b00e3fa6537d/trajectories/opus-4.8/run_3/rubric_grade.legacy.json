@@ -1,0 +1,106 @@
+{
+  "task": "adopted_d6e96910",
+  "uuid": "d6e96910-5aa6-5edc-8bbc-b00e3fa6537d",
+  "run": "run_3",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "6f69be53bee7a12f9e303b9181dfe175164edf271b2561290572795663bf152e",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R05",
+    "R07",
+    "R08",
+    "R09",
+    "R11",
+    "R12"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 13,
+    "gate_met": 6,
+    "gate_total": 6,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 11,
+    "writes": 5
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Calls #1 (get_user_using_email -> user 1202, org 1200), #2 (retrieve_knowledge_articles KB-HR-HANDOFF-042), #3 (get_users_hr_profile 1202, manager=1201), #4 (get_users_hr_profile 1201) all precede the first write, call #5 create_new_hr_case."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Final message: 'General rule (R1): For an Office Based employee, select ... evt_handoff_core_42... Exception (R2): For an IT Support employee, select ... evt_handoff_restricted_42... Precedence (R3): R2 overrides R1' with explicit application: 'Because R3 makes the exception override the general rule, the Restricted event ... was selected' \u2014 matches calls #6/#7 targeting evt_handoff_restricted_42."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #2 response shows '\"state\": \"published\"'; final message labels article 'KB-HR-HANDOFF-042 (published)' and uses it exclusively."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #5 create_new_hr_case: {'short_description':'Manager handoff for Nora Patel','status':'ready','priority':'high','source':'email','coe_type':'Workforce Administration','opened_for':'Nora Patel'} \u2014 matches article R5 exactly, opened for hr_profile_id 1202; exactly one case created."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #7 patch_event targets evt_handoff_restricted_42 with attendees:[{\"email\":\"elena.morris@northstar.example\"}]; read-back call #8 confirms attendees array has exactly that single entry."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #4 HR profile personal_email 'elena.morris@northstar.example' is used unchanged in call #7's patch and in call #11's raw email, which decodes to 'To: elena.morris@northstar.example' \u2014 identical throughout."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "Call #8 (get_event) reads the patched event back after call #7 and before any send; call #11's To header equals the attendee value confirmed in call #8."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Calls #9/#10 errored (isError:true, missing userId/size, missing filename) and sent nothing; call #11 succeeded (id '1ad9dbda-...'), decoding to Subject 'Manager handoff confirmed for Nora Patel' and body 'The restricted manager handoff for Nora Patel is confirmed.' Final message also explicitly notes the two earlier attempts 'did not dispatch any message; only the final raw send succeeded'."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Final message's claims (case HRC0000001, event patched, read-back confirmed, email id 1ad9dbda-...) each follow their respective confirming tool response in calls #5, #7/#8, #11; the message also correctly clarifies the two failed send attempts did not dispatch mail."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "All identifiers/addresses (user 1202, org 1200, HRC0000001, evt_handoff_restricted_42, elena.morris@northstar.example) trace to calls #1, #4, #5, #7; the R1/R2/R3 clauses trace to call #2's article body."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No call touches evt_handoff_core_42; no HR-profile-update call appears; only Nora's case is created. Final message states the Core look-alike 'was not touched' and 'No HR profiles were modified', and no Omar case exists."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "The single successful send (#11) has To 'elena.morris@northstar.example'; no call targets Nora or Omar."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Manager, event, and procedure resolved unambiguously via calls #1-#4; R1/R2/R3 applied deterministically with no guessing anywhere in the trajectory."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}

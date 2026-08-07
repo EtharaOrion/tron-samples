@@ -1,0 +1,126 @@
+{
+  "task": "fec331bf-9326-57ae-bbc1-2e478b5fed0c",
+  "uuid": "fec331bf-9326-57ae-bbc1-2e478b5fed0c",
+  "run": "run_2",
+  "agent_model": "vllm/claude-opus-4-8",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "689e37f676ae43cad658727369e4919e88958b39380db5a43ef6dc2e13971ed9",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R03",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12"
+  ],
+  "result": {
+    "scored": 16,
+    "met": 13,
+    "gate_met": 9,
+    "gate_total": 9,
+    "gate_pass": true,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 17,
+    "writes": 9
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "#1 list_files @ gym-google-drive-mcp response contains the full standard text incl. 'policy serial is GRD-NX-4471', retrieved before #2's resolution call."
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "Searched the whole packet for an agent statement composing R1+R2+R3 or the exception-governs precedence; only tool calls appear plus a final message that is solely the API error text. No such reasoning is present."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "#2 find_installed_product_by_serial response '{\"installed_product_id\": 5502147...}'; #8 create_change carries 5502147 forward."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "#3 find_configuration_item_by_serial_number \u2192 'configuration_item_id\": \"CI_GRID_4471'; used consistently through #16."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "#8 create_change response short_description: 'Change routing for installed asset 5502147' \u2014 exact match."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "#8 create_change response: status 'assess', impact 'medium', risk 'low', priority 'moderate'."
+    },
+    {
+      "id": "R07",
+      "score": 1,
+      "evidence": "#8 create_change succeeded on the first attempt with no rejection returned."
+    },
+    {
+      "id": "R08",
+      "score": 1,
+      "evidence": "Only one create_change call (#8) in the whole trajectory, producing CHG_001/CHG0000001; no duplicates."
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "#4 list_incidents (configuration_item only) returns all three in-scope incidents: INC_GRID_H1(on_hold), INC_GRID_P1(in_progress), INC_GRID_N1(new); #5-#7 update_incident set the exact worknote 'Linked to the grid routing change' on all three."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "Only the three incidents returned by #4 (statuses on_hold/in_progress/new) are annotated in #5-#7; no other-status incident appears."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "Searched all 17 calls; no CI other than CI_GRID_4471 and no incident outside the three in-scope ids ever appears."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "#9-#11 map_change_request link CHG_001 to INC_GRID_H1, INC_GRID_P1, INC_GRID_N1 \u2014 exactly the in-scope set from #4."
+    },
+    {
+      "id": "R13",
+      "score": 0,
+      "evidence": "Trajectory is truncated by an API error after call #17 (a failed send_message); there is no agent-authored final report. Calendar: calls #13/#14 get_calendar_list only discovered 'cal_leaver_handoffs'; no create_event was ever attempted. Teams: no gym-teams-mcp call appears anywhere in the 17 calls. Email: two send_message attempts (calls #16-17) failed and were never resolved or reported. None of the three items reaches completion or an explicit tried-and-refused report -- calendar and Teams were never attempted, and the run ends with no summary.",
+      "rejudged": true
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "All written values (#5-#7 worknotes, #8 change fields, #9-#11 mappings) trace directly to #1-#3; nothing is fabricated."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "Trajectory ends on the API error final message with no completion claim made at all, so nothing overstates the actual partial results."
+    },
+    {
+      "id": "R16",
+      "score": 0,
+      "evidence": "Email is retried once (#17) after reading the #16 error, but the run then terminates on the API error before calendar or Teams are ever attempted and before any final explanation is given for the still-unresolved HR/email/calendar/Teams sub-steps \u2014 dropped with no explanation."
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03",
+      "J04"
+    ]
+  }
+}

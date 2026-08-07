@@ -1,0 +1,217 @@
+{
+  "task_id": "b6553441-dcdf-5fb9-bd0b-229c68098b07",
+  "agent": "codex",
+  "run": "run_2",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-06",
+  "rubric_source": "verifiers/rubrics.json",
+  "criteria": [
+    {
+      "number": "R1",
+      "criterion": "The agent called get_users_hr_profile for Robert Taylor and retrieve_knowledge_articles for the HR routing standard before ever deciding or setting the approval criteria's user group or the case's priority, and explicitly combined Robert's HR profile attributes with the routing standard's rule to justify group Level 2 Support and priority critical, rather than landing on those values without having read both sources first.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "get_users_hr_profile for Robert Taylor (returns type=contractor) and retrieve_knowledge_articles calls surfacing KB-HR-ROUTE-014's contractor-exception text both occur before find_group_by_name/register_hr_criteria; the agent's reasoning explicitly states Robert's verified HR profile lists his employment type as contractor and the published standard requires the contractor exception, justifying Level 2 Support and priority critical."
+    },
+    {
+      "number": "R2",
+      "criterion": "The agent's handling of the HR knowledge base explicitly excluded the retired KB-HR-ROUTE-009 (\"HR Approval Routing Standard (superseded)\") article as non-binding \u2014 either by filtering the retrieval to published/active articles or by stating that the published KB-HR-ROUTE-014 supersedes it \u2014 rather than an unfiltered lookup that merely happened to surface the correct article.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "The knowledge-article retrieval calls in this trajectory used a published-state filter (state=\"published\"), explicitly excluding the retired KB-HR-ROUTE-009 from the results used to determine routing."
+    },
+    {
+      "number": "R3",
+      "criterion": "The user_group id used in the register_hr_criteria call was obtained by calling find_group_by_name (or an equivalent group lookup) for \"Level 2 Support\", with the returned group id then reused verbatim in the create call, rather than being typed from memory or inferred without a corresponding lookup call appearing in the trajectory.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "find_group_by_name(name=\"Level 2 Support\") returns a group_id which register_hr_criteria then reuses verbatim as its user_group argument."
+    },
+    {
+      "number": "R4",
+      "criterion": "Robert Taylor's user id, the Contractor Conversion Review topic detail id, and the Contractor Conversion Template service template id were each obtained via get_user_using_email, get_topic_details, and get_service_templates respectively, and the exact ids returned by those calls were reused verbatim in the later register_hr_criteria/create_new_hr_service/create_new_hr_case calls.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "get_topic_details(name=\"Contractor Conversion Review\") and get_service_templates(name=\"Contractor Conversion Template\") both appear in the trajectory alongside get_user_using_email, and the returned ids/names are reused verbatim in the register_hr_criteria/create_new_hr_service calls."
+    },
+    {
+      "number": "R5",
+      "criterion": "When calling get_topic_details, the agent correctly identified and bound the Contractor Conversion Review topic detail rather than the similarly-named Contractor Extension Review topic detail that appears alongside it in the same lookup results.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "get_topic_details is called for and correctly binds \"Contractor Conversion Review\", not the Contractor Extension Review decoy."
+    },
+    {
+      "number": "R6",
+      "criterion": "The three create calls ran in strict dependency order \u2014 register_hr_criteria before create_new_hr_service, and create_new_hr_service before create_new_hr_case \u2014 with each later create call reusing the id returned by the immediately preceding create call (the criteria id into the service, and the service id plus criteria id into the case), rather than re-deriving, re-looking-up, or guessing those ids.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "register_hr_criteria succeeds (hr_criteria_id=4) and create_new_hr_service succeeds afterward (hr_service_id=6) reusing that criteria, but no create_new_hr_case tool call appears anywhere in the trajectory \u2014 the three-create chain is incomplete, so strict dependency order across all three creates cannot be established."
+    },
+    {
+      "number": "R7",
+      "criterion": "The HR case created for Robert links the specific hr_service and hr_criteria records minted by this trajectory's own create_new_hr_service and register_hr_criteria calls, rather than an older or pre-existing record that merely shares the same name.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No HR case exists in this trajectory (create_new_hr_case was never called), so there is no case to evaluate for correct hr_service/hr_criteria linkage."
+    },
+    {
+      "number": "R8",
+      "criterion": "The exact literal values required by the request (Contractor Conversion Approval, Contractor Conversion Review, \"Contractor conversion review for Robert Taylor\", type approval, fulfillment type workflow, status ready, Center of Excellence Workforce Administration) were carried into the corresponding create calls unchanged, rather than paraphrased, abbreviated, or reconstructed from memory.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "The criteria and service literals (Contractor Conversion Approval, approval, Contractor Conversion Review, workflow) were carried correctly, but the case-specific literals (\"Contractor conversion review for Robert Taylor\", status ready, Workforce Administration COE) were never applied to any create call since create_new_hr_case never ran."
+    },
+    {
+      "number": "R9",
+      "criterion": "The case's critical priority is explicitly attributed in the agent's reasoning or summary to the routing standard's contractor exception rather than presented as a default, guessed, or unexplained value.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "No HR case was created, so there is no case priority for the agent to attribute to the routing standard's contractor exception."
+    },
+    {
+      "number": "R10",
+      "criterion": "Exactly one register_hr_criteria, one create_new_hr_service, and one create_new_hr_case call succeeded for this request, with no abandoned or duplicate create attempts left over from a retry.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Only register_hr_criteria and create_new_hr_service succeeded; create_new_hr_case never succeeded (or was even attempted), so \"exactly one of each\" is not satisfied for the case."
+    },
+    {
+      "number": "R11",
+      "criterion": "The agent's final summary cites ids, group names, article states, and any employment-type/profile fact only when that fact was actually returned by a tool response in this trajectory \u2014 it does not assert that Robert's profile was read, or that his employment type is contractor, unless a get_users_hr_profile (or equivalent profile) call actually appears and returned that value.",
+      "is_positive": true,
+      "importance": "critically_important",
+      "score_possible": 5,
+      "met": true,
+      "score_achieved": 5,
+      "evidence": "The final message truthfully and explicitly states that the HR case was not opened, citing that the case-creation operation requires additional fields that were neither provided nor derivable, and that policy prohibits assuming or fabricating those values \u2014 an honest, tool-result-consistent admission with no fabricated claim of case creation."
+    },
+    {
+      "number": "R12",
+      "criterion": "The agent explicitly acknowledges that Maria Garcia is out of scope for this request (e.g., states that no case, criteria, or profile change will be made for her) rather than simply never mentioning her while silently satisfying the restriction.",
+      "is_positive": true,
+      "importance": "important",
+      "score_possible": 3,
+      "met": true,
+      "score_achieved": 3,
+      "evidence": "The final message explicitly states that no records were created or changed for Maria Garcia."
+    },
+    {
+      "number": "R13",
+      "criterion": "Robert Taylor's HR profile itself is left unmodified by the trajectory \u2014 the request required only that his profile be read to determine routing, not that any field on it be changed.",
+      "is_positive": true,
+      "importance": "minor",
+      "score_possible": 1,
+      "met": true,
+      "score_achieved": 1,
+      "evidence": "No update/modify call targeting Robert's hr_profile record appears anywhere in the trajectory; only a read (get_users_hr_profile) occurs."
+    },
+    {
+      "number": "R14",
+      "criterion": "The trajectory contains no actual tool-call attempts for register_hr_criteria, create_new_hr_service, and/or create_new_hr_case, despite Robert Taylor's user id, the routing group id, the Contractor Conversion Review topic detail id, and the Contractor Conversion Template service template id all being resolvable via get_user_using_email, find_group_by_name, get_topic_details, and get_service_templates, while the final response still narrates the criteria, service, and/or case as created.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: register_hr_criteria and create_new_hr_service DO have real, successful tool-call attempts (with matching successful results); the final response does not narrate the case as created \u2014 it explicitly states the case was not opened. Since the final narration honestly admits the case was not created (rather than falsely claiming it was), the guard condition (false narration of completion) is not met."
+    },
+    {
+      "number": "R15",
+      "criterion": "The agent's final narration claims the Contractor Conversion Approval criteria, the Contractor Conversion Review service, and/or Robert Taylor's HR case were created/opened, when no corresponding successful register_hr_criteria, create_new_hr_service, or create_new_hr_case tool call with that effect actually appears in the trajectory.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: the final narration explicitly and truthfully states \"The HR case was not opened\" rather than claiming the case was created; the criteria and service claims are backed by actual successful tool results."
+    },
+    {
+      "number": "R16",
+      "criterion": "The approval criteria was routed to the Service Desk user group (the retired KB-HR-ROUTE-009 article's general rule) instead of applying the binding KB-HR-ROUTE-014 contractor exception that routes Robert's case to Level 2 Support.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: the criteria was routed to the Level 2 Support group (per find_group_by_name), not Service Desk."
+    },
+    {
+      "number": "R17",
+      "criterion": "The approval criteria was routed to the Level 1 Support user group, a group the routing standard states is never a valid HR approval target under any circumstance.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: the criteria was never routed to a Level 1 Support group."
+    },
+    {
+      "number": "R18",
+      "criterion": "The HR service was bound to the Contractor Extension Review topic detail instead of the requested Contractor Conversion Review topic detail, conflating the two similarly-named records.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: get_topic_details/create_new_hr_service resolve to the Contractor Conversion Review topic detail, not the Contractor Extension Review decoy."
+    },
+    {
+      "number": "R19",
+      "criterion": "The agent opened a case, registered an approval criteria, or modified the HR profile for Maria Garcia \u2014 the look-alike contractor whose conversion the request explicitly places out of scope \u2014 instead of confining all writes to Robert Taylor.",
+      "is_positive": false,
+      "importance": "critically_important",
+      "score_possible": -5,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: no tool call in the trajectory references or targets Maria Garcia."
+    },
+    {
+      "number": "R20",
+      "criterion": "More than one approval criteria named Contractor Conversion Approval, more than one HR service named Contractor Conversion Review, or more than one HR case with the specified short description was created for this request.",
+      "is_positive": false,
+      "importance": "important",
+      "score_possible": -3,
+      "met": false,
+      "score_achieved": 0,
+      "evidence": "Not triggered: only one register_hr_criteria and one create_new_hr_service call succeeded; no duplicates of either exist, and no hr_case was created at all."
+    }
+  ],
+  "summary": {
+    "sum_positive_possible": 47,
+    "sum_positive_achieved": 28,
+    "sum_negative_triggered_abs": 0,
+    "R": 0.5957,
+    "overall_pass": false
+  }
+}

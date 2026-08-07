@@ -1,0 +1,133 @@
+version = "1.0"
+
+[task]
+name = "default/f41e0601-5e1a-5c54-a9d4-07130cca7f0f"
+description = "Hi — Dana here, I run coordination for People Ops and I am not technical, so I am leaning on you to get this right end to end. We have a **wave of three brand-new full-time hires** all starting Monday **2026-07-20**, and I need each of t..."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "hr",
+    "teams",
+    "email",
+    "calendar",
+]
+gyms = [
+    "sn-hr-internal",
+    "gym-teams-mcp",
+    "gym-email-mcp",
+    "gym-calendar",
+]
+source_task_id = "f41e0601-5e1a-5c54-a9d4-07130cca7f0f"
+selected_tools = [
+    "retrieve_knowledge_articles",
+    "add_new_user",
+    "onboard_new_hr_profile",
+    "create_new_hr_case",
+    "create_hr_case_task",
+    "add_new_group_member",
+    "find_group_by_name",
+    "list_group_members",
+    "list_user_groups",
+    "get_users_hr_profile",
+    "get_user_using_email",
+    "list_users",
+    "update_user",
+    "get_user",
+    "add_channel_member",
+    "list_channels",
+    "list_teams",
+    "send_message",
+    "get_user_profile",
+    "create_event",
+    "get_calendar_list",
+    "list_events",
+    "remove_group_membership",
+    "update_user_details",
+    "offboard_hr_profile",
+    "delete_hr_service",
+    "get_user_using_name",
+    "remove_channel_member",
+    "archive_channel",
+    "delete_message",
+    "batch_delete_messages",
+    "delete_calendar",
+    "clear_calendar",
+    "patch_event",
+]
+restricted_tools = []
+
+[metadata.actor]
+email = "priya.sharma@techcorp.com"
+name = "Priya Sharma"
+user_id = "990002"
+
+[metadata.gym_contexts.sn-hr-internal]
+x-user-email = "priya.sharma@techcorp.com"
+
+[metadata.gym_contexts.gym-teams-mcp]
+x-teams-access-token = "ya29.A0ARrdaM-super999unique888token777special666.SuperUserAllPermissionsTokenAccess_99-99"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "tok_diego_offboard"
+user_id = "EM_DIEGO"
+primary_email = "diego.ramos@techcorp.com"
+
+[metadata.gym_contexts.gym-calendar]
+x-access-token = "tok_cal_priya"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-teams",
+    "gym-email",
+    "gym-calendar",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-hr-internal"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-hr-internal"
+
+[[environment.mcp_servers]]
+name = "gym-teams-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-teams-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[[environment.mcp_servers]]
+name = "gym-calendar"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-calendar"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-hr",
+    "gym-teams",
+    "gym-email",
+    "gym-calendar",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"

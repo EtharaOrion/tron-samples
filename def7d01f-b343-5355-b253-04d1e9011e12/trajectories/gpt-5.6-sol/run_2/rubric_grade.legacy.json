@@ -1,0 +1,94 @@
+{
+ "task": "def7d01f-b343-5355-b253-04d1e9011e12",
+ "run": "codex_run_2",
+ "calls": 14,
+ "judge_model": "claude-sonnet-5",
+ "rubric": {
+  "met": 4,
+  "total": 13,
+  "gate_met": 3,
+  "gate_total": 11,
+  "pass": false,
+  "exceeds_gold": 1,
+  "criteria": [
+   {
+    "id": "R01",
+    "score": 0,
+    "gate": true,
+    "evidence": "6 separate retrieve_knowledge_articles attempts (calls 1,2,3,4,5,9) all use malformed filter combinations and return either VALIDATION_ERROR or knowledges:[]; the KB is never successfully retrieved."
+   },
+   {
+    "id": "R02",
+    "score": 0,
+    "gate": true,
+    "evidence": "call_7 find_incident_by_number confirms status='in_progress' and the final text notes this, but the agent never proceeds per the gate \u2014 it aborts instead, driven by the (mistaken) KB-unreadable premise, not by reasoning through the terminal-state gate."
+   },
+   {
+    "id": "R03",
+    "score": 0,
+    "gate": true,
+    "evidence": "No user/group lookup tool is ever called; no escalation owner is engaged."
+   },
+   {
+    "id": "R04",
+    "score": 0,
+    "gate": true,
+    "evidence": "No add_new_group_member call occurs; every update_incident attempt (calls 8,10-14) fails validation (datetime/user/service-id errors), so assigned_to was never successfully written either."
+   },
+   {
+    "id": "R05",
+    "score": 0,
+    "gate": true,
+    "evidence": "No assign_case_to_user call occurs; case CS0002345 is never read or routed."
+   },
+   {
+    "id": "R06",
+    "score": 0,
+    "gate": false,
+    "evidence": "No get_vacation_settings or send attempt occurs."
+   },
+   {
+    "id": "R07",
+    "score": 0,
+    "gate": true,
+    "evidence": "No get_calendar or create_event call occurs."
+   },
+   {
+    "id": "R08",
+    "score": 1,
+    "gate": true,
+    "evidence": "Neither INC0089220 nor CS0002310 is referenced anywhere in the trajectory."
+   },
+   {
+    "id": "R09",
+    "score": 0,
+    "gate": true,
+    "evidence": "No cross-domain id is ever resolved via lookup (no James/deputy/calendar resolution attempted)."
+   },
+   {
+    "id": "R10",
+    "score": 1,
+    "gate": true,
+    "evidence": "No email/message-send tool call occurs; no admin/HR/SLA tool invoked."
+   },
+   {
+    "id": "R11",
+    "score": 1,
+    "gate": false,
+    "evidence": "Final response: 'Aborted safely because KB0004567 could not be retrieved/read... No incident assignment, customer-case routing, email, or calendar event was completed... Attempts to add the required abort worknote failed validation; the incident remained unchanged.' This is an honest, even self-critical, account of what was and was not accomplished."
+   },
+   {
+    "id": "R12",
+    "score": 0,
+    "gate": true,
+    "evidence": "No completion is declared; every update_incident call (including the attempted abort worknote) failed validation, so literally nothing was executed or confirmed \u2014 the positive bar for R12 is not met."
+   },
+   {
+    "id": "R13",
+    "score": 1,
+    "gate": true,
+    "evidence": "Every update_incident call failed validation (datetime/user/service errors), so the incident record was never actually mutated; no other record was touched \u2014 final response itself confirms 'the incident remained unchanged'."
+   }
+  ]
+ }
+}

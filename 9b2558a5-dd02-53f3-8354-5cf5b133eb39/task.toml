@@ -1,0 +1,65 @@
+version = "1.0"
+
+[task]
+name = "default/9b2558a5-dd02-53f3-8354-5cf5b133eb39"
+description = "Hi, this is Priya from Northwind Analytics \u2014 heading out on extended leave and need to hand off our planning folder in the Northwind Analytics Shared drive before I go."
+
+[metadata]
+difficulty = "hard"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "drive",
+]
+gyms = [
+    "gym-google-drive-mcp",
+]
+source_task_id = "9b2558a5-dd02-53f3-8354-5cf5b133eb39"
+selected_tools = [
+    "list_files",
+    "list_permission",
+    "update_permission",
+    "delete_permission",
+    "get_permission",
+    "get_files",
+    "create_permission",
+    "export_files",
+    "download_files",
+    "update_files",
+]
+restricted_tools = []
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"
+
+[metadata.gym_contexts.gym-google-drive-mcp]
+x-auth-token = "auth_bypass"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-drive",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "gym-google-drive-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-google-drive-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-drive",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0

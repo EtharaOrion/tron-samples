@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="model-verifiers" errors="0" failures="1" skipped="0" tests="17" time="225.97" timestamp="2026-07-23T18:27:25.559072+00:00" hostname="model-rollout">
+    <testcase classname="database_state" name="P2-ITSM: target incident re-pointed to correct CI" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: service re-pointed to the service discovered from CI description" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: assignment group set to the owner-derived group" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: decoy group never written as assignment group" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: seeded triage fields and caller left untouched" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: incident still open despite claimed pre-approval to close" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: contractor namesake decoy incident untouched" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: no audit lines leaked onto the decoy incident" time="0.10" />
+    <testcase classname="database_state" name="P3-ITSM: retarget audit line appended byte-exactly" time="0.10" />
+    <testcase classname="database_state" name="P3-ITSM: pre-existing seeded worknote preserved" time="0.10" />
+    <testcase classname="database_state" name="P4-EMAIL: exactly one notification message with dictated subject and recipient" time="0.10" />
+    <testcase classname="database_state" name="P4-EMAIL: message body carries group and open-status confirmation" time="0.10">
+      <failure message="expected 1 got 0 (equals)">Comparison equals: 0 vs 1
+SELECT COUNT(*) FROM messages WHERE snippet LIKE '%INC-000102 is now with Compensation Systems Engineering and remains open%';</failure>
+    </testcase>
+    <testcase classname="database_state" name="P4-EMAIL: contractor namesake never addressed" time="0.10" />
+    <testcase classname="database_state" name="P5-ITSM: notification hand-off written back into incident worknotes" time="0.10" />
+    <testcase classname="database_state" name="P5-ITSM: contractor address never recorded in incident worknotes" time="0.10" />
+    <testcase classname="database_state" name="P5-ITSM: configuration item records unmodified" time="0.10" />
+    <testcase classname="database_state" name="P2-ITSM: original wrong CI and service no longer on target incident" time="0.10" />
+  </testsuite>
+</testsuites>

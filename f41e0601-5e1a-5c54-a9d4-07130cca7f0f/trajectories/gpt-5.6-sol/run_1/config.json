@@ -1,0 +1,90 @@
+{
+  "task": {
+    "path": "dataset/f41e0601-5e1a-5c54-a9d4-07130cca7f0f",
+    "git_url": null,
+    "git_commit_id": null,
+    "name": null,
+    "ref": null,
+    "overwrite": false,
+    "download_dir": null,
+    "source": null
+  },
+  "trial_name": "f41e0601-5e1a-5c54-a9d4-07130cca7f0f__gpt-5-6__run1",
+  "trials_dir": "harbor/f41e0601-5e1a-5c54-a9d4-07130cca7f0f",
+  "timeout_multiplier": 1.0,
+  "agent_timeout_multiplier": null,
+  "verifier_timeout_multiplier": null,
+  "agent_setup_timeout_multiplier": null,
+  "environment_build_timeout_multiplier": null,
+  "agent": {
+    "name": "gpt-5-6",
+    "import_path": null,
+    "model_name": "vllm/gpt-5.6-sol",
+    "skills": [],
+    "override_timeout_sec": null,
+    "override_setup_timeout_sec": null,
+    "max_timeout_sec": null,
+    "extra_allowed_hosts": [],
+    "kwargs": {
+      "number_of_runs": 1
+    },
+    "env": {},
+    "mcp_servers": [
+      {
+        "name": "sn-hr-internal",
+        "transport": "sse",
+        "url": "http://localhost:8003",
+        "command": null,
+        "args": []
+      },
+      {
+        "name": "gym-teams-mcp",
+        "transport": "sse",
+        "url": "http://localhost:8010",
+        "command": null,
+        "args": []
+      },
+      {
+        "name": "gym-email-mcp",
+        "transport": "sse",
+        "url": "http://localhost:8007",
+        "command": null,
+        "args": []
+      },
+      {
+        "name": "gym-calendar",
+        "transport": "sse",
+        "url": "http://localhost:8008",
+        "command": null,
+        "args": []
+      }
+    ]
+  },
+  "environment": {
+    "type": "docker",
+    "import_path": null,
+    "force_build": false,
+    "delete": true,
+    "cpu_enforcement_policy": "auto",
+    "memory_enforcement_policy": "auto",
+    "override_cpus": null,
+    "override_memory_mb": null,
+    "override_storage_mb": null,
+    "override_gpus": null,
+    "override_tpu": null,
+    "mounts": null,
+    "extra_docker_compose": [],
+    "env": {},
+    "kwargs": {},
+    "extra_allowed_hosts": []
+  },
+  "verifier": {
+    "override_timeout_sec": 300.0,
+    "max_timeout_sec": 300.0,
+    "env": {},
+    "disable": false
+  },
+  "artifacts": [],
+  "extra_instruction_paths": [],
+  "job_id": "dc2a2b0e-3dec-518c-aad1-7c7862b86a65"
+}

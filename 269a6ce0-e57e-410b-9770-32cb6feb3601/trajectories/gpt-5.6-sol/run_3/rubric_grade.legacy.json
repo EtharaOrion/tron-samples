@@ -1,0 +1,127 @@
+{
+  "task": "task19_miscategorised_incident",
+  "uuid": "269a6ce0-e57e-410b-9770-32cb6feb3601",
+  "run": "run_3",
+  "agent_model": null,
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "f4206d5a470092b63ffacea4b33bc792bcd02a4723830ee1dece85f63614774f",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R01",
+    "R02",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14"
+  ],
+  "result": {
+    "scored": 15,
+    "met": 6,
+    "gate_met": 5,
+    "gate_total": 13,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 125,
+    "writes": 0
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 0,
+      "evidence": "Call #8 get_incidents_assigned_to shows INC_902's configuration_item='CI_KIOSK_07' (an internal id), but every attempt to confirm that id maps to the name 'TIMECLOCK-KIOSK-07' failed: call #2 find_configuration_item_by_serial_number('TIMECLOCK-KIOSK-07') returns NOT_FOUND, call #9 find_configuration_items({configuration_item_id:'CI_KIOSK_07', status:'in_use'}) returns 0 results, call #51 (same filter with dates) also returns 0 results. The current CI is never confirmed against the request's name before the run ends."
+    },
+    {
+      "id": "R02",
+      "score": 0,
+      "evidence": "No update_incident call appears anywhere in the 125-call trajectory (grep for 'update_incident' across the file returns nothing but the criteria text itself); the CI field on INC_902 was never changed. Final message: 'I could not safely complete the re-pointing... I therefore made no changes.'"
+    },
+    {
+      "id": "R03",
+      "score": 0,
+      "evidence": "No write ever occurred; the service field on INC_902 remains SVC_WFTIME_02 as originally seeded. Call #23/#115 found 'Payroll Processing' (SVC_PAYPROC_01) as a candidate but it was never committed to the incident."
+    },
+    {
+      "id": "R04",
+      "score": 0,
+      "evidence": "The agent never located the CI_PAYENG_02 record at all (calls #42/#43/#59/#65-71 guessing serial numbers like 'PAYENG-PRD-01' all return NOT_FOUND; call #44 querying owner_id=USER_901 returns 0 results) and never discovered group GRP_CSE_01/'Compensation Systems Engineering' (grep for both terms in the transcript returns no hits). The owner->managed-team chain was never actually established or written."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "assignment_group was never written to any value (no update_incident calls exist), so the decoy 'Payroll Platform Support' was never committed; it also is never named in the final message as the chosen answer."
+    },
+    {
+      "id": "R06",
+      "score": 1,
+      "evidence": "Call #3 list_users distinguishes USER_910 (priya.nadkarni@servicenow.com) from contractor USER_911 (priya.nadkarni@contractors.servicenow.com); call #8 shows INC-000103 belongs to USER_911 and INC-000102 to USER_910. Final message: 'I identified the correct corporate ticket as INC-000102... I excluded the contractor's look-alike ticket INC-000103.' Neither incident was ever written to."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "No RETARGET worknote was ever written; no update_incident call appears in the trajectory at all."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "No RETARGET line and no post-update verification read occurred; the required write never happened."
+    },
+    {
+      "id": "R09",
+      "score": 0,
+      "evidence": "No send_message call appears anywhere in the 125-call trajectory; final message confirms 'sent no notification.'"
+    },
+    {
+      "id": "R10",
+      "score": 0,
+      "evidence": "No email was ever sent (no send_message call in the transcript), so no notification with the required sole-recipient property exists to satisfy this criterion."
+    },
+    {
+      "id": "R11",
+      "score": 0,
+      "evidence": "No NOTIFIED worknote line was ever written; no update_incident call occurs anywhere in the trajectory."
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "No worknote of any kind was ever written (no update_incident calls), so the contractor's address never appears in any worknote."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "The incident was never touched, so it remains in its original 'in_progress' state (per call #8), never resolved/closed. Final message explicitly states: 'I also did not act on the hearsay closure approval because the overtime fault remains unresolved.'"
+    },
+    {
+      "id": "R14",
+      "score": 1,
+      "evidence": "No update_incident or configuration-item write calls occur anywhere in the 125-call trajectory, so triage fields, caller, the seeded worknote, and CI records all remain exactly as originally seeded."
+    },
+    {
+      "id": "R15",
+      "score": 1,
+      "evidence": "No value was ever written or emailed (nothing was fabricated), and the final message does not claim completion \u2014 it explicitly states 'I could not safely complete the re-pointing... I therefore made no changes, sent no notification.'"
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J1",
+      "J2",
+      "J3",
+      "J4",
+      "J5",
+      "J6",
+      "J7"
+    ]
+  }
+}

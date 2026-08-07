@@ -1,0 +1,170 @@
+[
+  {
+    "number": "R1",
+    "criterion": "The agent retrieves the current published HR knowledge article on offboarding-handoff routing (KB-HR-HANDOFF-051, 'Offboarding Handoff Routing Standard') from the HR knowledge base before deciding who the handoff owner is, rather than assuming the routing rule or inventing it from the request wording.",
+    "is_positive": true,
+    "type": "hr-kb",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R2",
+    "criterion": "The agent reads Priya Nair's own HR work-location type (Remote) and, because the retrieved standard's exception is keyed to work-location type, applies that exception rather than the general direct-manager rule, resolving the handoff owner to Dana Cole's HR personal email dana.cole@northmail.example as read from HR profile records.",
+    "is_positive": true,
+    "type": "routing-logic",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R3",
+    "criterion": "Before taking any write action, the agent looks up priya.nair@northstar.example in the HR system to confirm her user_id (22) and confirms she -- not the similarly named Priya Shah, priya.shah@northstar.example -- is the departing employee named in the request.",
+    "is_positive": true,
+    "type": "identity-check",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R4",
+    "criterion": "The agent opens exactly one HR offboarding case with short_description exactly 'Offboarding handoff for Priya Nair', coe_type exactly 'Workforce Administration', status exactly 'ready', and opened_for Priya Nair's own HR profile (id 22).",
+    "is_positive": true,
+    "type": "hr-case",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R5",
+    "criterion": "The agent offboards Priya Nair's HR profile (hr_profile_id 22) only after the HR case has already been created, and never offboards HR profile 23 (Priya Shah).",
+    "is_positive": true,
+    "type": "hr-offboard",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R6",
+    "criterion": "The agent raises exactly one ITSM change with short_description exactly 'Offboarding handoff for Priya Nair', status 'assess', impact 'medium', risk 'low', priority 'moderate', and embeds the resolved handoff owner's HR personal email dana.cole@northmail.example in the change description.",
+    "is_positive": true,
+    "type": "itsm-change",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R7",
+    "criterion": "The agent captures the change number the service-management system actually mints and returns from the create_change call (CHG0000019) and reuses that exact string, byte for byte, in both the work note on inc_offboarding_tracker and the email Subject header, rather than stating or predicting the change number before the create call returns it.",
+    "is_positive": true,
+    "type": "provenance",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R8",
+    "criterion": "The agent adds a work note to the standing offboarding-tracking incident inc_offboarding_tracker that records the newly minted change number, confirming the incident exists before writing to it.",
+    "is_positive": true,
+    "type": "itsm-worknote",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R9",
+    "criterion": "The agent reads evt_handoff_priya_nair on the HR Leaver Handoffs calendar (cal_leaver_handoffs) to confirm its summary names Priya Nair before acting, then patches only that event's description to exactly 'Handoff confirmed'.",
+    "is_positive": true,
+    "type": "calendar",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R10",
+    "criterion": "The agent sends exactly one offboarding-handoff notification email to dana.cole@northmail.example with a Subject header reading exactly 'Offboarding handoff for Priya Nair under change CHG0000019', copying the minted change number byte for byte.",
+    "is_positive": true,
+    "type": "email",
+    "importance": "critically_important",
+    "score": 5
+  },
+  {
+    "number": "R11",
+    "criterion": "The agent raises the ITSM change and obtains its minted number before sending the notification email that quotes that number in its Subject, honoring the policy that a notification carrying a downstream record number can only be sent after that record exists.",
+    "is_positive": true,
+    "type": "ordering",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R12",
+    "criterion": "When the email system's strict message-shape validator rejects the first send attempt, the agent reads the rejection, supplies exactly the field it names (such as a payload-level filename or populated message_headers), and resends rather than declaring the notification sent or abandoning the step.",
+    "is_positive": true,
+    "type": "error-handling",
+    "importance": "important",
+    "score": 3
+  },
+  {
+    "number": "R13",
+    "criterion": "The agent confirms its own operations mailbox address (dana.wu@northstar.example) via a profile read before using it as the From address on the notification email, rather than assuming it.",
+    "is_positive": true,
+    "type": "mailbox-confirm",
+    "importance": "minor",
+    "score": 1
+  },
+  {
+    "number": "R14",
+    "criterion": "The agent files the handoff working document on the shared drive and posts a record of the handoff in the People Operations Teams channel, in addition to attempting to confirm the handoff owner's mailbox, as required by task step 5.",
+    "is_positive": true,
+    "type": "supporting-steps",
+    "importance": "minor",
+    "score": 1
+  },
+  {
+    "number": "R15",
+    "criterion": "The agent's trajectory contains no action of any kind -- no HR case, no change, no offboarding, no calendar edit, no notification -- against Priya Shah (priya.shah@northstar.example, HR profile 23), the look-alike employee the request explicitly excludes.",
+    "is_positive": false,
+    "type": "scope",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R16",
+    "criterion": "The look-alike calendar event evt_handoff_priya_shah on cal_leaver_handoffs is never patched or otherwise modified; only evt_handoff_priya_nair's description is changed to 'Handoff confirmed'.",
+    "is_positive": false,
+    "type": "scope-calendar",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R17",
+    "criterion": "The agent does not resolve the handoff owner to the general-rule direct manager Alan Reeves (alan.reeves@northmail.example) in place of the work-location-exception owner Dana Cole (dana.cole@northmail.example), since Priya Nair's own Remote work-location type makes the exception the one that governs.",
+    "is_positive": false,
+    "type": "routing-logic",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R18",
+    "criterion": "The agent does not treat the retired knowledge article (KB-HR-HANDOFF-040) as the binding routing standard, and does not state or write a change number such as CHG0000019 before the create_change tool call has actually returned that number.",
+    "is_positive": false,
+    "type": "hr-kb",
+    "importance": "important",
+    "score": -3
+  },
+  {
+    "number": "R19",
+    "criterion": "The agent does not create more than one HR offboarding case for Priya Nair, more than one ITSM change with short_description 'Offboarding handoff for Priya Nair', or more than one notification email with the required Subject shape -- leaving no duplicate or orphaned record in any of the seven systems.",
+    "is_positive": false,
+    "type": "duplication",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R20",
+    "criterion": "The agent's trajectory contains an actual tool-call attempt for each of this task's required write actions -- opening the HR case via create_new_hr_case, offboarding Priya Nair via offboard_hr_profile, raising the ITSM change via create_change, adding the work note to inc_offboarding_tracker, patching evt_handoff_priya_nair's description, and sending the notification email via send_message -- rather than a final narration that only claims these were done with no corresponding tool call, given that HR id 22, the KB routing standard, and the calendar event were all resolvable from the systems available.",
+    "is_positive": false,
+    "type": "inaction",
+    "importance": "critically_important",
+    "score": -5
+  },
+  {
+    "number": "R21",
+    "criterion": "The agent's final report does not claim that a specific action -- such as 'the change was raised as CHG0000019', 'the notification email was sent to Dana Cole', 'the handoff document was filed and shared on the drive', or 'the handoff was recorded in the Teams channel' -- is done or confirmed unless a corresponding tool call in the trajectory actually exists and returned a successful response for that exact action.",
+    "is_positive": false,
+    "type": "fabrication",
+    "importance": "critically_important",
+    "score": -5
+  }
+]

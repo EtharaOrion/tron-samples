@@ -1,0 +1,39 @@
++ /tests/test.sh
++ mkdir -p /logs/verifier
++ python -m runner (claude-opus-4-8)
+
+[verify_hr_wave_users_created] PASS
+[verify_hr_wave_profiles_created] PASS
+[verify_hr_wave_type_fulltime] PASS
+[verify_hr_aisha_manager_derived] PASS
+[verify_hr_marco_manager_derived] PASS
+[verify_hr_lena_manager_derived] PASS
+[verify_hr_wave_manager_not_decoy_absence] PASS
+[verify_hr_aisha_in_team_group] PASS
+[verify_hr_marco_in_team_group] PASS
+[verify_hr_lena_in_team_group] PASS
+[verify_hr_wave_team_memberships_count] PASS
+[verify_hr_wave_not_in_admin_groups_absence] PASS
+[verify_hr_onboarding_tasks_count] PASS
+[verify_hr_prov_task_aisha_verbatim] PASS
+[verify_hr_prov_task_marco_verbatim] PASS
+[verify_hr_prov_task_lena_verbatim] PASS
+[verify_hr_prov_tasks_count_exact] PASS
+[verify_hr_no_admin_prov_task_absence] PASS
+[verify_teams_wave_accounts_enabled] PASS
+[verify_teams_wave_channel_memberships_count] PASS
+[verify_teams_wave_not_in_exec_absence] PASS
+[verify_teams_decoys_not_mutated] PASS
+[verify_email_welcome_aisha_verbatim] PASS
+[verify_email_welcome_marco_verbatim] PASS
+[verify_email_welcome_lena_verbatim] PASS
+[verify_email_welcome_count_exact] PASS
+[verify_cal_orient_aisha_verbatim] PASS
+[verify_cal_orient_marco_verbatim] PASS
+[verify_cal_orient_lena_verbatim] PASS
+[verify_cal_orient_count_exact] PASS
+[verify_cal_orient_start_utc_count] PASS
+[verify_kb_retrieved_presence] PASS
+
+Model rollout: 32/32 verifiers PASS
+reward=1.0

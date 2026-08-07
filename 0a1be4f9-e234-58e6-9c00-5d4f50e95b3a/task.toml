@@ -1,0 +1,103 @@
+version = "1.0"
+
+[task]
+name = "default/0a1be4f9-e234-58e6-9c00-5d4f50e95b3a"
+description = "Nadia Rahman here, Customer Service. Wire-fraud emergency for our customer Acme Corporation (the real customer, not the similarly named partner) — need it escalated per separation-of-duties."
+
+[metadata]
+difficulty = "medium"
+category = "hybrid"
+keywords = [
+    "enterprise-ops",
+    "hybrid",
+    "csm",
+    "email",
+]
+gyms = [
+    "sn-csm-server",
+    "gym-email-mcp",
+]
+source_task_id = "0a1be4f9-e234-58e6-9c00-5d4f50e95b3a"
+selected_tools = [
+    "list_users",
+    "find_account",
+    "search_cases",
+    "update_case",
+    "assign_case_to_user",
+    "send_message",
+    "find_user",
+    "find_contact_by_portal_user",
+    "create_new_case",
+    "update_entitlement",
+    "find_entitlements",
+    "find_product",
+    "find_user_group",
+    "link_new_case_sla",
+    "retrieve_installed_products",
+    "update_user_group",
+    "update_product",
+    "find_contacts",
+    "count_notifications_by_case",
+    "avg_installed_per_account_by_status",
+    "count_notifications_by_type",
+    "modify_message",
+    "trash_message",
+    "insert_message",
+    "import_message",
+    "register_new_interaction",
+    "add_new_user",
+    "update_interaction",
+    "patch_label",
+    "update_user_details",
+    "find_location",
+    "find_contracts",
+    "find_interactions",
+    "find_locations",
+    "find_products",
+]
+restricted_tools = []
+
+[metadata.upstream_provenance]
+origin = "original"
+train_cutoff = "2026-08-05"
+
+[metadata.gym_contexts.sn-csm-server]
+x-user-email = "chandrapiyush357@gmail.com"
+
+[metadata.gym_contexts.gym-email-mcp]
+x-email-user-token = "tok_nadia_2025_7f3a9c"
+
+[environment]
+build_timeout_sec = 900.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "gym-email",
+    "mcp-injector",
+    "seed-init",
+]
+
+[[environment.mcp_servers]]
+name = "sn-csm-server"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/sn-csm-server"
+
+[[environment.mcp_servers]]
+name = "gym-email-mcp"
+transport = "streamable-http"
+url = "http://mcp-injector:9000/mcp/gym-email-mcp"
+
+[agent]
+timeout_sec = 1800.0
+network_mode = "allowlist"
+allowed_hosts = [
+    "gym-csm",
+    "gym-email",
+    "mcp-injector",
+]
+
+[verifier]
+timeout_sec = 300.0

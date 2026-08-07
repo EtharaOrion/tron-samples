@@ -1,0 +1,106 @@
+{
+  "task": "adopted_d6e96910",
+  "uuid": "d6e96910-5aa6-5edc-8bbc-b00e3fa6537d",
+  "run": "run_2",
+  "agent_model": "vllm/gpt-5.6-sol",
+  "judge_model": "claude-sonnet-5",
+  "graded_on": "2026-08-05",
+  "rubrics_sha256": "6f69be53bee7a12f9e303b9181dfe175164edf271b2561290572795663bf152e",
+  "rubric_schema": "binary; level 1 is the former top rung, near-miss folded to 0",
+  "pass_threshold": "A run PASSES a task if it scores 1 on every criterion the calibrated gold also scores 1 on \u2014 the demonstrated-achievable set. Criteria the gold scores 0 on are still judged and reported, but do not gate: the reference solution does not satisfy them, so requiring a model run to would assert a bar nothing has met. Criteria marked scoring=excluded are not judged at all. Exceeding the gold is reported as a separate count, not folded into pass/fail.",
+  "gate_criteria": [
+    "R05",
+    "R07",
+    "R08",
+    "R09",
+    "R11",
+    "R12"
+  ],
+  "result": {
+    "scored": 13,
+    "met": 10,
+    "gate_met": 4,
+    "gate_total": 6,
+    "gate_pass": false,
+    "excluded": []
+  },
+  "trajectory": {
+    "tool_calls": 8,
+    "writes": 2
+  },
+  "criteria": [
+    {
+      "id": "R01",
+      "score": 1,
+      "evidence": "Calls #1 (get_user_using_email -> user 1202, org 1200), #2 (retrieve_knowledge_articles KB-HR-HANDOFF-042), #3 (get_users_hr_profile 1202, manager=1201), #4 (get_users_hr_profile 1201), #5 (get_user_using_email elena.morris@northstar.example) all precede the first write, call #6 create_new_hr_case."
+    },
+    {
+      "id": "R02",
+      "score": 1,
+      "evidence": "Final message: 'General rule: Office Based employees use evt_handoff_core_42. Exception: IT Support employees use evt_handoff_restricted_42. Precedence: The IT Support exception overrides the Office Based rule' with explicit application: 'Nora Patel is both Office Based and IT Support, so the restricted event was selected' \u2014 matching calls #7/#8."
+    },
+    {
+      "id": "R03",
+      "score": 1,
+      "evidence": "Call #2 args filter state:'published' and response confirms '\"state\": \"published\"'; final message calls it 'Applied published article KB-HR-HANDOFF-042' and treats it as the sole source."
+    },
+    {
+      "id": "R04",
+      "score": 1,
+      "evidence": "Call #6 create_new_hr_case fields: short_description 'Manager handoff for Nora Patel', status 'ready', priority 'high', source 'email', coe_type 'Workforce Administration', opened_for 'Nora Patel' \u2014 matches article R5 exactly; exactly one case (HRC0000001) created for hr_profile 1202."
+    },
+    {
+      "id": "R05",
+      "score": 1,
+      "evidence": "Call #7 patch_event targets evt_handoff_restricted_42 with attendees:[{\"email\":\"elena.morris@northstar.example\"}]; call #8 read-back confirms exactly one attendee, that address, and no others."
+    },
+    {
+      "id": "R06",
+      "score": 0,
+      "evidence": "The address is correctly carried from HR (calls #4/#5) into Calendar (calls #7/#8), but the trajectory ends at 8 calls with no email ever sent \u2014 final message: 'The final email was not sent because the available email operation did not permit specifying or validating the required To, Subject, and body values.' The address never reached an email, so byte-identical propagation 'into the email' is unverifiable."
+    },
+    {
+      "id": "R07",
+      "score": 0,
+      "evidence": "Read-back occurs in call #8 after the patch (#7), but no send call follows anywhere in the 8-call trajectory; the returned attendee value was therefore never used 'before sending' because no send occurred."
+    },
+    {
+      "id": "R08",
+      "score": 0,
+      "evidence": "Searched all 8 calls for an email-send tool call; none exists. Final message confirms: 'The final email was not sent...'"
+    },
+    {
+      "id": "R09",
+      "score": 1,
+      "evidence": "Final message's claims (HR case HRC0000001 opened, event patched, read-back confirmed 'elena.morris@northstar.example') each trace to confirmed responses in calls #6, #7, #8; it accurately reports the email was not sent rather than fabricating success."
+    },
+    {
+      "id": "R10",
+      "score": 1,
+      "evidence": "All cited identifiers/addresses (1202, 1200, HRC0000001, evt_handoff_restricted_42, elena.morris@northstar.example) trace to calls #1, #4, #5, #6, #7; R1/R2/R3 trace to call #2's article body."
+    },
+    {
+      "id": "R11",
+      "score": 1,
+      "evidence": "No call touches evt_handoff_core_42; no HR-profile-update call appears; only one case (Nora's) is created. Final message: 'The look-alike event was not changed, no case was opened for Omar, and no HR profile was changed.'"
+    },
+    {
+      "id": "R12",
+      "score": 1,
+      "evidence": "No send call exists anywhere in the 8-call trajectory, so no message was ever addressed to Nora or Omar; the prohibition was not violated."
+    },
+    {
+      "id": "R13",
+      "score": 1,
+      "evidence": "Manager (calls #4/#5), target event (via R1/R2/R3 applied to call #3's HR profile), and procedure (call #2) were all resolved unambiguously with no guessing; the agent stopped only at the unrelated email-send step and explained precisely why: 'the available email operation did not permit specifying or validating the required To, Subject, and body values.'"
+    }
+  ],
+  "superseded": {
+    "note": "replaces a grade against an earlier, differently-identified rubric (J-prefixed ids); that rubric is no longer in the bundle",
+    "previous_ids": [
+      "J01",
+      "J02",
+      "J03"
+    ]
+  }
+}
