@@ -101,3 +101,9 @@ Released under the MIT License. See [`LICENSE`](LICENSE). Vendored submodules an
 ## Contact
 
 The organization is Ethara.AI. Security and benchmark-integrity reports go to the address and process in [`SECURITY.md`](SECURITY.md), privately and never through a public issue. Contribution routes, sign-off gates, and the markdown discipline are in [`CONTRIBUTING.md`](CONTRIBUTING.md). Community standards are in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+---
+
+## Copyright
+
+Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
